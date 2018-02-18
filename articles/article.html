@@ -36,19 +36,141 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-									<span class="date">April 25, 2017</span>
-									<h1>This is a<br />
-									Generic Page</h1>
-									<p>Aenean ornare velit lacus varius enim ullamcorper proin aliquam<br />
-									facilisis ante sed etiam magna interdum congue. Lorem ipsum dolor<br />
-									amet nullam sed etiam veroeros.</p>
+									<span class="date">February 18, 2018</span>
+									<h1>Oracle stored procedure examples</h1>
+									<p>oracle stored procedure is a SQL set to accomplish special business function in big RSBMS,<br />
+									it is stored in database after compiled, call a procedure by specify it's name and parameter(if it has parameters).<br />
+									big RSBMS, stored procedure and tigger are important, both of them is a cellection of SQL and control language</p>
 								</header>
-								<div class="image main"><img src="images/pic01.jpg" alt="" /></div>
-								<p>Donec eget ex magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque venenatis dolor imperdiet dolor mattis sagittis. Praesent rutrum sem diam, vitae egestas enim auctor sit amet. Pellentesque leo mauris, consectetur id ipsum sit amet, fergiat. Pellentesque in mi eu massa lacinia malesuada et a elit. Donec urna ex, lacinia in purus ac, pretium pulvinar mauris. Nunc lorem mauris, fringilla in aliquam at, euismod in lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur sapien risus, commodo eget turpis at, elementum convallis enim turpis, lorem ipsum dolor sit amet nullam.</p>
-								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis dapibus rutrum facilisis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam tristique libero eu nibh porttitor fermentum. Nullam venenatis erat id vehicula viverra. Nunc ultrices eros ut ultricies condimentum. Mauris risus lacus, blandit sit amet venenatis non, bibendum vitae dolor. Nunc lorem mauris, fringilla in aliquam at, euismod in lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In non lorem sit amet elit placerat maximus. Pellentesque aliquam maximus risus. Donec eget ex magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque venenatis dolor imperdiet dolor mattis sagittis. Praesent rutrum sem diam, vitae egestas enim auctor sit amet. Pellentesque leo mauris, consectetur id ipsum.</p>
+						
+							<!-- Code area -->
+								<pre>
+									<code>
+
+									-------------------------------1.使用%found,%notfound属性控制循环条件
+									declare 
+									        v_empno emp.empno%type;
+									        v_ename emp.ename%type;
+									        cursor cs is select empno, ename from emp;
+									        begin
+									        open cs;
+									        loop
+									        fetch cs into v_empno, v_ename;
+									        dbms_output.PUT_LINE(v_empno||' : '||v_ename);
+									        exit when cs%notfound;
+									        end loop;
+									        close cs;
+									        end;
+									        
+									 -------------------------------2.直接用for循环(隐含打开游标，隐含执行一个FETCH语句,隐含循环条件，隐含关闭游标
+									declare 
+									      cursor cs is select * from emp;
+									      begin
+									      for c1 in cs loop
+									      ----旧数据
+									      dbms_output.PUT_LINE(c1.empno||'  '||c1.ename||'  '||c1.comm);
+									      if c1.comm is null then 
+									      update emp set comm=100 where empno=c1.empno;
+									      elsif c1.comm < 500 then
+									      update emp set comm=comm+100 where empno=c1.empno;
+									      elsif c1.comm >= 500 then
+									      update emp set comm=comm+100 where empno=c1.empno;
+									      end if;
+									      end loop;
+									      
+									      dbms_output.PUT_LINE('加佣金后================================================');
+									      ----新数据
+									      for c2 in cs loop
+									      dbms_output.PUT_LINE(c2.empno||'  '||c2.ename||'  '||c2.comm);
+									      end loop;
+									      rollback;
+									      
+									      --对名字以‘A’或‘S’开始的所有雇员按他们的基本薪水(sal)的10%给他们加薪
+									      for c1 in cs loop
+									      dbms_output.PUT_LINE(c1.empno||'  '||c1.ename||'  '||c1.sal);
+									      if substr(c1.ename,1,1) = 'A' or substr(c1.ename,1,1) = 'S' then
+									      update emp set sal=sal*1.1 where empno=c1.empno;
+									      end if;
+									      end loop;
+									      
+									      dbms_output.PUT_LINE('加薪水后================================================');
+									      for c2 in cs loop
+									      dbms_output.PUT_LINE(c2.empno||'  '||c2.ename||'  '||c2.sal);
+									      end loop;
+									      rollback;
+									      end;
+									        
+									 -------------------------------3.使用oracle函数
+									 declare 
+									        --将每位员工工作了多少年零多少月零多少天输出出来
+									        years number(10);
+									        months number(10);
+									        days number(10);
+									        cursor cs is select * from emp;
+									        begin
+									        for c1 in cs loop
+									        years := trunc(months_between(sysdate, c1.hiredate)/12);  --年数 
+									        months := trunc(mod(months_between(sysdate, c1.hiredate), 12));   --月数
+									        days := sysdate-add_months(c1.hiredate, months_between(sysdate, c1.hiredate));   --天数
+									        dbms_output.PUT_LINE(c1.ename|| '工作了' ||years|| '年 ' ||months|| '月 ' ||days|| '日');
+									        end loop;
+									        end;
+									 
+									 -------------------------------4.使用CASE语句
+									 -------------------------------输入部门编号，按照下列加薪比例执行,并将更新前后的数据输出出来
+									--      deptno     raise(%)
+									--
+									--      10             5%
+									--
+									--      20             10%
+									--
+									--      30            15%
+									--
+									--      40            20%
+									 declare
+									        cursor cs is select * from emp;
+									        begin
+									        for c1 in cs loop
+									        dbms_output.PUT_LINE(c1.empno||'  '||c1.ename||'  '||c1.sal);
+									        case c1.deptno
+									        when 10 then
+									        update emp set sal = sal*1.05 where empno = c1.empno;
+									        when 20 then
+									        update emp set sal = sal*1.1 where empno = c1.empno;
+									        when 30 then
+									        update emp set sal = sal*1.15 where empno = c1.empno;
+									        when 40 then
+									        update emp set sal = sal*1.2 where empno = c1.empno;
+									        end case;
+									        end loop;
+									        
+									        dbms_output.PUT_LINE('加薪后================================================');
+									        for c3 in cs loop     
+									        dbms_output.PUT_LINE(c3.empno||'  '||c3.ename||'  '||c3.sal);
+									        end loop;
+									        rollback;
+									        end;
+
+									 -------------------------------5.定义一个数据结构暂存数据
+									 declare
+									        type EMP_TYPE is record(
+									              v_name emp.ename%type,
+									              v_date emp.hiredate%type
+									        );
+									        myemp EMP_TYPE;
+									        begin
+									        select ename, hiredate into myemp.v_name, myemp.v_date from emp where empno=7369;
+									        dbms_output.PUT_LINE(myemp.v_name||' '||myemp.v_date);
+									        end;
+	 
+
+									</code>
+								</pre>		
 							</section>
 
 					</div>
+
+
 
 				<!-- Copyright -->
 					<div id="copyright">
