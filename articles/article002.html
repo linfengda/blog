@@ -141,11 +141,61 @@ public interface HTMLLifeCycle {
                   </code>
                 </pre>
 
-                <p><span class="image right"><img src="../images/article002_001.png" alt="" /></span>
-                需要解析这个文档，我们需要知道：文档中每个符号代表的意义不是固定的，而是配合当前文档上下文的语义来解释。这意味着，读取同样的字符，可能因为当前状态的不同，得到不同的下一个状态。<br>
-                那么我们可以用数学的方式来解这道难题：<br>
-                将解析HTML过程中当前状态抽象为“状态”，所有解析操作放在当前“状态”下执行。大概是这样的：<br>
-                </p>
+                <!-- Code area -->
+                <pre>
+                  <code>
+/**
+ * 观察者设计模式
+ * 监听{@link HTMLLifeCycle}的生命周期事件
+ * 
+ * @author 玄葬
+ *
+ */
+public interface HTMLLifeCycleListener {
+  
+  /**
+   * 标签开始----->pipeline open方法----->生成PDF
+   */
+  void startElement(String tag, Map<String, String> attributes, String ns);
+
+  /**
+   * 标签结束----->pipeline close方法----->生成PDF
+   */
+  void endElement(String tag, String ns);
+  
+  /**
+   * 标签内容----->pipeline content方法----->生成PDF
+   */
+  void text(String text);
+
+  /**
+   * 标签外内容
+   */
+  void unknownText(String text);
+
+  /**
+   * 注释
+   */
+  void comment(String comment);
+
+  /**
+   * 解析开始
+   */
+  void init();
+
+  /**
+   * 解析结束
+   */
+  void close();
+
+  
+  
+  
+  
+
+}
+                  </code>
+                </pre>
 
 
 
