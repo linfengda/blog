@@ -171,7 +171,6 @@ public void parse(final Reader r) throws IOException {
                 <!-- Code area -->
                 <pre>
                   <code>
-//部分代码如下
 /**
  * 表示解析HTML文档的生命周期
  * 
@@ -204,8 +203,6 @@ public interface HTMLLifeCycle {
    */
   public void comment();
   
-  
-
 }
                   </code>
                 </pre>
@@ -257,10 +254,83 @@ public interface HTMLLifeCycleListener {
    */
   void close();
 
+}
+                  </code>
+                </pre>
+
+                <!-- Code area -->
+                <pre>
+                  <code>
+//例如读取到标签开始字符“<”，会进入这个状态，这个状态下是这样解析字符的。
+public class TagEncounteredState implements State {
   
+  private final HTMLParser parser;
   
-  
-  
+  /**
+   * @param parser the HTMLParser
+   */
+  public TagEncounteredState(final HTMLParser parser) {
+    this.parser = parser;
+  }
+
+  @Override
+  public void process(final char character) {
+    String tag = this.parser.memory().textBuffString();
+    if (Character.isWhitespace(character) || character == &#39;&gt;&#39; || character == &#39;/&#39; || character == &#39;:&#39; || character == &#39;?&#39; || tag.equals(&quot;!--&quot;)) {
+      if (tag.length() &gt; 0) {
+        if (tag.equals(&quot;!DOCTYPE&quot;)) {           //&lt;!DOCTYPE html&gt;
+          this.parser.memory().resetTextBuffer();
+          this.parser.memory().append(character);
+          this.parser.stateController().doctype();
+        }
+        else if (tag.equals(&quot;!--&quot;)) {           //&lt;!-- this is a comment --&gt;
+          this.parser.memory().resetTextBuffer();
+          this.parser.memory().resetCommentBuff();
+          this.parser.stateController().comment();
+          /**
+           * 避免&#39;&lt;!----&gt;&#39;这样的注释出错
+           * 详见CommentState和CloseCommentState
+           */
+          if (character == &#39;-&#39;) {
+            this.parser.memory().commentBuff().append(character);
+          } else {
+            this.parser.memory().append(character);
+          }
+        }
+        else if (Character.isWhitespace(character)) {   //&lt;p style=&quot;font-size: 14px;&quot;&gt;
+          this.parser.memory().setCurrentTag(tag);
+          this.parser.memory().resetTextBuffer();
+          this.parser.stateController().tagAttributes();
+        }
+        else if (character == &#39;&gt;&#39;) {
+          this.parser.memory().setCurrentTag(tag);
+          this.parser.memory().resetTextBuffer();
+          this.parser.startElement();
+          this.parser.stateController().inTag();
+        }
+        else if (character == &#39;/&#39;) {
+          this.parser.memory().setCurrentTag(tag);
+          this.parser.memory().resetTextBuffer();
+          this.parser.stateController().selfClosing();
+        }
+        else if (character == &#39;:&#39;) {
+          this.parser.memory().setCurrentNameSpace(tag);
+          this.parser.memory().resetTextBuffer();
+        }
+        
+      } else {
+        if (character == &#39;/&#39;) {               //&lt;/div
+          this.parser.stateController().closingTag();
+        }
+        else if (character == &#39;?&#39;) {            //&lt;? xml
+          this.parser.memory().append(character);
+                    this.parser.stateController().processingInstructions();
+        }
+      }
+    } else {
+      this.parser.memory().append(character);         //&lt;div
+    }
+  }
 
 }
                   </code>
