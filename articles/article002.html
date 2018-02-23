@@ -88,6 +88,8 @@
 							<!-- Code area -->
 								<pre>
 									<code>
+//假如一个HTML文档如下
+
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
  &lt;head&gt;
@@ -129,12 +131,42 @@
 									</code>
 								</pre>
 
-                <h3>使用java解析HTML</h3>
                 <p><span class="image right"><img src="../images/article002_001.png" alt="" /></span>
                 需要解析这个文档，我们需要知道：文档中每个符号代表的意义不是固定的，而是配合当前文档上下文的语义来解释。这意味着，读取同样的字符，可能因为当前状态的不同，得到不同的下一个状态。<br>
                 那么我们可以用数学的方式来解这道难题：<br>
                 将解析HTML过程中当前状态抽象为“状态”，所有解析操作放在当前“状态”下执行。大概是这样的：<br>
+                逐个读取文档字符，根据当前状态和读取到字符，进入对应状态机解析，并触发HTML文档生命周期事件。
                 </p>
+
+                <!-- Code area -->
+                <pre>
+                  <code>
+/**
+ * HTML符号识别算法
+ * 每次读取一个输入字符，并根据这些字符转移到下一个状态，当前的符号状态和当前Dom树状态共同影响结果。
+ * 这意味着，读取同样的字符，可能因为当前状态的不同，得到不同的下一个状态。
+ * 
+ * @param r
+ * @throws IOException
+ */
+public void parse(final Reader r) throws IOException {
+    for (HTMLLifeCycleListener l : listeners) {
+      l.init();
+    }
+    char read[] = new char[1];
+    try {
+      while (-1 != (r.read(read))) {
+        state.process(read[0]);
+      }
+    } finally {
+      for (HTMLLifeCycleListener l : listeners) {
+        l.close();
+      }
+      r.close();
+    }
+}
+                  </code>
+                </pre>
 
                 <!-- Code area -->
                 <pre>
@@ -238,7 +270,6 @@ public interface HTMLLifeCycleListener {
 
 
 							</section>
-
 					</div>
 
 
