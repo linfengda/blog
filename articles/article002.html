@@ -70,14 +70,10 @@
                     <br>2. 布局，为每个节点分配一个应出现在屏幕上的确切坐标；
                     <br>3. 绘制，呈现引擎会遍历呈现树，由用户界面后端层将每个节点绘制出来；
                     <br>4. 显示，值得注意的是这一步并不会等到文档解析完成，会将部分已解析的文档尽快显示。
-
+                  </p>
                   <p>
                     <span class="image left"><img src="../images/How-browsers-work1.png" alt="" /></span>
                     <br>图1：浏览器主要组件
-                    <span class="image left"><img src="../images/How-browsers-work2.png" alt="" /></span>
-                    <br>图2：呈现引擎的基本流程
-                    <span class="image left"><img src="../images/How-browsers-work3.png" alt="" /></span>
-                    <br>图3：WebKit 主流程
                   </p>
                   <p>
                     <span class="image left"><img src="../images/How-browsers-work2.png" alt="" /></span>
@@ -87,24 +83,64 @@
                     <span class="image left"><img src="../images/How-browsers-work3.png" alt="" /></span>
                     <br>图3：WebKit 主流程
                   </p>
-                    
-                    
 
-
-
-                  </p>
-                  
-                  <p><span class="image right"><img src="../images/pic09.jpg" alt="" /></span>
-                  Lorem ipsum dolor sit accumsan interdum nisi, quis tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Vestibulum ante ipsum primis in faucibus magna blandit adipiscing eu felis iaculis.</p>
 
 							<!-- Code area -->
 								<pre>
 									<code>
+//假设一个HTML文档如下：
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+</head>
+<body>
+  <!-- 诗词展示 -->
+    <div style="font-family: msyh;text-align: center;">
+
+      <h2>早发白帝城</h2>
+      <div style="padding: 20px 20px; background-color: rgb(250, 192, 143);font-family: simkai;">
+        朝辞白帝彩云间，千里江陵一日还。<br />
+        两岸猿声啼不住，轻舟已过万重山。<br />
+      </div>
+
+      <h2>赠汪伦</h2>
+      <div style="padding: 20px 20px; background-color: rgb(250, 192, 143);font-family: simkai;">
+        李白乘舟将欲行，忽闻岸上踏歌声。<br />
+        桃花潭水深千尺，不及汪伦送我情。<br />
+      </div>
+
+      <h2>望庐山瀑布</h2>
+      <div style="padding: 20px 20px; background-color: rgb(250, 192, 143);font-family: simkai;">
+        日照香炉生紫烟，遥看瀑布挂前川。<br />
+        飞流直下三千尺，疑是银河落九天。<br />
+      </div>
+</div>
+
+<!-- 古词释义 -->
+  <div style="text-shadow: 5px 5px 5px #787878;color: #fff;background-color: #CDC9C9;">
+    <p><span style="margin-right: 10px;">☆</span>发：启程。白帝城：故址在今重庆市奉节县白帝山上。</p>
+    <p><span style="margin-right: 10px;">☆</span>踏歌：唐代民间流行的一种手拉手、两足踏地为节拍的歌舞形式，可以边走边唱。</p>
+    <p><span style="margin-right: 10px;">☆</span>桃花潭：在今安徽泾县西南一百里。《一统志》谓其深不可测。深千尺：诗人用潭水深千尺比喻汪伦与他的友情，运用了夸张的手法。</p>
+  </div>
 
 
-
+</body>
+</html>
 									</code>
-								</pre>		
+								</pre>
+
+                <p><span class="image right"><img src="../images/article002_001.png" alt="" /></span>
+                需要解析这个文档，我们需要知道：文档中每个符号代表的意义不是固定的，而是配合当前文档上下文的语义来解释。这意味着，读取同样的字符，可能因为当前状态的不同，得到不同的下一个状态。<br>
+                那么我们可以用数学的方式来解这道难题：<br>
+                将解析HTML过程中当前状态抽象为“状态”，所有解析操作放在当前“状态”下执行。大概是这样的：<br>
+
+                </p>
+
+
+
+
 							</section>
 
 					</div>
