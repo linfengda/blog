@@ -43,30 +43,30 @@
 						    
               <!-- Definition area -->
                 <h3>Definition</h3>
-                  <dl>
-                    <dt>词法</dt>
-                    <dd>
-                      <p>词汇通常用正则表达式表示<br>INTEGER :0|[1-9][0-9]*<br>PLUS : +<br>MINUS: -<br></p>
-                    </dd>
-                    <dt>语法</dt>
-                    <dd>
-                      <p>语法通常使用一种称为 BNF 的格式来定义<br>expression :=  term  operation  term<br>operation :=  PLUS | MINUS<br>term := INTEGER | expression<br></p>
-                    </dd>
-                    <dt>iText</dt>
-                    <dd>
-                      <p>iText是一个操作PDF文档的开源项目，由java和.net编写。<br>
-                      iText在能够创建标准PDF的同时，还能将XML、HTML、Web表单、CSS或者其他数据库文件转换成PDF，而且保证格式的标准统一。<br>
-                      iText可以切割、合并文档，还对页面进行复制、导入和覆盖的操作，同时可以加入、编写结构更加丰富的多样化内容，比如条形码、水印、印章、表格和图片等。<br> 
-                      </p>
-                    </dd>
-                  </dl>
+                <dl>
+                  <dt>词法</dt>
+                  <dd>
+                    <p>词汇通常用正则表达式表示<br>INTEGER :0|[1-9][0-9]*<br>PLUS : +<br>MINUS: -<br></p>
+                  </dd>
+                  <dt>语法</dt>
+                  <dd>
+                    <p>语法通常使用一种称为 BNF 的格式来定义<br>expression :=  term  operation  term<br>operation :=  PLUS | MINUS<br>term := INTEGER | expression<br></p>
+                  </dd>
+                  <dt>iText</dt>
+                  <dd>
+                    <p>iText是一个操作PDF文档的开源项目，由java和.net编写。<br>
+                    iText在能够创建标准PDF的同时，还能将XML、HTML、Web表单、CSS或者其他数据库文件转换成PDF，而且保证格式的标准统一。<br>
+                    iText可以切割、合并文档，还对页面进行复制、导入和覆盖的操作，同时可以加入、编写结构更加丰富的多样化内容，比如条形码、水印、印章、表格和图片等。<br> 
+                    </p>
+                  </dd>
+                </dl>
 
                 <!-- Introduction area -->
-                  <h3>HTML文档格式</h3>
+                  <h3>浏览器解析HTML过程</h3>
                   <p>
                     <span class="image left"><img src="../images/How-browsers-work0.png" alt="" /></span>
                     作为超文本标记语言，HTML定义了展示网页信息一种规范。浏览器在解释HTML生成最终视图的时候，大概是这样的：
-                    <br>1. 解析文档；<br>
+                    <br>1. 解析文档；
                     <br>2. 布局，为每个节点分配一个应出现在屏幕上的确切坐标；
                     <br>3. 绘制，呈现引擎会遍历呈现树，由用户界面后端层将每个节点绘制出来；
                     <br>4. 显示，值得注意的是这一步并不会等到文档解析完成，会将部分已解析的文档尽快显示。
@@ -92,6 +92,7 @@
 									</code>
 								</pre>
 
+                <h3>使用java解析HTML</h3>
                 <p><span class="image right"><img src="../images/article002_001.png" alt="" /></span>
                 需要解析这个文档，我们需要知道：文档中每个符号代表的意义不是固定的，而是配合当前文档上下文的语义来解释。这意味着，读取同样的字符，可能因为当前状态的不同，得到不同的下一个状态。<br>
                 那么我们可以用数学的方式来解这道难题：<br>
@@ -101,7 +102,7 @@
                 <!-- Code area -->
                 <pre>
                   <code>
-                  //部分代码如下
+//部分代码如下
 /**
  * 表示解析HTML文档的生命周期
  * 
@@ -110,7 +111,7 @@
  */
 public interface HTMLLifeCycle {
   
-  public HTMLLifeCycle addHTMLLifeCycleListenter(HTMLLifeCycleListener l);
+  public HTMLLifeCycle addHTMLLifeCycleListenter(HTMLLifeCycleListener l);//11111111111111111111111111111111111111111111
   
   public HTMLLifeCycle removeHTMLLifeCycleListenter(HTMLLifeCycleListener l);
   
