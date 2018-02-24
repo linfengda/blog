@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Generic Page - Massively by HTML5 UP</title>
+		<title>lingfenda's blog</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="../assets/css/main.css" />
@@ -37,8 +37,8 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">February 22, 2018</span>
-									<h1>HTML transfer into PDF</h1>
-									<p>PDF document is a popular document type in many ways, such as scientific paper/book/business report. in this blog, I am going to show you how to translate HTML document to PDF document, after reading my idea, you will realize that our imagination is limited by our understanding of code. </p>
+									<h1>HTML transfer to PDF</h1>
+									<p>PDF document is a popular document type in many ways, such as scientific paper/book/business report. and htmlworker is a open source project that help to translate HTML document to PDF document, in this blog, I am going to introduce you how it works, after reading source code, you will realize that our imagination is limited by our understanding of code. </p>
 								</header>
 						    
               <!-- Definition area -->
@@ -88,7 +88,7 @@
 							<!-- Code area -->
 								<pre>
 									<code>
-//假如一个HTML文档如下
+//假设一个HTML文档如下
 
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
@@ -135,39 +135,10 @@
                 需要解析这个文档，我们需要知道：文档中每个符号代表的意义不是固定的，而是配合当前文档上下文的语义来解释。这意味着，读取同样的字符，可能因为当前状态的不同，得到不同的下一个状态。<br>
                 那么我们可以用数学的方式来解这道难题：<br>
                 将解析HTML过程中当前状态抽象为“状态”，所有解析操作放在当前“状态”下执行。大概是这样的：<br>
-                逐个读取文档字符，根据当前状态和读取到字符，进入对应状态机解析，并触发HTML文档生命周期事件。
+                逐个读取文档字符，根据当前状态和读取到字符，进入对应“状态”解析，并触发HTML文档生命周期事件。
                 </p>
 
-                <!-- Code area -->
-                <pre>
-                  <code>
-/**
- * HTML符号识别算法
- * 每次读取一个输入字符，并根据这些字符转移到下一个状态，当前的符号状态和当前Dom树状态共同影响结果。
- * 这意味着，读取同样的字符，可能因为当前状态的不同，得到不同的下一个状态。
- * 
- * @param r
- * @throws IOException
- */
-public void parse(final Reader r) throws IOException {
-    for (HTMLLifeCycleListener l : listeners) {
-      l.init();
-    }
-    char read[] = new char[1];
-    try {
-      while (-1 != (r.read(read))) {
-        state.process(read[0]);
-      }
-    } finally {
-      for (HTMLLifeCycleListener l : listeners) {
-        l.close();
-      }
-      r.close();
-    }
-}
-                  </code>
-                </pre>
-
+                <p>首先我们先抽象出HTML文档的生命周期：</p>
                 <!-- Code area -->
                 <pre>
                   <code>
@@ -207,12 +178,13 @@ public interface HTMLLifeCycle {
                   </code>
                 </pre>
 
+                <p>然后我们抽象出HTML文档的生命周期事件：</p>
                 <!-- Code area -->
                 <pre>
                   <code>
 /**
  * 观察者设计模式
- * 监听{@link HTMLLifeCycle}的生命周期事件
+ * 监听{@link HTMLLifeCycle}的生命周期
  * 
  * @author 玄葬
  *
@@ -258,10 +230,41 @@ public interface HTMLLifeCycleListener {
                   </code>
                 </pre>
 
+                <p>接下来我们就可以具体实现对HTML文档的解析了，如下面的解析类，实现了HTMLLifeCycle接口：</p>
+              <!-- Code area -->
+                <pre>
+                  <code>
+/**
+ * HTML符号识别算法
+ * 每次读取一个输入字符，并根据这些字符转移到下一个状态，当前的符号状态和当前Dom树状态共同影响结果。
+ * 这意味着，读取同样的字符，可能因为当前状态的不同，得到不同的下一个状态。
+ * 
+ * @param r
+ * @throws IOException
+ */
+public void parse(final Reader r) throws IOException {
+    for (HTMLLifeCycleListener l : listeners) {
+      l.init();
+    }
+    char read[] = new char[1];
+    try {
+      while (-1 != (r.read(read))) {
+        state.process(read[0]);
+      }
+    } finally {
+      for (HTMLLifeCycleListener l : listeners) {
+        l.close();
+      }
+      r.close();
+    }
+}
+                  </code>
+                </pre>
+
+                <p>在上面的代码中，state为HTML文档的当前状态，例如读取到标签开始字符“<”，会进入下面这个状态，TagEncounteredState状态下是这样解析字符的：</p>
                 <!-- Code area -->
                 <pre>
                   <code>
-//例如读取到标签开始字符“<”，会进入这个状态，这个状态下是这样解析字符的。
 public class TagEncounteredState implements State {
   
   private final HTMLParser parser;
@@ -336,6 +339,122 @@ public class TagEncounteredState implements State {
                   </code>
                 </pre>
 
+                <p>TagEncounteredState状态中，当读取到“>”字符时，触发了HTMLLifeCycle的startElement事件，对于HTMLLifeCycle的每个事件，我们基于观察者设计设计模式观察并处理，例如text事件：</p>
+                <!-- Code area -->
+                <pre>
+                  <code>
+  @Override
+  public void text(String text) {
+    
+    if (text.startsWith("<![CDATA[") && text.endsWith("]]>")) {
+      return;
+        }
+    if (null != this.tag) {
+      Pipeline<?> p = rootpPipe;
+      ProcessObject po = new ProcessObject();
+      try {
+        while((p = p.content(context, this.tag, text, po)) != null);
+      } catch (PipelineException e) {
+        throw new RuntimeWorkerException(e);
+      }
+    }
+  }
+                  </code>
+                </pre>
+
+                <p>我们使用责任链模式来分步骤翻译HTML，大概是这个样子的：
+                <br>接收解析好的Tag标签，并读取CSS样式。----->根据Tag生成itext元素，并渲染CSS样式到itext元素。----->将itext元素写入document。
+                <br>于是有了以下代码：
+                </p>
+              <!-- Code area -->
+                <pre>
+                  <code>
+      // Pipelines
+      PdfWriterPipeline pdfWriterPipeline = new PdfWriterPipeline(doc, writer);
+      HtmlPipeline htmlPipeline = new HtmlPipeline(hpc, pdfWriterPipeline);
+      CssResolverPipeline cssResolverPipeline = new CssResolverPipeline(cssResolver, htmlPipeline);
+                  </code>
+                </pre>
+
+                <p>我们定义一个Tag类表示HTML标签</p>
+              <!-- Code area -->
+                <pre>
+                  <code>
+public class Tag implements Iterable<Tag> {
+
+  private Tag parent;
+  private final String tag;
+  private final Map<String, String> attributes;
+  private Map<String, String> css;
+  private final List<Tag> children;
+  private final String ns;
+  private Object lastMarginBottom = null;
+                  </code>
+                </pre>
+
+                <p>
+                解析了HTML结构和CSS之后，我们得到了
+                <br>我们在HTML的startElement、endElement、text事件中接收事件参数，然后进行翻译，具体实现可以参考以下代码：
+                </p>
+              <!-- Code area -->
+                <pre>
+                  <code>
+  @Override
+  public void startElement(String tag, Map<String, String> attributes, String ns) {
+    
+    Tag t = new Tag(tag, attributes, ns);
+    if (this.tag != null) {
+      this.tag.addChild(t);
+    }
+    this.tag = t;
+    ProcessObject po = new ProcessObject();
+    Pipeline<?> p = rootpPipe;
+    try {
+      while((p = p.open(context, t, po)) != null);
+    } catch (PipelineException e) {
+      throw new RuntimeWorkerException(e);
+    }
+  }
+
+  @Override
+  public void endElement(String tag, String ns) {
+    
+    tag = tag.toLowerCase();
+    if (this.tag != null && !this.tag.getName().equals(tag)) {  //判断标签是否闭合
+      throw new RuntimeWorkerException(String.format(
+          LocaleMessages.getInstance().getMessage(LocaleMessages.INVALID_NESTED_TAG), tag, this.tag.getName()));
+    }
+    Pipeline<?> p = rootpPipe;
+    ProcessObject po = new ProcessObject();
+    try {
+      while((p = p.close(context, this.tag, po)) != null);
+    } catch (PipelineException e) {
+      throw new RuntimeWorkerException(e);
+    } finally {
+      if (null != this.tag)
+        this.tag = this.tag.getParent();
+    }
+  }
+
+  @Override
+  public void text(String text) {
+    
+    if (text.startsWith("<![CDATA[") && text.endsWith("]]>")) {
+      return;
+        }
+    if (null != this.tag) {
+      Pipeline<?> p = rootpPipe;
+      ProcessObject po = new ProcessObject();
+      try {
+        while((p = p.content(context, this.tag, text, po)) != null);
+      } catch (PipelineException e) {
+        throw new RuntimeWorkerException(e);
+      }
+    }
+  }
+                  </code>
+                </pre>
+                <p>其中rootpPipe为我们的管道开头，</p>
 
 
 
