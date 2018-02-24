@@ -954,7 +954,7 @@ public class PdfWriterPipeline extends AbstractPipeline<MapContext> {
                   </code>
                 </pre>
 
-              <p>在标签----->元素的转换过程中，CSS渲染是最具有技术难度的工作，例如将一个<p>标签渲染成Chunk元素</p>
+              <p>在标签----->元素的转换过程中，CSS渲染是最具有技术难度的工作，例如将一个&lt;p&gt;标签渲染成Chunk元素</p>
               <!-- Code area -->
                 <pre>
                   <code>
@@ -987,7 +987,7 @@ public class PdfWriterPipeline extends AbstractPipeline<MapContext> {
                   </code>
                 </pre>
 
-                <p>getCssApplyService()方法获取CSS渲染接口，该接口提供统一的apply()方法，自动判断需要渲染的元素，找到该元素的渲染类用于渲染CSS，例如ParagraphCssApplier类渲染Paragraph元素大概是这样的：</p>
+                <p>getCssApplyService()方法获取CSS渲染接口，该接口提供统一的apply()方法，自动判断需要渲染的元素类型，找到该元素的渲染类用于渲染CSS，例如ParagraphCssApplier类渲染Paragraph元素大概是这样的：</p>
               <!-- Code area -->
                 <pre>
                   <code>
@@ -1081,7 +1081,9 @@ public Paragraph apply(final Paragraph p, final Tag t, final MarginMemory config
                   </code>
                 </pre>
 
-                <p>剩下的工作就是写入Writable元素集合到document了，详见项目代码：<span style="font-size: 3rem;color: #EE3B3B">https://github.com/linfengda/htmlworker.git</span></p>
+                <p>剩下的工作就是写入Writable元素集合到document了，详见项目代码：<span style="color: #EE3B3B">https://github.com/linfengda/htmlworker.git</span></p>
+
+                <p>转换的效果大概是这样子的：</p>
 
 
 
