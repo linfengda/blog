@@ -43,7 +43,7 @@
 
                 <!-- Introduction area -->
                   <h3>数据结构入门</h3>
-                  <p>推荐使用《数据结构》严蔚敏 清华大学出版社 传送门：<a href="http://product.dangdang.com/22601051.html" style="color: #EE3B3B">http://product.dangdang.com/22601051.html</a>，一星期看一章节，2-3个月就学完了。</p>
+                  <p>推荐使用《数据结构》严蔚敏 清华大学出版社 传送门：<a href="http://product.dangdang.com/22601051.html" style="color: #EE3B3B">http://product.dangdang.com/22601051.html</a>。</p>
 
                   <p style="float: left;">
                     <img src="../images/article003_001.png" alt="" />
@@ -81,15 +81,6 @@ SeqList initSeqList() {
   return t;
 }
 
-int listGet(SeqList t, int i) {
-  if (i < 0 || i > t.length-1) {
-    printf("参数非法");
-    return NULL;
-  }else{
-    return t.head[i];
-  }
-}
-
 SeqList listInsert(SeqList t, int i, int e) {
   if (i < 0 || i > t.length) {
     printf("插入位置有问题");
@@ -120,16 +111,28 @@ SeqList listDelete(SeqList t, int i) {
     printf("删除位置有问题");
     return t;
   }
+  for (int j = i; j < t.length - 1; j++) {//逐个前移
+    t.head[j] = t.head[j + 1];
+  }
+  t.length--;
+  return t;
+}
+
+int listGet(SeqList t, int i) {
+  if (i < 0 || i > t.length - 1) {
+    printf("参数非法");
+    return NULL;
+  }
   else {
-    for (int j = i; j < t.length-1; j++) {//逐个前移
-      t.head[j] = t.head[j + 1];
-    }
-    t.length--;
-    return t;
+    return t.head[i];
   }
 }
 
-void displaySeqList(SeqList t) {
+int listSize(SeqList t) {
+  return t.length;
+}
+
+void display(SeqList t) {
   for (int i = 0; i<t.length; i++) {
     printf("%d", t.head[i]);
   }
@@ -137,29 +140,29 @@ void displaySeqList(SeqList t) {
 }
 
 
-//int main() {
-//  SeqList t1 = initSeqList();
-//  for (int i = 1; i <= Size; i++) {
-//    t1.head[i - 1] = i;
-//    t1.length++;
-//  }
-//  printf("原顺序表：\n");
-//  displaySeqList(t1);
-//
-//  printf("删除第1个元素:\n");
-//  t1 = listDelete(t1, 0);
-//  displaySeqList(t1);
-//
-//  printf("在第2的位置插入元素5:\n");
-//  t1 = listInsert(t1, 1, 5);
-//  displaySeqList(t1);
-//
-//  printf("查找第2个元素:\n");
-//  int e = listGet(t1, 1);
-//  printf("%d\n", e);
-//
-//  return 0;
-//}
+int main() {
+  SeqList t1 = initSeqList();
+  for (int i = 1; i <= Size; i++) {
+    t1.head[i - 1] = i;
+    t1.length++;
+  }
+  printf("原顺序表：\n");
+  display(t1);
+
+  printf("删除第1个元素:\n");
+  t1 = listDelete(t1, 0);
+  display(t1);
+
+  printf("在第2的位置插入元素5:\n");
+  t1 = listInsert(t1, 1, 5);
+  display(t1);
+
+  printf("查找第2个元素:\n");
+  int e = listGet(t1, 1);
+  printf("%d\n", e);
+
+  return 0;
+}
                   </code>
                 </pre>
 
@@ -167,7 +170,120 @@ void displaySeqList(SeqList t) {
                 <!-- Code area -->
                 <pre>
                   <code>
+#include <stdio.h>
+#include <stdlib.h>
 
+typedef struct Link {
+  int e;
+  struct Link *next;
+}SLNode;
+
+SLNode * initLink();
+SLNode * insertElem(SLNode *p, int i, int e);
+SLNode * removeElem(SLNode *p, int i);
+int getElem(SLNode *p, int i);
+int getSize(SLNode *p);
+void display(SLNode *p);
+
+SLNode * initLink() {
+  SLNode *p = (SLNode*)malloc(sizeof(SLNode));//申请头结点
+  p->next = NULL;//置结束标志NULL
+  return p;
+}
+
+SLNode * insertElem(SLNode *p, int i, int e) {
+  SLNode *m = p;
+  int j = -1;
+  while (m->next != NULL && j < i-1) {//首先找到第i-1个结点
+    m = m->next;
+    j++;
+  }
+  if (j != i-1) {
+    printf("插入位置有问题");
+    return p;
+  }
+  SLNode *n = (SLNode*)malloc(sizeof(SLNode));//创建插入结点c
+  n->e = e;
+  n->next = m->next;
+  m->next = n;
+  return p;
+}
+
+SLNode * removeElem(SLNode *p, int i) {
+  SLNode *m = p;
+  int j = -1;
+  while (m->next != NULL && j < i - 1) {//首先找到第i-1个结点
+    m = m->next;
+    j++;
+  }
+  if (j != i - 1) {
+    printf("删除位置有问题");
+    return p;
+  }
+  SLNode *n = m->next;
+  m->next = m->next->next;
+  free(n);  
+  return p;
+}
+
+int getElem(SLNode *p, int i) {
+  SLNode *m = p;
+  int j = -1;
+  while (m->next != NULL && j < i) {//首先找到第i个结点
+    m = m->next;
+    j++;
+  }
+  if (j != i) {
+    printf("查找位置有问题");
+    return -1;
+  }
+  return m->e;
+}
+
+int getSize(SLNode *p) {
+  SLNode *m = p;
+  int size = 0;
+  while (m->next != NULL) {
+    m = m->next;
+    size++;
+  }
+  return size;
+}
+
+void display(SLNode *p) {
+  SLNode *m = p;
+  while (m->next != NULL) {
+    m = m->next;
+    printf("%d", m->e);
+  }
+  printf("\n");
+}
+
+
+int main() {
+  //初始化链表（1，2，3，4）
+  printf("初始化链表为：\n");
+  SLNode *p = initLink();
+  for (int i = 0; i < 5; i++)
+  {
+    p = insertElem(p, i, i+1);
+  }
+  display(p);
+
+  printf("在第5的位置插入元素8：\n");
+  p = insertElem(p, 4, 8);
+  display(p);
+
+  printf("删除第4个元素:\n");
+  p = removeElem(p, 3);
+  display(p);
+
+  printf("查找第3个元素：\n");
+  int ele = getElem(p, 2);
+  printf("第3个元素为：%d\n", ele);
+
+  return 0;
+}
                   </code>
                 </pre>
   
