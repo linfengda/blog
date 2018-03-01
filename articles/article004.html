@@ -203,7 +203,7 @@ SLNode * insertElem(SLNode *p, int i, int e) {
     printf("插入位置有问题");
     return p;
   }
-  SLNode *n = (SLNode*)malloc(sizeof(SLNode));//创建插入结点c
+  SLNode *n = (SLNode*)malloc(sizeof(SLNode));//创建插入结点n
   n->e = e;
   n->next = m->next;
   m->next = n;
@@ -265,6 +265,123 @@ int main() {
   //初始化链表（1，2，3，4）
   printf("初始化链表为：\n");
   SLNode *p = initLink();
+  for (int i = 0; i < 5; i++)
+  {
+    p = insertElem(p, i, i+1);
+  }
+  display(p);
+
+  printf("在第5的位置插入元素8：\n");
+  p = insertElem(p, 4, 8);
+  display(p);
+
+  printf("删除第4个元素:\n");
+  p = removeElem(p, 3);
+  display(p);
+
+  printf("查找第3个元素：\n");
+  int ele = getElem(p, 2);
+  printf("第3个元素为：%d\n", ele);
+
+  return 0;
+}
+                  </code>
+                </pre>
+
+                <p>双向循环链表的c语言实现：</p>
+                <!-- Code area -->
+                <pre>
+                  <code>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+typedef struct Link2 {
+  int e;
+  struct Link2 *pre;
+  struct Link2 *next;
+}DLNode;
+
+DLNode * initLink() {
+  DLNode *p = (DLNode*)malloc(sizeof(DLNode));//申请头结点
+  p->pre = p;//构成前驱指针循环链表
+  p->next = p;//构成后驱指针循环链表
+}
+
+DLNode * insertElem(DLNode *p, int i, int e) {
+  DLNode *m = p;
+  int j = -1;
+  while(m->next != NULL && j < i) {
+    m = m->next;
+    j++;
+  }
+  if (j != i) {
+    printf("插入位置有问题");
+    return p;
+  }
+  DLNode *n = (DLNode*)malloc(sizeof(DLNode));//创建插入结点n
+  n->e = e;
+  n->pre = m->pre;
+  m->pre->next = n;
+  n->next = m;
+  m->pre = n;
+  return p;
+}
+
+DLNode * removeElem(DLNode *p, int i) {
+  DLNode *m = p;
+  int j = -1;
+  while (m->next != NULL && j < i) {
+    m = m->next;
+    j++;
+  }
+  if (j != i) {
+    printf("删除位置有问题");
+    return p;
+  }
+  m->pre->next = m->next;
+  m->next->pre = m->pre;
+  return p;
+}
+
+int getElem(DLNode *p, int i) {
+  DLNode *m = p;
+  int j = -1;
+  while (m->next != NULL && j < i) {
+    m = m->next;
+    j++;
+  }
+  if (j != i) {
+    printf("查找位置有问题");
+    return -1;
+  }
+  return m->e;
+}
+
+int getSize(DLNode *p) {
+  DLNode *m = p;
+  int size = 0;
+  while (m->next != p) {
+    m = m->next;
+    size++;
+  }
+  return size;
+}
+
+void display(DLNode *p) {
+  DLNode *m = p;
+  while (m->next != p) {
+    m = m->next;
+    printf("%d", m->e);
+  }
+  printf("\n");
+}
+
+
+int main() {
+  //初始化链表（1，2，3，4）
+  printf("初始化链表为：\n");
+  DLNode *p = initLink();
   for (int i = 0; i < 5; i++)
   {
     p = insertElem(p, i, i+1);
