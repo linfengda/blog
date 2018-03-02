@@ -46,11 +46,11 @@
                   <p>推荐使用《数据结构》严蔚敏 清华大学出版社 传送门：<a href="http://product.dangdang.com/22601051.html" style="color: #EE3B3B">http://product.dangdang.com/22601051.html</a>。</p>
 
                   <p style="float: left;">
-                    <img src="../images/article003_001.png" alt="" />
+                    <img src="../images/article004_001.png" alt="" />
                     <br>图1：线性表的顺式实现
                   </p>
                   <p style="float: left;">
-                    <img src="../images/article003_002.png" alt="" />
+                    <img src="../images/article004_002.png" alt="" />
                     <br>图2：线性表的链式实现
                   </p>
 
@@ -63,14 +63,14 @@
 #include <stdlib.h>
 #define Size 4
 
-typedef struct List {
+typedef struct SeqList {
   int * head;//声明了一个名为head的长度不确定的数组，也叫“动态数组”
   int length;//记录当前顺序表的长度
   int size;//记录顺序表分配的存储容量
 }SeqList;
 
 
-SeqList initSeqList() {
+SeqList initList() {
   SeqList t;
   t.head = (int*)malloc(Size*sizeof(int));
   if (!t.head) {
@@ -142,7 +142,7 @@ void display(SeqList t) {
 
 
 int main() {
-  SeqList t1 = initSeqList();
+  SeqList t1 = initList();
   for (int i = 1; i <= Size; i++) {
     t1.head[i - 1] = i;
     t1.length++;
@@ -174,132 +174,11 @@ int main() {
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Link {
+
+typedef struct DLNode {
   int e;
-  struct Link *next;
-}SLNode;
-
-SLNode * initLink();
-SLNode * insertElem(SLNode *p, int i, int e);
-SLNode * removeElem(SLNode *p, int i);
-int getElem(SLNode *p, int i);
-int getSize(SLNode *p);
-void display(SLNode *p);
-
-SLNode * initLink() {
-  SLNode *p = (SLNode*)malloc(sizeof(SLNode));//申请头结点
-  p->next = NULL;//置结束标志NULL
-  return p;
-}
-
-SLNode * insertElem(SLNode *p, int i, int e) {
-  SLNode *m = p;
-  int j = -1;
-  while (m->next != NULL && j < i-1) {//首先找到第i-1个结点
-    m = m->next;
-    j++;
-  }
-  if (j != i-1) {
-    printf("插入位置有问题");
-    return p;
-  }
-  SLNode *n = (SLNode*)malloc(sizeof(SLNode));//创建插入结点n
-  n->e = e;
-  n->next = m->next;
-  m->next = n;
-  return p;
-}
-
-SLNode * removeElem(SLNode *p, int i) {
-  SLNode *m = p;
-  int j = -1;
-  while (m->next != NULL && j < i - 1) {//首先找到第i-1个结点
-    m = m->next;
-    j++;
-  }
-  if (j != i - 1) {
-    printf("删除位置有问题");
-    return p;
-  }
-  SLNode *n = m->next;
-  m->next = m->next->next;
-  free(n);  
-  return p;
-}
-
-int getElem(SLNode *p, int i) {
-  SLNode *m = p;
-  int j = -1;
-  while (m->next != NULL && j < i) {//首先找到第i个结点
-    m = m->next;
-    j++;
-  }
-  if (j != i) {
-    printf("查找位置有问题");
-    return -1;
-  }
-  return m->e;
-}
-
-int getSize(SLNode *p) {
-  SLNode *m = p;
-  int size = 0;
-  while (m->next != NULL) {
-    m = m->next;
-    size++;
-  }
-  return size;
-}
-
-void display(SLNode *p) {
-  SLNode *m = p;
-  while (m->next != NULL) {
-    m = m->next;
-    printf("%d", m->e);
-  }
-  printf("\n");
-}
-
-
-int main() {
-  //初始化链表（1，2，3，4）
-  printf("初始化链表为：\n");
-  SLNode *p = initLink();
-  for (int i = 0; i < 5; i++)
-  {
-    p = insertElem(p, i, i+1);
-  }
-  display(p);
-
-  printf("在第5的位置插入元素8：\n");
-  p = insertElem(p, 4, 8);
-  display(p);
-
-  printf("删除第4个元素:\n");
-  p = removeElem(p, 3);
-  display(p);
-
-  printf("查找第3个元素：\n");
-  int ele = getElem(p, 2);
-  printf("第3个元素为：%d\n", ele);
-
-  return 0;
-}
-                  </code>
-                </pre>
-
-                <p>双向循环链表的c语言实现：</p>
-                <!-- Code area -->
-                <pre>
-                  <code>
-#include <stdio.h>
-#include <stdlib.h>
-
-
-typedef struct Link2 {
-  int e;
-  struct Link2 *pre;
-  struct Link2 *next;
+  struct DLNode *pre;
+  struct DLNode *next;
 }DLNode;
 
 DLNode * initLink() {
@@ -404,8 +283,121 @@ int main() {
 }
                   </code>
                 </pre>
-  
 
+                <p>双向循环链表的c语言实现：</p>
+                <!-- Code area -->
+                <pre>
+                  <code>
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct SLNode {
+  int e;
+  struct SLNode *next;
+}SLNode;
+
+
+SLNode * initLink() {
+  SLNode *p = (SLNode*)malloc(sizeof(SLNode));//申请头结点
+  p->next = NULL;//置结束标志NULL
+  return p;
+}
+
+SLNode * insertElem(SLNode *p, int i, int e) {
+  SLNode *m = p;
+  int j = -1;
+  while (m->next != NULL && j < i-1) {//首先找到第i-1个结点
+    m = m->next;
+    j++;
+  }
+  if (j != i-1) {
+    printf("插入位置有问题");
+    return p;
+  }
+  SLNode *n = (SLNode*)malloc(sizeof(SLNode));//创建插入结点n
+  n->e = e;
+  n->next = m->next;
+  m->next = n;
+  return p;
+}
+
+SLNode * removeElem(SLNode *p, int i) {
+  SLNode *m = p;
+  int j = -1;
+  while (m->next != NULL && j < i - 1) {//首先找到第i-1个结点
+    m = m->next;
+    j++;
+  }
+  if (j != i - 1) {
+    printf("删除位置有问题");
+    return p;
+  }
+  SLNode *n = m->next;
+  m->next = m->next->next;
+  free(n);  
+  return p;
+}
+
+int getElem(SLNode *p, int i) {
+  SLNode *m = p;
+  int j = -1;
+  while (m->next != NULL && j < i) {//首先找到第i个结点
+    m = m->next;
+    j++;
+  }
+  if (j != i) {
+    printf("查找位置有问题");
+    return -1;
+  }
+  return m->e;
+}
+
+int getSize(SLNode *p) {
+  SLNode *m = p;
+  int size = 0;
+  while (m->next != NULL) {
+    m = m->next;
+    size++;
+  }
+  return size;
+}
+
+void display(SLNode *p) {
+  SLNode *m = p;
+  while (m->next != NULL) {
+    m = m->next;
+    printf("%d", m->e);
+  }
+  printf("\n");
+}
+
+
+int main() {
+  //初始化链表（1，2，3，4）
+  printf("初始化链表为：\n");
+  SLNode *p = initLink();
+  for (int i = 0; i < 5; i++)
+  {
+    p = insertElem(p, i, i+1);
+  }
+  display(p);
+
+  printf("在第5的位置插入元素8：\n");
+  p = insertElem(p, 4, 8);
+  display(p);
+
+  printf("删除第4个元素:\n");
+  p = removeElem(p, 3);
+  display(p);
+
+  printf("查找第3个元素：\n");
+  int ele = getElem(p, 2);
+  printf("第3个元素为：%d\n", ele);
+
+  return 0;
+}
+                  </code>
+                </pre>
 
 
 
