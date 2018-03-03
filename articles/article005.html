@@ -323,7 +323,96 @@ int main() {
                 <!-- Code area -->
                 <pre>
                   <code>
+#include <stdio.h>
+#include <stdlib.h>
+#define Size 10
 
+typedef struct Node {
+	int e;
+	struct Node *next;
+}Node;
+
+typedef struct LinkQueue {
+	Node *front;//队头指针
+	Node *rear;//队尾指针
+}LinkQueue;
+
+LinkQueue * init() {
+	LinkQueue *p = (LinkQueue*)malloc(sizeof(LinkQueue));
+	p->front = NULL;
+	p->rear = NULL;
+	return p;
+}
+
+int offer(LinkQueue *p, int e) {
+	Node *m = (Node*)malloc(sizeof(Node));
+	m->e = e;
+	m->next = NULL;
+	if (p->rear != NULL) {
+		p->rear->next = m;
+	}
+	p->rear = m;
+	if (p->front == NULL) {//如果队头为空，需要修改队头
+		p->front = m;
+	}
+	return 1;
+}
+
+int poll(LinkQueue *p) {
+	if (p->front == NULL) {
+		printf("队列已空");
+		return -1;
+	}
+	Node *m = p->front;
+	int e = m->e;
+	p->front = p->front->next;
+	if (p->front == NULL) {//删除最后一个节点后，要置队尾为空
+		p->rear = NULL;
+	}
+	free(m);
+	return e;
+}
+
+int size(LinkQueue *p) {
+	Node *m = p->front;
+	int size = 0;
+	while (m != NULL) {
+		m = m->next;
+		size++;
+	}
+	return size;
+}
+
+void display(LinkQueue *p) {
+	Node *m = p->front;
+	while (m != NULL) {
+		printf("%d", m->e);
+		m = m->next;
+	}
+	printf("\n");
+}
+
+
+int main() {
+	LinkQueue *p = init();
+	for (int i = 1; i <= Size; i++) {
+		offer(p, i);
+	}
+	printf("原顺序表：\n");
+	display(p);
+
+	printf("出栈:");
+	int e = poll(p);
+	printf("%d\n", e);
+	printf("出栈后：\n");
+	display(p);
+
+	printf("将元素8入栈:\n");
+	offer(p, 8);
+	display(p);
+
+	return 0;
+}
                   </code>
                 </pre>
 
