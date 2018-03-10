@@ -318,7 +318,7 @@
 
 		.full-div {
 			width: 1000px;
-			height: 1332%;
+			height: 100%;
 		}
 		.row > * {
 			padding: 0 0 0 1.5rem;
@@ -750,6 +750,10 @@
 
 	@media screen and (max-width: 980px) {
 
+		.full-div {
+			width: 980px;
+			height: 100%;
+		}
 		.row > * {
 			padding: 0 0 0 1.5rem;
 		}
@@ -965,6 +969,10 @@
 
 	@media screen and (max-width: 736px) {
 
+		.full-div {
+			width: 736px;
+			height: 100%;
+		}
 		.row > * {
 			padding: 0 0 0 1.5rem;
 		}
@@ -1180,6 +1188,10 @@
 
 	@media screen and (max-width: 480px) {
 
+		.full-div {
+			width: 480px;
+			height: 100%;
+		}
 		.row > * {
 			padding: 0 0 0 1.5rem;
 		}
