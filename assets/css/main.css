@@ -317,8 +317,8 @@
 	@media screen and (max-width: 1680px) {
 
 		.full-div {
-			width: 1200px;
-			height: 100%;
+			width: 1000px;
+			height: 1332%;
 		}
 		.row > * {
 			padding: 0 0 0 1.5rem;
