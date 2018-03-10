@@ -316,6 +316,10 @@
 
 	@media screen and (max-width: 1680px) {
 
+		.full-div {
+			width: 1200px;
+			height: 100%;
+		}
 		.row > * {
 			padding: 0 0 0 1.5rem;
 		}
@@ -4480,4 +4484,8 @@
 			visibility: visible;
 		}
 
+	}
+
+	.full-img {
+		max
 	}
