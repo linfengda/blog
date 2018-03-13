@@ -97,11 +97,30 @@ ECMAScript 描述了以下内容：</p>
                     
                   </p>
 
-                <p>首先我们先抽象出HTML文档的生命周期：</p>
+                <h3>js选择器熟练度有关</h3>
                 <!-- Code area -->
                 <pre>
                   <code>
+&lt;html:radio&gt;
+获取选中的radio对象：var myradio= $(&#39;input:radio[name=&quot;type&quot;]:checked&#39;);  
+radio是否选中：var isCheck = $(&#39;#box&#39;)[0].checked;
+选中radio：$(&#39;#radioid&#39;).attr(&#39;checked&#39;, &#39;checked&#39;);
 
+&lt;html:checkbox&gt;标签
+获取所有选中的checkbox： var array = $(&#39;input:[name=checkboxname]:checked&#39;);
+checkbox是否选中： var isChecked = $(&#39;#checkboxid&#39;)[0].checked;
+选中checkbox： $(&#39;#checkboxid&#39;).attr(&#39;checked&#39;, &#39;checked&#39;);
+
+&lt;html:select&gt;标签
+获取select的所有option： var array = = $(&quot;#selectid option&quot;);
+获取选中的select： var isChecked = $(&quot;#selectid option:selected&quot;).val();
+选中select： $(&#39;#selectid &#39;).attr(&#39;selected&#39;, &#39;selected&#39;);
+
+选择HTML内容
+  ● innerHTML 设置或获取位于对象起始和结束标签内的 HTML
+  ● outerHTML 设置或获取对象及其内容的 HTML 形式
+  ● innerText 设置或获取位于对象起始和结束标签内的文本
+  ● outerText 设置(包括标签)或获取(不包括标签)对象的文本
                   </code>
                 </pre>
 
