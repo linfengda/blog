@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">May 01, 2018</span>
+									<h1>primary javascript</h1>
+									<p>this page introduce primary javascript, including ECMAScript/data type/basic functions . </p>
+								</header>
+						    
+              <!-- Definition area -->
+                <h3>Definition</h3>
+                <dl>
+                  <dt>ECMAScript</dt>
+                  <dd>
+                    <p>ECMAScript，正式名称为 ECMA 262 和 ISO/IEC 16262，是宿主环境中脚本语言的国际 Web 标准。 
+ECMAScript 描述了以下内容：</p>
+                  <ul>
+                      <li>语法</li>
+                      <li>类型</li>
+                      <li>语句</li>
+                      <li>关键字</li>
+                      <li>保留字</li>
+                      <li>运算符</li>
+                      <li>对象</li>
+                  </ul>
+                  <p>ECMAScript 仅仅是一个描述，定义了脚本语言的所有属性、方法和对象。其他语言可以实现 ECMAScript 来作为功能的基准，JavaScript 是 ECMAScript 规范的一种实现。</p>
+                  </dd>
+                  <dt>javacript组成</dt>
+                  <dd>
+                    <p>尽管 ECMAScript 是一个重要的标准，但它并不是 JavaScript 唯一的部分，当然，也不是唯一被标准化的部分。实际上，一个完整的 JavaScript 实现是由以下 3 个不同部分组成的：
+                    </p>
+                    <ul>
+                      <li>核心（ECMAScript）</li>
+                      <li>文档对象模型（DOM）</li>
+                      <li>浏览器对象模型（BOM）</li>
+                    </ul>
+                    <span class="image left"><img src="../images/article021_001.gif" alt="" /></span>          
+                  </dd>
+                </dl>
+
+                <!-- Introduction area -->
+                  <h3>typeof 和 instance of的区别</h3>
+                  <p>
+                    typeof<br>
+                    typeof 是一个一元运算，放在一个运算数之前，运算数可以是任意类型。
+                    它返回值是一个字符串，该字符串说明运算数的类型。typeof 一般只能返回如下几个结果：
+                    number,boolean,string,function,object,undefined。我们可以使用 typeof 来获取一个变量是否存在，如 if(typeof a!="undefined"){alert("ok")}，而不要去使用 if(a) 因为如果 a 不存在（未声明）则会出错，对于 Array,Null 等特殊对象使用 typeof 一律返回 object，这正是 typeof 的局限性。
+                    instanceof<br>
+                    instanceof 用于判断一个变量是否某个对象的实例，
+                    如 var a=new Array();alert(a instanceof Array); 会返回 true，
+                    同时 alert(a instanceof Object) 也会返回 true;这是因为 Array 是 object的子类。
+                    再如：function test(){};var a=new test();alert(a instanceof test) 会返回true
+                  </p>
+
+                  <h3>this关键字的指向</h3>
+                  <p>
+                    <span class="image right"><img src="../images/article002_002.png" alt="" /></span>
+                    1) 函数有所属对象时：指向所属对象<br>
+                    
+                  </p>
+
+                <p>首先我们先抽象出HTML文档的生命周期：</p>
+                <!-- Code area -->
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
+
+               
+
+
+
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
