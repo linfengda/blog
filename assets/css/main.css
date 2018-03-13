@@ -1730,7 +1730,7 @@
 		line-height: 1.5;
 		letter-spacing: 0.075em;
 		text-transform: uppercase;
-		margin: 0 0 1rem 0;
+		margin: 0 1em 0 0;
 	}
 
 		h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
@@ -1791,8 +1791,8 @@
 		border: solid 2px;
 		font-family: "Courier New", monospace;
 		font-size: 0.9rem;
-		margin: 0 0.25rem;
-		padding: 0.25rem 0.65rem;
+		margin: 0;
+		padding: 0;
 	}
 
 	pre {
