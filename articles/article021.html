@@ -76,12 +76,14 @@ ECMAScript 描述了以下内容：</p>
 
                 <!-- Introduction area -->
                   <h3>typeof 和 instance of的区别</h3>
+                  <h4>typeof</h4>
                   <p>
-                    typeof<br>
                     typeof 是一个一元运算，放在一个运算数之前，运算数可以是任意类型。
                     它返回值是一个字符串，该字符串说明运算数的类型。typeof 一般只能返回如下几个结果：
                     number,boolean,string,function,object,undefined。我们可以使用 typeof 来获取一个变量是否存在，如 if(typeof a!="undefined"){alert("ok")}，而不要去使用 if(a) 因为如果 a 不存在（未声明）则会出错，对于 Array,Null 等特殊对象使用 typeof 一律返回 object，这正是 typeof 的局限性。
-                    instanceof<br>
+                  </p>
+                  <h4>instanceof</h4>
+                  <p>
                     instanceof 用于判断一个变量是否某个对象的实例，
                     如 var a=new Array();alert(a instanceof Array); 会返回 true，
                     同时 alert(a instanceof Object) 也会返回 true;这是因为 Array 是 object的子类。
@@ -90,7 +92,7 @@ ECMAScript 描述了以下内容：</p>
 
                   <h3>this关键字的指向</h3>
                   <p>
-                    <span class="image right"><img src="../images/article002_002.png" alt="" /></span>
+                    <span class="image right"><img src="../images/article021_002.png" alt="" /></span>
                     1) 函数有所属对象时：指向所属对象<br>
                     
                   </p>
