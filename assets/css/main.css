@@ -1798,16 +1798,18 @@
 	pre {
 		-webkit-overflow-scrolling: touch;
 		font-family: "Courier New", monospace;
-		font-size: 0.9rem;
+		font-size: 0.2rem;
 		margin: 0;
+		padding: 0;
 	}
 
-		pre code {
-			display: block;
-			line-height: 1.75;
-			padding: 1rem 1.5rem;
-			width: 100%;
-			overflow-x: auto;		}
+	pre code {
+		display: block;
+		line-height: 1.75;
+		padding: 0rem 1rem;
+		width: 100%;
+		overflow-x: auto;		
+	}
 
 	hr {
 		border: 0;
