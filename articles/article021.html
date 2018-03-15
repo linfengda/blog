@@ -424,6 +424,27 @@ function(x, y){
     return x * y;
 }
                   </code>
+                  <h3>熟练度有关：JavaScript 解构</h3>
+                <!-- Code area -->
+                  <code>
+//一个新的赋值语法，可以让您快速解压缩对象属性和数组中的值，并将它们分配给各个变量。
+var jsondata = {
+    title: 'Top 5 JavaScript ES6 Features',
+    Details: {
+        date: {
+            created: '2017/09/19',
+            modified: '2017/09/20',
+        },
+        Category: 'JavaScript',
+    },
+    url: '/top-5-es6-features/'
+};
+
+var {title, Details: {date: {created, modified}}} = jsondata
+console.log(title) // 'Top 5 JavaScript ES6 Features'
+console.log(created) // '2017/09/19'
+console.log(modified) // '2017/09/20'
+                  </code>
 
 
 							</section>
