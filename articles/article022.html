@@ -45,18 +45,108 @@
                 <h3>配置</h3>
                 <dl>
                   <dt>CentOS Linux release 7.4.1708 (Core)</dt>
+                  <dt>jdk-7u80-linux-x64</dt>
                   <dt>apache-tomcat-7.0.85</dt>
                 </dl>
 
-                <!-- <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article020_001.png" alt="" />
-                </div> -->
-                <p>首先上传tomcat到服务器并解压：</p>
+                <p>linux命令：</p>
+                <pre>
+                  <code>
+uname -a      //显示系统版本信息
+top      //显示系统进程
+kill pid      //杀死进程
+ls -a      //显示所有文件
+ls -r      //显示文件（带参数）
+ls -l      //显示文件（带详细参数）
+mkdir filename      //新建文件夹
+cp -a /root/aaa /root/bbb      //复制文件夹
+mv /root/aaa/1.txt /root/bbb/1.txt      //移动文件
+mv /root/aaa /root/bbb/      //移动文件夹
+rm /root/aaa/1.txt      //删除文件
+rm -rf /root/aaa      //删除文件夹
+
+                  </code>
+                </pre>
+
+                <p>1.在usr目录下建立java目录</p>
+                <pre>
+                  <code>
+mkdir java
+cd /usr/java
+                  </code>
+                </pre>
+                <p>2.上传jdk到java目录并解压</p>
+                <pre>
+                  <code>
+tar zxvf jdk-7u80-linux-x64.gz
+                  </code>
+                </pre>
+                <p>3.配置环境变量</p>
+                <pre>
+                  <code>
+vim /etc/profile
+                  </code>
+                </pre>
+                <p>3-1.打开配置后按i进入编辑状态，进入insert状态</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_001.png" alt="" />
+                </div>
+                <p>3-2.然后添加如下内容：JAVA_HOME根据实际目录来</p>
+                <pre>
+                  <code>
+JAVA_HOME=/usr/java/jdk1.7
+CLASSPATH=$JAVA_HOME/lib/
+PATH=$PATH:$JAVA_HOME/bin
+export PATH JAVA_HOME CLASSPATH
+                  </code>
+                </pre>
+                <p>3-3.编辑好之后，按esc键退出insert状态，输入":"，再输入"wq"，然后按回车键（如果不保存退出，则输入输入":"，再输入"q!"）</p>
+                <p>4.激活配置</p>
+                <pre>
+                  <code>
+source /etc/profile
+                  </code>
+                </pre>
+                <p>5.查看安装情况</p>
+                <pre>
+                  <code>
+source /etc/profile
+
+//会有以下信息
+
+java version "1.8.0_60"
+Java(TM) SE Runtime Environment (build 1.8.0_60-b27)
+Java HotSpot(TM) Client VM (build 25.60-b23, mixed mode)
+                  </code>
+                </pre>
+
+
+
+                <p>6.在usr目录下建立tomcat目录</p>
+                <pre>
+                  <code>
+mkdir tomcat
+cd /usr/tomcat
+                  </code>
+                </pre>
+                <p>7.上传tomcat到服务器并解压</p>
                 <pre>
                   <code>
 tar zxvf apache-tomcat-7.0.85.tar.gz
                   </code>
                 </pre>
+                <p>8.进入tomcat服务器的bin目录，然后执行"./startup.sh"命令启动Tomcat服务器，如下图所示：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_002.png" alt="" />
+                </div>
+                <p>9.进入tomcat服务器下的logs目录，打开catalina.out文件进行查看启动信息</p>
+				<pre>
+                  <code>
+cat catalina.out
+                  </code>
+                </pre>
+
+                
 
                 
 
