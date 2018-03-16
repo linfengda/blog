@@ -118,8 +118,6 @@ Java HotSpot(TM) Client VM (build 25.60-b23, mixed mode)
                   </code>
                 </pre>
 
-
-
                 <p>6.在usr目录下建立tomcat目录</p>
                 <pre>
                   <code>
@@ -133,7 +131,7 @@ cd /usr/tomcat
 tar zxvf apache-tomcat-7.0.85.tar.gz
                   </code>
                 </pre>
-                <p>8.进入tomcat服务器的bin目录，然后执行"./startup.sh"命令启动Tomcat服务器，如下图所示：</p>
+                <p>8.进入tomcat服务器的bin目录，然后执行"./startup.sh"命令启动Tomcat服务器（使用"./shutdown.sh"关闭tomcat），如下图所示：</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article022_002.png" alt="" />
                 </div>
@@ -143,6 +141,39 @@ tar zxvf apache-tomcat-7.0.85.tar.gz
 cat catalina.out
                   </code>
                 </pre>
+
+                <p>10.将必要的jar包放到tomcat/lib目录下，如：mysql-connector-java-5.1.30.jar</p>
+                <p>在一个tomcat下部署多个webapp的时候，如果每个webapp都用同一个连接池，那么mysql的连接数资源会紧张，我们可以通过配置jndi解决这个问题。</p>
+                <p>1.修改tomcat的context.xml，在&lt;context&quot;节点下添加</p>
+				<pre>
+                  <code>
+&lt;Resource name=&quot;jndi/qyswfx&quot; auth=&quot;Container&quot; type=&quot;javax.sql.DataSource&quot; driverClassName=&quot;com.mysql.jdbc.Driver&quot; url=&quot;jdbc:mysql://xx.xx.xx.xxx:3306/qyswfx&quot; username=&quot;db_qyswfx&quot; password=&quot;666666&quot; initialSize=&quot;10&quot; maxActive=&quot;20&quot; maxIdle=&quot;18&quot; maxWait=&quot;60000&quot;/&gt;
+                  </code>
+                </pre>
+                <p>2.修改webapp的web.xml，在&lt;web-app&quot;节点下添加</p>
+				<pre>
+                  <code>
+&lt;resource-ref&gt;
+	&lt;res-ref-name&gt;qyswfx&lt;/res-ref-name&gt;
+	&lt;res-type&gt;javax.sql.DataSource&lt;/res-type&gt;
+	&lt;res-auth&gt;Container&lt;/res-auth&gt;
+&lt;/resource-ref&gt;
+                  </code>
+                </pre>
+                <p>3.如果你的应用使用spring框架，那么在org.springframework.web.context.ContextLoaderListener监听的配置文件中（通常为applicationContext.xml），数据源这样配置</p>
+				<pre>
+                  <code>
+&lt;bean id=&quot;dataSource&quot;
+	class=&quot;org.springframework.jndi.JndiObjectFactoryBean&quot;&gt;
+	&lt;property name=&quot;jndiName&quot; value=&quot;java:comp/env/jndi/qyswfx&quot; /&gt;
+&lt;/bean&gt; 
+                  </code>
+                </pre>
+
+				<p>11.部署webapp到tomcat/webapps目录，效果如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_002.png" alt="" />
+                </div>
 
                 
 
