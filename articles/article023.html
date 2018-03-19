@@ -1,0 +1,315 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">May 02, 2018</span>
+									<h1>zookeeper linux deploy</h1>
+									<p>in distributed applications, coordination services are notoriously hard to get right. They are especially prone to errors such as race conditions and deadlock. <br>
+                  zooKeeper is a distributed, open-source coordination service for distributed applications. It exposes a simple set of primitives that distributed applications can build upon to implement higher level services for synchronization, configuration maintenance, and groups and naming. It is designed to be easy to program to, and uses a data model styled after the familiar directory tree structure of file systems. It runs in Java and has bindings for both Java and C.<br>
+                  ZooKeeper is simple. ZooKeeper allows distributed processes to coordinate with each other through a shared hierarchal namespace which is organized similarly to a standard file system. The name space consists of data registers - called znodes, in ZooKeeper parlance - and these are similar to files and directories. Unlike a typical file system, which is designed for storage, ZooKeeper data is kept in-memory, which means ZooKeeper can acheive high throughput and low latency numbers. <br>
+                  The ZooKeeper implementation puts a premium on high performance, highly available, strictly ordered access. The performance aspects of ZooKeeper means it can be used in large, distributed systems. The reliability aspects keep it from being a single point of failure. The strict ordering means that sophisticated synchronization primitives can be implemented at the client.<br>
+
+                  </p>
+								</header>
+
+                <!-- Definition area -->
+                <h3>Definition</h3>
+                <dl>
+                  <dt>同步原语</dt>
+                  <dd>当一个进程调用一个send原语时，在消息开始发送后，发送进程便处于阻塞状态，直至消息完全发送完毕，send原语的后继语句才能继续执行。当一个进程调用一个receive原语时，并不立即返回控制，而是等到把消息实际接收下来，并把它放入指定的接收区，才返回控制，继续执行该原语的后继指令。在这段时间它一直处于阻塞状态。上述的send和receive被称为同步通信原语或阻塞通信原语。（不懂得去复习《计算机操作系统》） </dd>
+                  <dt>数据模型和分层命名空间</dt>
+                  <dd>ZooKeeper的数据模型是内存中的一个ZNode数，由斜杠/进行分割的路径，就是一个ZNode，每个ZNode上除了保存自己的数据内容，还保存一系列属性信息； 
+                  Znodes maintain a stat structure that includes version numbers for data changes, ACL changes, and timestamps, to allow cache validations and coordinated updates. Each time a znode's data changes, the version number increases. For instance, whenever a client retrieves data it also receives the version of the data.
+                  ZooKeeper中的数据节点分为两种：持久节点和临时节点。
+                  所谓的持久节点是指一旦这个ZNode创建成功，除非主动进行ZNode的移除操作，节点会一直保存在ZooKeeper上；而临时节点的生命周期是跟客户端的会话相关联的，一旦客户端会话失效，这个会话上的所有临时节点都会被自动移除。</dd>
+                </dl>
+
+                <p></p>
+                <h3>配置</h3>
+                <dl>
+                  <dt>CentOS Linux release 7.4.1708 (Core)</dt>
+                  <dt>jdk-7u80-linux-x64</dt>
+                  <dt>zookeeper-3.4.11.tar.gz</dt>
+                </dl>
+                
+                <p>可能用到的zk命令：</p>
+                <pre>
+                  <code>
+        get path [watch]
+        ls path [watch]
+        set path data [version]
+        delquota [-n|-b] path
+        quit
+        printwatches on|off
+        createpath data acl
+        stat path [watch]
+        listquota path
+        history
+        setAcl path acl
+        getAcl path
+        sync path
+        redo cmdno
+        addauth scheme auth
+        delete path [version]
+        setquota -n|-b val path
+                  </code>
+                </pre>
+
+                <p>1.上传zookeeper到zookeeper目录并解压，并建立data目录，logs目录</p>
+                <pre>
+                  <code>
+tar zxvf zookeeper-3.4.11.tar.gz
+                  </code>
+                </pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article023_001.png" alt="" />
+                </div>
+                <p>2.基本配置</p>
+                <pre>
+                  <code>
+#数据目录
+dataDir=/usr/zookeeper/data
+#日志目录
+dataLogDir=/usr/zookeeper/logs
+#心跳间隔时间，zookeeper中使用的基本时间单位，毫秒值。每隔2秒发送一个心跳
+tickTime=2000
+#leader与客户端连接超时时间。表示5个心跳间隔
+initLimit=5
+#Leader与Follower之间的超时时间，表示2个心跳间隔
+syncLimit=2
+#客户端连接端口。多个实例的端口配置不可重复
+clientPort=2181 
+#server.NUM=IP:port1:port2  NUM表示本机为第几号服务器；IP为本机ip地址；
+#port1为leader与follower通信端口；port2为参与竞选leader的通信端口
+#多个实例的端口配置不能重复，如下：
+server.1=111.230.223.233:2888:3888
+server.2=111.230.211.90:2888:3888
+server.3=127.0.0.1:2888:3888
+                  </code>
+                </pre>
+                <p>3.添加myid文件，data目录下添加myid文件,用于存储一个数值，用来作为该ZooKeeper Server进程的标识。即上面配置中的NUM。 </p>
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
+                <p>4.集群方式启动 </p>
+                <pre>
+                  <code>
+zkServer.sh start
+                  </code>
+                </pre>
+                <p>5.查看状态 </p>
+                <pre>
+                  <code>
+zkServer.sh status
+//出现如下提示
+[root@sso conf]# /var/local/server/zookeeper/bin/zkServer.sh status
+JMX enabled by default
+Using config: /var/local/server/zookeeper/bin/../conf/zoo.cfg
+Error contacting service. It is probably not running.
+//查看日志
+more zookeeper.out
+//异常信息如下：
+java.net.ConnectException: Connection refused
+  at java.net.PlainSocketImpl.socketConnect(Native Method)
+  at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+  at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+  at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+  at java.net.Socket.connect(Socket.java:579)
+  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:558)
+  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectAll(QuorumCnxManager.java:610)
+  at org.apache.zookeeper.server.quorum.FastLeaderElection.lookForLeader(FastLeaderElection.java:845)
+  at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:957)
+2018-03-18 23:25:46,542 [myid:1] - INFO  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumPeer$QuorumServer@184] - Resolved hostname: 111.230.211.90 to address: /111.230.211.90
+2018-03-18 23:25:46,542 [myid:1] - WARN  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumCnxManager@584] - Cannot open channel to 3 at election address /127.0.0.1:3888
+java.net.ConnectException: Connection refused
+  at java.net.PlainSocketImpl.socketConnect(Native Method)
+  at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+  at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+  at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+  at java.net.Socket.connect(Socket.java:579)
+  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:558)
+  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectAll(QuorumCnxManager.java:610)
+  at org.apache.zookeeper.server.quorum.FastLeaderElection.lookForLeader(FastLeaderElection.java:845)
+  at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:957)
+2018-03-18 23:25:46,543 [myid:1] - INFO  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumPeer$QuorumServer@184] - Resolved hostname: 127.0.0.1 to address: /127.0.0.1
+2018-03-18 23:25:46,543 [myid:1] - INFO  [QuorumPeer[myid=1]/0.0.0.0:2181:FastLeaderElection@854] - Notification time out: 400
+2018-03-18 23:25:46,946 [myid:1] - WARN  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumCnxManager@584] - Cannot open channel to 2 at election address /111.230.211.90:3888
+java.net.ConnectException: Connection refused
+  at java.net.PlainSocketImpl.socketConnect(Native Method)
+  at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+  at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+  at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+  at java.net.Socket.connect(Socket.java:579)
+  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:558)
+  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectAll(QuorumCnxManager.java:610)
+  at org.apache.zookeeper.server.quorum.FastLeaderElection.lookForLeader(FastLeaderElection.java:845)
+  at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:957)
+2018-03-18 23:25:46,946 [myid:1] - INFO  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumPeer$QuorumServer@184] - Resolved hostname: 111.230.211.90 to address: /111.230.211.90
+2018-03-18 23:25:46,946 [myid:1] - WARN  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumCnxManager@584] - Cannot open channel to 3 at election address /127.0.0.1:3888
+java.net.ConnectException: Connection refused
+  at java.net.PlainSocketImpl.socketConnect(Native Method)
+  at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+  at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+  at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+  at java.net.Socket.connect(Socket.java:579)
+                  </code>
+                </pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article023_002.png" alt="" />
+                </div>
+                <p>原因是配置的机器111.230.211.90没有配置正确，先注释掉再启动，启动成功，状态：Mode: standalone。配置正确启动后是这样的：</p>
+                <pre>
+                  <code>
+[root@VM_0_7_centos bin]# ./zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[root@VM_0_7_centos bin]# ./zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
+Mode: follower
+
+
+[root@VM_0_12_centos bin]# ./zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[root@VM_0_12_centos bin]# ./zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
+Mode: leader
+                  </code>
+                </pre>
+
+                <p>在111.230.223.233上连接111.230.211.90</p>
+                <pre>
+                  <code>
+zkCli.sh -server 111.230.211.90:2181
+
+//信息如下，连接成功
+2018-03-19 11:43:36,614 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@1035] - Opening socket connection to server 111.230.211.90/111.230.211.90:2181. Will not attempt to authenticate using SASL (unknown error)
+Welcome to ZooKeeper!
+JLine support is enabled
+2018-03-19 11:43:36,656 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@877] - Socket connection established to 111.230.211.90/111.230.211.90:2181, initiating session
+[zk: 111.230.211.90:2181(CONNECTING) 0] 2018-03-19 11:43:36,781 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@1302] - Session establishment complete on server 111.230.211.90/111.230.211.90:2181, sessionid = 0x2000acd6fea0000, negotiated timeout = 30000
+                  </code>
+                </pre>
+
+                <p>然后在111.230.211.90上创建一个叫qyswfx节点，这个节点会以znode的形式存储在111.230.211.90机器上，并同步到其他机器。</p>
+                <pre>
+                  <code>
+[zk: 111.230.211.90:2181(CONNECTED) 2] create /qyswfx qyswfx_node
+Created /qyswfx
+[zk: 111.230.211.90:2181(CONNECTED) 3] get /qyswfx
+qyswfx_node
+cZxid = 0x100000002
+ctime = Mon Mar 19 14:07:31 CST 2018
+mZxid = 0x100000002
+mtime = Mon Mar 19 14:07:31 CST 2018
+pZxid = 0x100000002
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 11
+numChildren = 0
+                  </code>
+                </pre>
+
+                <p>在111.230.211.90上连接111.230.223.233，可以查看到节点已经同步</p>
+                <pre>
+                  <code>
+[zk: 111.230.223.233:2181(CONNECTED) 7] get /qyswfx
+qyswfx_node
+cZxid = 0x100000002
+ctime = Mon Mar 19 14:07:31 CST 2018
+mZxid = 0x100000002
+mtime = Mon Mar 19 14:07:31 CST 2018
+pZxid = 0x100000002
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 11
+numChildren = 0
+                  </code>
+                </pre>
+
+                <p>此时集群配置完成，如果leader节点挂掉，根据算法会有一个follower节点被选举为leader节点。</p>
+                <p style="color: red;">前方高能！！！！！！！！！！！！！下面介绍怎么根据我们的业务需求配置zookeeper集群&&zookeeper集群选举具体动作&&ZAB协议</p>
+                
+
+                
+
+
+
+
+                
+
+                
+
+
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
