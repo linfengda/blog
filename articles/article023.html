@@ -121,12 +121,7 @@ server.2=111.230.211.90:2888:3888
 server.3=127.0.0.1:2888:3888
                   </code>
                 </pre>
-                <p>3.添加myid文件，data目录下添加myid文件,用于存储一个数值，用来作为该ZooKeeper Server进程的标识。即上面配置中的NUM。 </p>
-                <pre>
-                  <code>
-
-                  </code>
-                </pre>
+                <p>3.添加myid文件，myid文件存储一个数值，是ZooKeeper Server进程的标识。即上面配置中的server.后面的数字。 </p>
                 <p>4.集群方式启动 </p>
                 <pre>
                   <code>
@@ -137,61 +132,6 @@ zkServer.sh start
                 <pre>
                   <code>
 zkServer.sh status
-//出现如下提示
-[root@sso conf]# /var/local/server/zookeeper/bin/zkServer.sh status
-JMX enabled by default
-Using config: /var/local/server/zookeeper/bin/../conf/zoo.cfg
-Error contacting service. It is probably not running.
-//查看日志
-more zookeeper.out
-//异常信息如下：
-java.net.ConnectException: Connection refused
-  at java.net.PlainSocketImpl.socketConnect(Native Method)
-  at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
-  at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
-  at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
-  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-  at java.net.Socket.connect(Socket.java:579)
-  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:558)
-  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectAll(QuorumCnxManager.java:610)
-  at org.apache.zookeeper.server.quorum.FastLeaderElection.lookForLeader(FastLeaderElection.java:845)
-  at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:957)
-2018-03-18 23:25:46,542 [myid:1] - INFO  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumPeer$QuorumServer@184] - Resolved hostname: 111.230.211.90 to address: /111.230.211.90
-2018-03-18 23:25:46,542 [myid:1] - WARN  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumCnxManager@584] - Cannot open channel to 3 at election address /127.0.0.1:3888
-java.net.ConnectException: Connection refused
-  at java.net.PlainSocketImpl.socketConnect(Native Method)
-  at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
-  at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
-  at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
-  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-  at java.net.Socket.connect(Socket.java:579)
-  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:558)
-  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectAll(QuorumCnxManager.java:610)
-  at org.apache.zookeeper.server.quorum.FastLeaderElection.lookForLeader(FastLeaderElection.java:845)
-  at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:957)
-2018-03-18 23:25:46,543 [myid:1] - INFO  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumPeer$QuorumServer@184] - Resolved hostname: 127.0.0.1 to address: /127.0.0.1
-2018-03-18 23:25:46,543 [myid:1] - INFO  [QuorumPeer[myid=1]/0.0.0.0:2181:FastLeaderElection@854] - Notification time out: 400
-2018-03-18 23:25:46,946 [myid:1] - WARN  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumCnxManager@584] - Cannot open channel to 2 at election address /111.230.211.90:3888
-java.net.ConnectException: Connection refused
-  at java.net.PlainSocketImpl.socketConnect(Native Method)
-  at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
-  at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
-  at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
-  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-  at java.net.Socket.connect(Socket.java:579)
-  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectOne(QuorumCnxManager.java:558)
-  at org.apache.zookeeper.server.quorum.QuorumCnxManager.connectAll(QuorumCnxManager.java:610)
-  at org.apache.zookeeper.server.quorum.FastLeaderElection.lookForLeader(FastLeaderElection.java:845)
-  at org.apache.zookeeper.server.quorum.QuorumPeer.run(QuorumPeer.java:957)
-2018-03-18 23:25:46,946 [myid:1] - INFO  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumPeer$QuorumServer@184] - Resolved hostname: 111.230.211.90 to address: /111.230.211.90
-2018-03-18 23:25:46,946 [myid:1] - WARN  [QuorumPeer[myid=1]/0.0.0.0:2181:QuorumCnxManager@584] - Cannot open channel to 3 at election address /127.0.0.1:3888
-java.net.ConnectException: Connection refused
-  at java.net.PlainSocketImpl.socketConnect(Native Method)
-  at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
-  at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
-  at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
-  at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-  at java.net.Socket.connect(Socket.java:579)
                   </code>
                 </pre>
                 <div class="full-div">
@@ -276,7 +216,7 @@ numChildren = 0
                 </pre>
 
                 <p>此时集群配置完成，如果leader节点挂掉，根据算法会有一个follower节点被选举为leader节点。</p>
-                <p style="color: red;">前方高能！！！！！！！！！！！！！下面介绍怎么根据我们的业务需求配置zookeeper集群&&zookeeper集群选举具体动作&&ZAB协议</p>
+                <p style="color: red;">前方高能！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！<br>下面介绍怎么根据我们的业务需求配置zookeeper集群&&zookeeper集群选举具体动作&&ZAB协议</p>
                 
 
                 
