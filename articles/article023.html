@@ -53,7 +53,6 @@
                   <dd>当一个进程调用一个send原语时，在消息开始发送后，发送进程便处于阻塞状态，直至消息完全发送完毕，send原语的后继语句才能继续执行。当一个进程调用一个receive原语时，并不立即返回控制，而是等到把消息实际接收下来，并把它放入指定的接收区，才返回控制，继续执行该原语的后继指令。在这段时间它一直处于阻塞状态。上述的send和receive被称为同步通信原语或阻塞通信原语。（不懂得去复习《计算机操作系统》） </dd>
                   <dt>数据模型和分层命名空间</dt>
                   <dd>ZooKeeper的数据模型是内存中的一个ZNode数，由斜杠/进行分割的路径，就是一个ZNode，每个ZNode上除了保存自己的数据内容，还保存一系列属性信息； 
-                  Znodes maintain a stat structure that includes version numbers for data changes, ACL changes, and timestamps, to allow cache validations and coordinated updates. Each time a znode's data changes, the version number increases. For instance, whenever a client retrieves data it also receives the version of the data.
                   ZooKeeper中的数据节点分为两种：持久节点和临时节点。
                   所谓的持久节点是指一旦这个ZNode创建成功，除非主动进行ZNode的移除操作，节点会一直保存在ZooKeeper上；而临时节点的生命周期是跟客户端的会话相关联的，一旦客户端会话失效，这个会话上的所有临时节点都会被自动移除。</dd>
                 </dl>
@@ -98,7 +97,7 @@ tar zxvf zookeeper-3.4.11.tar.gz
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article023_001.png" alt="" />
                 </div>
-                <p>2.基本配置</p>
+                <p>2.zoo.cfg基本配置</p>
                 <pre>
                   <code>
 #数据目录
