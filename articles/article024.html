@@ -269,10 +269,10 @@ INFO  - 2018-03-22 12:57:13.761; org.apache.zookeeper.ClientCnxn$EventThread; Ev
                 <p>10.通过http协议与solr交互（可以在浏览器栏测试，生产中我们使用代码自动化执行。），使用上传的配置文件qyswfx_conf，创建一个collection集合，分片数量numShards=2，复制因子replicationFactor=2</p>
                 <pre>
                   <code>
-//如果你在1台机器：111.230.211.90:2181部署了solr
+//如果你在1台机器：111.230.211.90:8983部署了solr
 http://111.230.211.90:8983/solr/admin/collections?action=CREATE&amp;name=collection_hmdcx&amp;numShards=2&amp;replicationFactor=1&amp;maxShardsPerNode=2&amp;collection.configName=qyswfx_conf
 
-//如果你在2台机器：111.230.211.90:2181,111.230.223.233:2181都部署了solr
+//如果你在2台机器：111.230.211.90:8983,111.230.223.233:8983都部署了solr
 http://111.230.211.90:8983/solr/admin/collections?action=CREATE&amp;name=collection_hmdcx&amp;numShards=2&amp;replicationFactor=2&amp;maxShardsPerNode=2&amp;collection.configName=qyswfx_conf
                   </code>
                 </pre>
