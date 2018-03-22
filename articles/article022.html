@@ -94,9 +94,11 @@ vim /etc/profile
                 <pre>
                   <code>
 JAVA_HOME=/usr/java/jdk1.7
+JRE_HOME=/usr/java/jdk1.7/jre
 CLASSPATH=$JAVA_HOME/lib/
-PATH=$PATH:$JAVA_HOME/bin
+PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
 export PATH JAVA_HOME CLASSPATH
+export JAVA_HOME JRE_HOME CLASS_PATH PATH
                   </code>
                 </pre>
                 <p>3-3.编辑好之后，按esc键退出insert状态，输入":"，再输入"wq"，然后按回车键（如果不保存退出，则输入":"，再输入"q!"，然后按回车键）</p>

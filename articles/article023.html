@@ -68,23 +68,15 @@
                 <p>可能用到的zk命令：</p>
                 <pre>
                   <code>
-        get path [watch]
-        ls path [watch]
-        set path data [version]
-        delquota [-n|-b] path
-        quit
-        printwatches on|off
-        createpath data acl
-        stat path [watch]
-        listquota path
-        history
+        zkServer.sh start
+        zkServer.sh stop
+        zkServer.sh status
+        zkCli.sh -server ip:port
+        create /node nodeName
+        get /node
         setAcl path acl
         getAcl path
-        sync path
-        redo cmdno
-        addauth scheme auth
-        delete path [version]
-        setquota -n|-b val path
+        quit
                   </code>
                 </pre>
 
@@ -215,7 +207,7 @@ numChildren = 0
                 </pre>
 
                 <p>此时集群配置完成，如果leader节点挂掉，根据算法会有一个follower节点被选举为leader节点。</p>
-                <p style="color: red;">前方高能！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！<br>下面介绍怎么根据我们的业务需求配置zookeeper集群&&zookeeper集群选举具体动作&&ZAB协议</p>
+                <p style="color: red;">前方高能！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！<br>下面介绍怎么根据我们的业务需求配置zookeeper集群&&zookeeper集群选举具体动作</p>
                 
 
                 
