@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">May 15, 2018</span>
+									<h1>sorting</h1>
+									<p>this page intruduce 3 sorting algorithm: 插入排序、选择排序、交换排序（使用java语言描述）.</p>
+								</header>
+
+                <p>交换排序</p>
+                <pre>
+                  <code>
+import java.util.Arrays;
+
+public class MathUtil {
+	
+	public static void main(String[] args) {
+		try {
+			MathUtil mu = new MathUtil();
+			int[] array = {149,38,65,97,76,13,27,49};
+//			mu.maopaopaixu_l(array);
+//			mu.maopaopaixu_r(array);
+			mu.kuaisupaixu(array, 0, array.length);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/** 向左冒泡 **/
+	public int[] maopaopaixu_l(int[] array) throws Exception {
+		
+		int k;
+		for (int i = 0; i &lt; array.length; i++) {
+			k = 0;	//每次开始冒泡前，初始化 k 值为 0
+			for (int j = array.length-1; j &gt; i; j--) {
+				if (array[j] &gt; array[j-1]) {
+					k = 1;
+					int temp = array[j];
+					array[j] = array[j-1];
+					array[j-1] = temp;
+				}
+			}
+			//如果 k 值为 0，表明表中记录排序完成
+			if (k == 0) break;
+		}
+		
+		System.out.println(Arrays.toString(array));
+		return array;
+	}
+	
+	/** 向右冒泡 **/
+	public int[] maopaopaixu_r(int[] array) throws Exception {
+			
+		int k;
+		for (int i = 0; i &lt; array.length; i++) {
+			k = 0;	//每次开始冒泡前，初始化 k 值为 0
+			for (int j = 0; j &lt; array.length-1-i; j++) {
+				if (array[j] &gt; array[j+1]) {
+					k = 1;
+					int temp = array[j];
+					array[j] = array[j+1];
+					array[j+1] = temp;
+				}
+			}
+			//如果 k 值为 0，表明表中记录排序完成
+			if (k == 0) break;
+		}
+		
+		System.out.println(Arrays.toString(array));
+		return array;
+	}
+	
+	/** 快速排序 **/
+	public void kuaisupaixu(int[] array, int left, int right) throws Exception {
+		
+		if (left &gt; right) {
+			return;
+		}
+		int i = left, j = right;
+		int temp = array[i];//基准数
+		while(i != j) {
+			//从右边找
+			while(array[j] &gt;= temp &amp;&amp; i &lt; j) {
+				j--;
+			}
+			//从左边找
+			while(array[i] &lt;= temp &amp;&amp; i &lt; j) {
+				i++;
+			}
+			if (i &lt; j) {
+				int t = array[i];
+				array[i] = array[j];
+				array[j] = t;
+			}
+		}
+		array[left] = array[i];
+		array[i] = temp;
+		
+		kuaisupaixu(array, left, i-1);
+		kuaisupaixu(array, i+1, right);
+		System.out.println(Arrays.toString(array));
+	}
+
+}
+                  </code>
+                </pre>
+
+                <p>交换排序</p>
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
+
+
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
