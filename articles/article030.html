@@ -1,0 +1,475 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">May 01, 2018</span>
+									<h1>primary javascript</h1>
+									<p>this page introduce primary javascript, including ECMAScript/data type/basic functions . </p>
+								</header>
+						    
+              <!-- Definition area -->
+                <h3>Definition</h3>
+                <dl>
+                  <dt>ECMAScript</dt>
+                  <dd>
+                    <p>ECMAScript，正式名称为 ECMA 262 和 ISO/IEC 16262，是宿主环境中脚本语言的国际 Web 标准。 
+ECMAScript 描述了以下内容：</p>
+                  <ul>
+                      <li>语法</li>
+                      <li>类型</li>
+                      <li>语句</li>
+                      <li>关键字</li>
+                      <li>保留字</li>
+                      <li>运算符</li>
+                      <li>对象</li>
+                  </ul>
+                  <p>ECMAScript 仅仅是一个描述，定义了脚本语言的所有属性、方法和对象。其他语言可以实现 ECMAScript 来作为功能的基准，JavaScript 是 ECMAScript 规范的一种实现。</p>
+                  </dd>
+                  <dt>javacript组成</dt>
+                  <dd>
+                    <p>尽管 ECMAScript 是一个重要的标准，但它并不是 JavaScript 唯一的部分，当然，也不是唯一被标准化的部分。实际上，一个完整的 JavaScript 实现是由以下 3 个不同部分组成的：
+                    </p>
+                    <ul>
+                      <li>核心（ECMAScript）</li>
+                      <li>文档对象模型（DOM）</li>
+                      <li>浏览器对象模型（BOM）</li>
+                    </ul>
+                    <div class="full-div">
+                        <img style="max-width: 100%;max-height: 100%;" src="../images/article021_001.gif" alt="" />
+                    </div>
+                  </dd>
+                </dl>
+
+                <!-- Introduction area -->
+                  <h3>typeof 和 instance of的区别</h3>
+                  <h4>typeof</h4>
+                  <p>
+                    typeof 是一个一元运算，放在一个运算数之前，运算数可以是任意类型。
+                    它返回值是一个字符串，该字符串说明运算数的类型。typeof 一般只能返回如下几个结果：
+                    number,boolean,string,function,object,undefined。我们可以使用 typeof 来获取一个变量是否存在，如 if(typeof a!="undefined"){alert("ok")}，而不要去使用 if(a) 因为如果 a 不存在（未声明）则会出错，对于 Array,Null 等特殊对象使用 typeof 一律返回 object，这正是 typeof 的局限性。
+                  </p>
+                  <h4>instanceof</h4>
+                  <p>
+                    instanceof 用于判断一个变量是否某个对象的实例，
+                    如 var a=new Array();alert(a instanceof Array); 会返回 true，
+                    同时 alert(a instanceof Object) 也会返回 true;这是因为 Array 是 object的子类。
+                    再如：function test(){};var a=new test();alert(a instanceof test) 会返回true
+                  </p>
+
+                  <h3>this关键字的指向</h3>
+                  <div class="full-div">
+                      <img style="max-width: 100%;max-height: 100%;" src="../images/article021_002.png" alt="" />
+                  </div>
+                  <div class="full-div">
+                      <img style="max-width: 100%;max-height: 100%;" src="../images/article021_003.png" alt="" />
+                  </div>
+                  <div class="full-div">
+                      <img style="max-width: 100%;max-height: 100%;" src="../images/article021_004.png" alt="" />
+                  </div>
+
+                <h3>熟练度有关：js选择器</h3>
+                <!-- Code area -->
+                <pre>
+                  <code>
+&lt;html:radio&gt;
+获取选中的radio对象：var myradio= $(&#39;input:radio[name=&quot;type&quot;]:checked&#39;);  
+radio是否选中：var isCheck = $(&#39;#box&#39;)[0].checked;
+选中radio：$(&#39;#radioid&#39;).attr(&#39;checked&#39;, &#39;checked&#39;);
+
+&lt;html:checkbox&gt;标签
+获取所有选中的checkbox： var array = $(&#39;input:[name=checkboxname]:checked&#39;);
+checkbox是否选中： var isChecked = $(&#39;#checkboxid&#39;)[0].checked;
+选中checkbox： $(&#39;#checkboxid&#39;).attr(&#39;checked&#39;, &#39;checked&#39;);
+
+&lt;html:select&gt;标签
+获取select的所有option： var array = = $(&quot;#selectid option&quot;);
+获取选中的select： var isChecked = $(&quot;#selectid option:selected&quot;).val();
+选中select： $(&#39;#selectid &#39;).attr(&#39;selected&#39;, &#39;selected&#39;);
+
+选择HTML内容
+  ● innerHTML 设置或获取位于对象起始和结束标签内的 HTML
+  ● outerHTML 设置或获取对象及其内容的 HTML 形式
+  ● innerText 设置或获取位于对象起始和结束标签内的文本
+  ● outerText 设置(包括标签)或获取(不包括标签)对象的文本
+                  </code>
+                </pre>
+
+                <h3>熟练度有关：数组操作</h3>
+                <!-- Code area -->
+                <pre>
+                  <code>
+Array.forEach()//遍历
+Array.map()//遍历并修改
+Array.filter()//遍历并过滤
+Array.indexOf()//某个元素在数组中的位置
+Array.every()//遍历每个元素，如果对于每个元素，这个回调函数都返回true，则.every()返回true。否则，.every() 返回false。
+                  </code>
+                </pre>
+
+                <h3>熟练度有关：jquery操作</h3>
+                <!-- Code area -->
+                <pre>
+                  <code>
+jQuery.extend(object)//为jQuery类添加类方法，可以理解为添加静态方法。
+Objectj Query.extend( target, object1, [objectN])//用一个或多个其他对象来扩展一个对象，返回被扩展的对象
+jQuery.fn.extend(object)//对jQuery.prototype进得扩展，就是为jQuery类添加“成员函数”。
+                  </code>
+                </pre>
+
+                <h3>熟练度有关：js闭包</h3>
+                <!-- Code area -->
+                <pre>
+                  <code>
+//闭包的例子
+function count() {
+    var arr = [];
+    for (var i=1; i<=3; i++) {
+        arr.push((function (n) {
+            return function () {
+                return n * n;
+            }
+        })(i));
+    }
+    return arr;
+}
+
+var results = count();
+var f1 = results[0];//1
+var f2 = results[1];//4
+var f3 = results[2];//9
+
+//在面向对象的程序设计语言里，比如Java和C++，要在对象内部封装一个私有变量，可以用private修饰一个成员变量。
+js没有class机制，只有函数，借助闭包，同样可以封装一个私有变量。我们用JavaScript创建一个计数器：
+'use strict';
+function create_counter(initial) {
+    var x = initial || 0;
+    return {
+        inc: function () {
+            x += 1;
+            return x;
+        }
+    }
+}
+//它用起来像这样：
+var c2 = create_counter(10);
+c2.inc(); // 11
+c2.inc(); // 12
+c2.inc(); // 13
+                  </code>
+                </pre>
+
+                <h3>下面是使用闭包实现的一个分页js插件</h3>
+                <!-- Code area -->
+                <pre>
+                  <code>
+/**
+ * fastPage分页插件
+ * 
+ * @author: 玄葬
+ */
+
+Page = function(opt){
+  var me = this;
+  me.uid = uuid();                            //当前实例唯一标识
+  me.holderID = opt.holderID;         //页数容器id
+  me.containerID = opt.containerID;       //分页容器id
+  me.holder = $(&quot;#&quot;+opt.holderID);      //页数容器对象
+  me.container = $(&quot;#&quot;+opt.containerID);    //分页容器对象
+  me.showLength = Number(opt.showLength);   //显示的页数长度
+  me.pageIndex = Number(opt.pageIndex);     //当前页索引
+  me.pageSize = Number(opt.pageSize);     //分页大小
+  me.orderColumn = opt.orderColumn;       //排序字段
+  me.order = opt.order;             //排序方式
+  me.showInfo = opt.showInfo;         //是否显示分页信息
+  me.url = opt.url;               //分页查询url
+  me.data = opt.data;             //分页查询参数
+  me.laterPage = opt.laterPage;         //是否稍后分页
+  me.pageRenderFn = opt.pageRenderFn;     //页面渲染回调函数
+  me.navRenderFn = opt.navRenderFn;       //导航栏渲染回调函数
+  
+  fastPage.instances[me.uid] = me;
+  if (!me.laterPage) {
+    this.gotoPage(this.pageIndex);
+  }
+}
+
+Page.prototype = {
+    constructor: Page,
+    reload: function(url, data){
+      this.url = url;
+      this.data = data;
+      this.gotoPage(1);
+    },
+    refresh: function(){
+      this.gotoPage(this.pageIndex);
+    },
+    gotoPage: function(idx){
+      if (typeof idx == &quot;undefined&quot; || idx == null) {
+        this.pageIndex = 1;
+      }else{
+        this.pageIndex = idx;
+      }
+      this.ajaxPage();
+    },
+    prePage: function(){
+      this.pageIndex--;
+      this.ajaxPage();
+    },
+    nextPage: function(){
+      this.pageIndex++;
+      this.ajaxPage();
+    },
+    /**
+     * 翻页方法
+     */
+    ajaxPage: function(){
+      var url = this.url;
+      var data = this.data;
+      if (typeof this.data == &quot;undefined&quot; || this.data == null) {
+        data = {};
+      }
+      data.iDisplayStart = (this.pageIndex-1)*this.pageSize;
+      data.iDisplayLength = this.pageSize;
+      data.orderColumn = this.orderColumn;
+      data.sSortDir_0 = this.order;
+      var instance = this;
+      var callback = function(data) {
+        if (typeof this.pageRenderFn == &quot;function&quot;) { //渲染页面
+          this.pageRenderFn(data, this);
+        } else {
+          console.error(&quot;fastPage插件未声明渲染回调函数&quot;);
+        }
+        if (typeof this.navRenderFn == &quot;function&quot;) { //渲染导航栏
+          this.navRenderFn(data, this);
+        }else{
+          this.defaultNavRenderFn(data);
+        }
+        scrollTo(0, 0);
+      }
+      
+      $.ajax({
+            type: &quot;POST&quot;,
+            url: url,
+            data: data,
+            dataType: &quot;json&quot;,
+            success: function(data){
+               if(data.operationFlag==1){
+                 if (typeof callback == &quot;function&quot;) {
+                   callback.call(instance, data);
+                 }
+             }else{
+               console.error(&quot;ajax请求出错：&quot;+data.retMessage); 
+             } 
+            },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.error(&quot;ajax请求失败，网络异常状态码：&quot;+textStatus); 
+        }
+        }); 
+    },
+    
+    /**
+     * 默认的渲染分页栏函数
+     */
+    defaultNavRenderFn: function(data){
+      var rowTotal = data.pageVo.iTotalRecords; //总记录数量
+      var pageTotal = Math.ceil(rowTotal/this.pageSize); //总页数
+      var startRow = (this.pageIndex-1)*this.pageSize+1; //当前开始条数
+      var endRow = (this.pageIndex)*this.pageSize; //当前结束条数
+      endRow = endRow&gt;rowTotal ? rowTotal : endRow;
+      
+      var navHtml = &#39;&#39;;
+      if (this.showInfo) {
+        navHtml += &#39;&lt;div class=&quot;col-md-5&quot;&gt;&#39;;
+        if (rowTotal == 0) {
+          navHtml += &#39;&lt;div class=&quot;pagination navbar-left&quot; style=&quot;margin-top: 30px;&quot; id=&quot;pageNav_info&quot;&gt;总共&#39;+pageTotal+&#39; 页，全部记录&#39;+rowTotal+&#39; 条 &lt;/div&gt;&#39;;
+        }else{
+          navHtml += &#39;&lt;div class=&quot;pagination navbar-left&quot; style=&quot;margin-top: 30px;&quot; id=&quot;pageNav_info&quot;&gt;总共&#39;+pageTotal+&#39; 页，显示第&#39;+startRow+&#39; 到第 &#39;+endRow+&#39; 条，全部记录&#39;+rowTotal+&#39; 条 &lt;/div&gt;&#39;;
+        }
+        navHtml += &#39;&lt;/div&gt;&#39;;
+        navHtml += &#39;&lt;div class=&quot;col-md-7&quot;&gt;&lt;ul class=&quot;pagination navbar-right&quot; id=&quot;pageNav_content&quot;&gt;&#39;;
+      }else{
+        navHtml += &#39;&lt;div class=&quot;col-md-12&quot;&gt;&lt;ul class=&quot;pagination navbar-right&quot; id=&quot;pageNav_content&quot;&gt;&#39;;
+      }
+      navHtml += &#39;&lt;li&gt; &lt;a href=&quot;javascript:fastPage.executeCommand(\&#39;&#39;+this.uid+&#39;\&#39;, \&#39;prePage\&#39;);&quot;&gt; &amp;laquo; &lt;/a&gt; &lt;/li&gt;&#39;;
+      if (pageTotal &gt; this.showLength) {
+        append(this.uid, this.pageIndex, 1); //显示首页
+        
+        if (this.pageIndex &lt; this.showLength-1) {
+          for (var i = 2; i &lt; this.showLength-1; i++) {
+            append(this.uid, this.pageIndex, i);
+          }
+          navHtml+= &#39;&lt;li&gt;&lt;a href=&quot;javascript:return false;&quot;&gt;...&lt;/a&gt;&lt;/li&gt;&#39;;
+        }else if(this.pageIndex &gt;= this.showLength-1 &amp;&amp; this.pageIndex &lt;= pageTotal-(this.showLength-2)) {
+          navHtml+= &#39;&lt;li&gt;&lt;a href=&quot;javascript:return false;&quot;&gt;...&lt;/a&gt;&lt;/li&gt;&#39;;
+          for (var i = this.pageIndex; i &lt; this.pageIndex+(this.showLength-4); i++) {
+            append(this.uid, this.pageIndex, i);
+          }
+          navHtml+= &#39;&lt;li&gt;&lt;a href=&quot;javascript:return false;&quot;&gt;...&lt;/a&gt;&lt;/li&gt;&#39;;
+        }else if(this.pageIndex &gt; pageTotal-(this.showLength-2)) {
+          navHtml+= &#39;&lt;li&gt;&lt;a href=&quot;javascript:return false;&quot;&gt;...&lt;/a&gt;&lt;/li&gt;&#39;;
+          for (var i = (pageTotal-(this.showLength-3)); i &lt; pageTotal; i++) {
+            append(this.uid, this.pageIndex, i);
+          }
+        }
+        append(this.uid, this.pageIndex, pageTotal); //显示尾页
+      }else{
+        for (var i = 1; i &lt;= pageTotal; i++) {
+          append(this.uid, this.pageIndex, i);
+        }
+      }
+      navHtml+= &#39;&lt;li&gt; &lt;a href=&quot;javascript:fastPage.executeCommand(\&#39;&#39;+this.uid+&#39;\&#39;, \&#39;nextPage\&#39;);&quot;&gt; &amp;raquo; &lt;/a&gt; &lt;/li&gt;&#39;;
+      navHtml += &#39;&lt;/ul&gt;&lt;/div&gt;&#39;;
+      
+      this.holder.html(navHtml);
+      
+      if (this.pageIndex == 1) { //置灰上一页下一页
+        this.holder.find(&quot;#pageNav_content&quot;).children().first().find(&quot;a&quot;).addClass(&quot;disable&quot;);
+        this.holder.find(&quot;#pageNav_content&quot;).children().first().find(&quot;a&quot;).attr(&quot;href&quot;, &quot;javascript:return false;&quot;);
+      }
+      if (this.pageIndex == pageTotal) {
+        this.holder.find(&quot;#pageNav_content&quot;).children().last().find(&quot;a&quot;).addClass(&quot;disable&quot;);
+        this.holder.find(&quot;#pageNav_content&quot;).children().last().find(&quot;a&quot;).attr(&quot;href&quot;, &quot;javascript:return false;&quot;);
+      }
+      
+      /** 叠加页数 **/
+      function append(uid, pageIndex, i){
+        if (pageIndex == i) {
+          navHtml+=  &#39;&lt;li class=&quot;active&quot;&gt;&lt;a href=&quot;javascript:fastPage.executeCommand(\&#39;&#39;+uid+&#39;\&#39;, \&#39;gotoPage\&#39;, &#39;+i+&#39;);&quot;&gt;&#39;+i+&#39;&lt;/a&gt;&lt;/li&gt;&#39;;
+        }else{
+          navHtml+=  &#39;&lt;li&gt;&lt;a href=&quot;javascript:fastPage.executeCommand(\&#39;&#39;+uid+&#39;\&#39;, \&#39;gotoPage\&#39;, &#39;+i+&#39;);&quot;&gt;&#39;+i+&#39;&lt;/a&gt;&lt;/li&gt;&#39;;
+        }
+      }
+      
+    }
+}
+
+var fastPage = {
+    instances: {},
+    page: function(opt){
+      var p = new Page(opt);
+      return p;
+    },
+    
+    /**
+     * 公共类方法
+     * 用于执行Page实例的指定方法
+     * @param id 实例id
+     * @param fnName 函数名
+     * @param param 参数
+     */
+    executeCommand: function(id, fnName, param){
+      var p = this.instances[id];
+      p[fnName].call(p, param);
+    }
+};
+
+
+function uuid() {
+    var s = [];
+    var hexDigits = &quot;0123456789abcdef&quot;;
+    for (var i = 0; i &lt; 36; i++) {
+        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+    }
+    s[14] = &quot;4&quot;;  // bits 12-15 of the time_hi_and_version field to 0010
+    s[19] = hexDigits.substr((s[19] &amp; 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+    s[8] = s[13] = s[18] = s[23] = &quot;-&quot;;
+ 
+    var uuid = s.join(&quot;&quot;);
+    return uuid;
+}
+                  </code>
+                </pre>
+
+                <h3>熟练度有关：JavaScript 箭头函数</h3>
+                <!-- Code area -->
+                <pre>
+                  <code>
+//箭头函数就是丢掉了关键字 function，然后用一个箭头 => 来分离一个匿名函数的参数部分和函数体：
+(x, y) => x * y;
+//这相当于:
+function(x, y){
+    return x * y;
+}
+                  </code>
+                </pre>
+                <h3>熟练度有关：JavaScript 解构</h3>
+                <!-- Code area -->
+                <pre>
+                  <code>
+//一个新的赋值语法，可以让您快速解压缩对象属性和数组中的值，并将它们分配给各个变量。
+var jsondata = {
+    title: 'Top 5 JavaScript ES6 Features',
+    Details: {
+        date: {
+            created: '2017/09/19',
+            modified: '2017/09/20',
+        },
+        Category: 'JavaScript',
+    },
+    url: '/top-5-es6-features/'
+};
+
+var {title, Details: {date: {created, modified}}} = jsondata
+console.log(title) // 'Top 5 JavaScript ES6 Features'
+console.log(created) // '2017/09/19'
+console.log(modified) // '2017/09/20'
+                  </code>
+                </pre>
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -36,195 +36,184 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-									<span class="date">May 01, 2018</span>
-									<h1>tomcat linux deploy</h1>
-									<p>this page shows the process to deploy jdk and tomcat in linux, and deploy a webapp to tomcat. </p>
+									<span class="date">May 02, 2018</span>
+									<h1>zookeeper linux deploy</h1>
+									<p>in distributed applications, coordination services are notoriously hard to get right. They are especially prone to errors such as race conditions and deadlock. <br>
+                  zooKeeper is a distributed, open-source coordination service for distributed applications. It exposes a simple set of primitives that distributed applications can build upon to implement higher level services for synchronization, configuration maintenance, and groups and naming. It is designed to be easy to program to, and uses a data model styled after the familiar directory tree structure of file systems. It runs in Java and has bindings for both Java and C.<br>
+                  ZooKeeper is simple. ZooKeeper allows distributed processes to coordinate with each other through a shared hierarchal namespace which is organized similarly to a standard file system. The name space consists of data registers - called znodes, in ZooKeeper parlance - and these are similar to files and directories. Unlike a typical file system, which is designed for storage, ZooKeeper data is kept in-memory, which means ZooKeeper can acheive high throughput and low latency numbers. <br>
+                  The ZooKeeper implementation puts a premium on high performance, highly available, strictly ordered access. The performance aspects of ZooKeeper means it can be used in large, distributed systems. The reliability aspects keep it from being a single point of failure. The strict ordering means that sophisticated synchronization primitives can be implemented at the client.<br>
+
+                  </p>
 								</header>
 
-                <p>写在前面：之前看到java高级工程师的招聘，发现都要求熟悉tomcat、mysql、weblogic的部署和调优，于是兴冲冲的准备大搞一番，部署完了才发现tmd这么简单（当然不能跟有几年linux部署经验的运维人员比），没错，就是这么简单，毫无技术深度！估计是现在的HR没有东西写了，才写了这样的要求上去。在我看来，《计算机科学与技术》这门专业有科学两个字，必定离不开数学，对数学和计算机基础理论的掌握程度才是衡量一个计算机人才的标准。</p>
+                <!-- Definition area -->
+                <h3>Definition</h3>
+                <dl>
+                  <dt>同步原语</dt>
+                  <dd>当一个进程调用一个send原语时，在消息开始发送后，发送进程便处于阻塞状态，直至消息完全发送完毕，send原语的后继语句才能继续执行。当一个进程调用一个receive原语时，并不立即返回控制，而是等到把消息实际接收下来，并把它放入指定的接收区，才返回控制，继续执行该原语的后继指令。在这段时间它一直处于阻塞状态。上述的send和receive被称为同步通信原语或阻塞通信原语。（不懂得去复习《计算机操作系统》） </dd>
+                  <dt>数据模型和分层命名空间</dt>
+                  <dd>ZooKeeper的数据模型是内存中的一个ZNode数，由斜杠/进行分割的路径，就是一个ZNode，每个ZNode上除了保存自己的数据内容，还保存一系列属性信息； 
+                  ZooKeeper中的数据节点分为两种：持久节点和临时节点。
+                  所谓的持久节点是指一旦这个ZNode创建成功，除非主动进行ZNode的移除操作，节点会一直保存在ZooKeeper上；而临时节点的生命周期是跟客户端的会话相关联的，一旦客户端会话失效，这个会话上的所有临时节点都会被自动移除。</dd>
+                </dl>
+
+                <p></p>
                 <h3>配置</h3>
                 <dl>
                   <dt>CentOS Linux release 7.4.1708 (Core)</dt>
                   <dt>jdk-7u80-linux-x64</dt>
-                  <dt>apache-tomcat-7.0.85</dt>
+                  <dt>zookeeper-3.4.11.tar.gz</dt>
                 </dl>
-
-                <p>可能用到的linux命令：</p>
+                
+                <p>可能用到的zk命令：</p>
                 <pre>
                   <code>
-uname -a      //显示系统版本信息
-top      //显示系统进程
-kill pid      //杀死进程
-ls -a      //显示所有文件
-ls -r      //显示文件（带参数）
-ls -l      //显示文件（带详细参数）
-mkdir filename      //新建文件夹
-cp -a /root/aaa /root/bbb      //复制文件夹
-mv /root/aaa/1.txt /root/bbb/1.txt      //移动文件
-mv /root/aaa /root/bbb/      //移动文件夹
-rm /root/aaa/1.txt      //删除文件
-rm -rf /root/aaa      //删除文件夹
+        zkServer.sh start
+        zkServer.sh stop
+        zkServer.sh status
+        zkCli.sh -server ip:port
+        create /node nodeName
+        get /node
+        setAcl path acl
+        getAcl path
+        quit
                   </code>
                 </pre>
 
-                <p>1.在usr目录下建立java目录</p>
+                <p>1.上传zookeeper到zookeeper目录并解压，并建立data目录，logs目录</p>
                 <pre>
                   <code>
-mkdir java
-cd /usr/java
+tar zxvf zookeeper-3.4.11.tar.gz
                   </code>
                 </pre>
-                <p>2.上传jdk到java目录并解压</p>
-                <pre>
-                  <code>
-tar zxvf jdk-7u80-linux-x64.gz
-                  </code>
-                </pre>
-                <p>3.配置环境变量</p>
-                <pre>
-                  <code>
-vim /etc/profile
-                  </code>
-                </pre>
-                <p>3-1.打开profile配置文件后按i进入insert状态</p>
-				        <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_001.png" alt="" />
-                </div>
-                <p>3-2.然后添加如下内容：JAVA_HOME根据实际目录来</p>
-                <pre>
-                  <code>
-JAVA_HOME=/usr/java/jdk1.7
-JRE_HOME=/usr/java/jdk1.7/jre
-CLASSPATH=$JAVA_HOME/lib/
-PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
-export PATH JAVA_HOME CLASSPATH
-export JAVA_HOME JRE_HOME CLASS_PATH PATH
-                  </code>
-                </pre>
-                <p>3-3.编辑好之后，按esc键退出insert状态，输入":"，再输入"wq"，然后按回车键（如果不保存退出，则输入":"，再输入"q!"，然后按回车键）</p>
-                <p>4.激活配置</p>
-                <pre>
-                  <code>
-source /etc/profile
-                  </code>
-                </pre>
-                <p>5.查看安装情况</p>
-                <pre>
-                  <code>
-java -version
-
-//会有以下信息
-java version "1.8.0_60"
-Java(TM) SE Runtime Environment (build 1.8.0_60-b27)
-Java HotSpot(TM) Client VM (build 25.60-b23, mixed mode)
-                  </code>
-                </pre>
-
-                <p>6.在usr目录下建立tomcat目录</p>
-                <pre>
-                  <code>
-mkdir tomcat
-cd /usr/tomcat
-                  </code>
-                </pre>
-                <p>7.上传tomcat到服务器并解压</p>
-                <pre>
-                  <code>
-tar zxvf apache-tomcat-7.0.85.tar.gz
-                  </code>
-                </pre>
-                <p>8.进入tomcat服务器的bin目录，然后执行"./startup.sh"命令启动Tomcat服务器（使用"./shutdown.sh"关闭tomcat），如下图所示：</p>
-				        <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_002.png" alt="" />
-                </div>
-                <p>9.进入tomcat服务器下的logs目录，打开catalina.out文件进行查看启动信息</p>
-				        <pre>
-                  <code>
-cat catalina.out
-                  </code>
-                </pre>
-
-                <p>10.将必要的jar包放到tomcat/lib目录下，如：mysql-connector-java-5.1.30.jar</p>
-                <p>在一个tomcat下部署多个webapp的时候，如果每个webapp都使用各自的连接池，那么mysql的连接数资源会紧张，我们可以通过配置jndi解决这个问题。</p>
-                <p>1.修改tomcat的context.xml，在&lt;context&quot;节点下添加</p>
-				        <pre>
-                  <code>
-&lt;Resource name=&quot;jndi/qyswfx&quot; auth=&quot;Container&quot; type=&quot;javax.sql.DataSource&quot; driverClassName=&quot;com.mysql.jdbc.Driver&quot; url=&quot;jdbc:mysql://xx.xx.xx.xxx:3306/qyswfx&quot; username=&quot;db_qyswfx&quot; password=&quot;666666&quot; initialSize=&quot;10&quot; maxActive=&quot;20&quot; maxIdle=&quot;18&quot; maxWait=&quot;60000&quot;/&gt;
-                  </code>
-                </pre>
-                <p>2.修改webapp的web.xml，在&lt;web-app&quot;节点下添加</p>
-				        <pre>
-                  <code>
-&lt;resource-ref&gt;
-	&lt;res-ref-name&gt;qyswfx&lt;/res-ref-name&gt;
-	&lt;res-type&gt;javax.sql.DataSource&lt;/res-type&gt;
-	&lt;res-auth&gt;Container&lt;/res-auth&gt;
-&lt;/resource-ref&gt;
-                  </code>
-                </pre>
-                <p>3.如果你的应用使用spring框架，那么在org.springframework.web.context.ContextLoaderListener监听的配置文件中（通常为applicationContext.xml），数据源这样配置</p>
-				        <pre>
-                  <code>
-&lt;bean id=&quot;dataSource&quot;
-	class=&quot;org.springframework.jndi.JndiObjectFactoryBean&quot;&gt;
-	&lt;property name=&quot;jndiName&quot; value=&quot;java:comp/env/jndi/qyswfx&quot; /&gt;
-&lt;/bean&gt; 
-                  </code>
-                </pre>
-
-				        <p>11.部署webapp到tomcat/webapps目录，启动后访问webapp效果如下：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article023_001.png" alt="" />
                 </div>
-
-                <p>12.1. 增加tomcat启动内存，修改catalina.sh，设置 java_OPTS 参数：</p>
+                <p>2.zoo.cfg基本配置</p>
                 <pre>
                   <code>
-JAVA_OPTS='-Xms1024m -Xmx2048m -XX: PermSize=256M -XX:MaxNewSize=256m -XX:MaxPermSize=256m'
+#数据目录
+dataDir=/usr/zookeeper/data
+#日志目录
+dataLogDir=/usr/zookeeper/logs
+#心跳间隔时间，zookeeper中使用的基本时间单位，毫秒值。每隔2秒发送一个心跳
+tickTime=2000
+#leader与客户端连接超时时间。表示5个心跳间隔
+initLimit=5
+#Leader与Follower之间的超时时间，表示2个心跳间隔
+syncLimit=2
+#客户端连接端口。多个实例的端口配置不可重复
+clientPort=2181 
+#server.NUM=IP:port1:port2  NUM表示本机为第几号服务器；IP为本机ip地址；
+#port1为leader与follower通信端口；port2为参与竞选leader的通信端口
+#多个实例的端口配置不能重复，如下：
+server.1=111.230.223.233:2888:3888
+server.2=111.230.211.90:2888:3888
+#server.3=我没有这么多节点所以注释掉:2888:3888
                   </code>
                 </pre>
-                <p>JAVA_OPTS参数说明
-              　　<br>-server 启用jdk 的 server 版；
-              　　<br>-Xms java虚拟机初始化时的最小内存；
-              　　<br>-Xmx java虚拟机可使用的最大内存；
-              　　<br>-XX: PermSize 内存永久保留区域
-              　　<br>-XX:MaxPermSize 内存最大永久保留区域 
-                </p>
-
-                <p>12.2. tomcat并发优化，修改server.xml中的connector配置，调整连接器connector的并发处理能力：</p>
+                <p>3.添加myid文件，myid文件存储一个数值，是ZooKeeper Server进程的标识。即上面配置中的server.后面的数字。 </p>
+                <p>4.集群方式启动 </p>
                 <pre>
                   <code>
-&lt;Connector port=&quot;9027&quot;
-　　protocol=&quot;HTTP/1.1&quot;
-　　maxHttpHeaderSize=&quot;8192&quot;
-　　maxThreads=&quot;1000&quot;
-　　minSpareThreads=&quot;100&quot;
-　　maxSpareThreads=&quot;1000&quot;
-　　minProcessors=&quot;100&quot;
-　　maxProcessors=&quot;1000&quot;
-　　enableLookups=&quot;false&quot;
-　　URIEncoding=&quot;utf-8&quot;
-　　acceptCount=&quot;1000&quot;
-　　redirectPort=&quot;8443&quot;
-　　disableUploadTimeout=&quot;true&quot;/&gt;
+zkServer.sh start
                   </code>
                 </pre>
-                <p>connector参数说明
-              　　<br>maxThreads 客户请求最大线程数
-              　　<br>minSpareThreads Tomcat初始化时创建的 socket 线程数
-              　　<br>maxSpareThreads Tomcat连接器的最大空闲 socket 线程数
-              　　<br>enableLookups 若设为true, 则支持域名解析，可把 ip 地址解析为主机名
-              　　<br>redirectPort 在需要基于安全通道的场合，把客户请求转发到基于SSL 的 redirectPort 端口
-              　　<br>acceptAccount 监听端口队列最大数，满了之后客户请求会被拒绝（不能小于maxSpareThreads ）
-              　　<br>connectionTimeout 连接超时
-              　　<br>minProcessors 服务器创建时的最小处理线程数
-              　　<br>maxProcessors 服务器同时最大处理线程数
-              　　<br>URIEncoding URL统一编码
-                </p>
+                <p>5.查看状态 </p>
+                <pre>
+                  <code>
+zkServer.sh status
+                  </code>
+                </pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article023_002.png" alt="" />
+                </div>
+                <p>原因是配置的机器111.230.211.90没有配置正确，先注释掉再启动，启动成功，状态：Mode: standalone。配置正确启动后是这样的：</p>
+                <pre>
+                  <code>
+[root@VM_0_7_centos bin]# ./zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[root@VM_0_7_centos bin]# ./zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
+Mode: follower
+
+
+[root@VM_0_12_centos bin]# ./zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[root@VM_0_12_centos bin]# ./zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
+Mode: leader
+                  </code>
+                </pre>
+
+                <p>在111.230.223.233上连接111.230.211.90</p>
+                <pre>
+                  <code>
+zkCli.sh -server 111.230.211.90:2181
+
+//信息如下，连接成功
+2018-03-19 11:43:36,614 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@1035] - Opening socket connection to server 111.230.211.90/111.230.211.90:2181. Will not attempt to authenticate using SASL (unknown error)
+Welcome to ZooKeeper!
+JLine support is enabled
+2018-03-19 11:43:36,656 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@877] - Socket connection established to 111.230.211.90/111.230.211.90:2181, initiating session
+[zk: 111.230.211.90:2181(CONNECTING) 0] 2018-03-19 11:43:36,781 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@1302] - Session establishment complete on server 111.230.211.90/111.230.211.90:2181, sessionid = 0x2000acd6fea0000, negotiated timeout = 30000
+                  </code>
+                </pre>
+
+                <p>然后在111.230.211.90上创建一个叫qyswfx节点，这个节点会以znode的形式存储在111.230.211.90机器上，并同步到其他机器。</p>
+                <pre>
+                  <code>
+[zk: 111.230.211.90:2181(CONNECTED) 2] create /qyswfx qyswfx_node
+Created /qyswfx
+[zk: 111.230.211.90:2181(CONNECTED) 3] get /qyswfx
+qyswfx_node
+cZxid = 0x100000002
+ctime = Mon Mar 19 14:07:31 CST 2018
+mZxid = 0x100000002
+mtime = Mon Mar 19 14:07:31 CST 2018
+pZxid = 0x100000002
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 11
+numChildren = 0
+                  </code>
+                </pre>
+
+                <p>在111.230.211.90上连接111.230.223.233，可以查看到节点已经同步</p>
+                <pre>
+                  <code>
+[zk: 111.230.223.233:2181(CONNECTED) 7] get /qyswfx
+qyswfx_node
+cZxid = 0x100000002
+ctime = Mon Mar 19 14:07:31 CST 2018
+mZxid = 0x100000002
+mtime = Mon Mar 19 14:07:31 CST 2018
+pZxid = 0x100000002
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 11
+numChildren = 0
+                  </code>
+                </pre>
+
+                <p>此时集群配置完成，如果leader节点挂掉，根据算法会有一个follower节点被选举为leader节点。</p>
+                <p style="color: red;">前方高能！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！<br>下面介绍怎么根据我们的业务需求配置zookeeper集群&&zookeeper集群选举具体动作</p>
+                
 
                 
 
-    
+
+
 
                 
 

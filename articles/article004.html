@@ -36,365 +36,384 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-									<span class="date">February 28, 2018</span>
-									<h1>List</h1>
-									<p>this page shows the structure and implementation of List, including sequence list/link list.</p>
+									<span class="date">February 29, 2018</span>
+									<h1>Stack and Queue</h1>
+									<p>this page shows the structure and implementation of stack and queue, they are special list.</p>
 								</header>
 
                 <!-- Introduction area -->
-                  <h3>数据结构入门</h3>
-                  <p>推荐使用《数据结构》严蔚敏 清华大学出版社 传送门：<a href="http://product.dangdang.com/22601051.html" style="color: #EE3B3B">http://product.dangdang.com/22601051.html</a>。</p>
-                  <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article004_001.png" alt="" />
+                  <h3>特殊的线性表：堆栈和队列</h3>
+                  <p>推荐一个数据结构可视化编辑网站 传送门：<a href="https://visualgo.net/en" style="color: #EE3B3B">https://visualgo.net/en</a>。<br>
+                  堆栈是只允许在栈顶进行插入删除操作的线性表，队列是只允许在队尾插入、队头删除的线性表。
+                  </p>
+					<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article005_001.png" alt="" />
                   </div>
                   <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article004_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article005_002.png" alt="" />
                   </div>
-
-                
-                <p>线性表的顺式实现：</p>
+                  
+                <p>堆栈的顺式实现：</p>
                 <!-- Code area -->
                 <pre>
                   <code>
 #include <stdio.h>
 #include <stdlib.h>
-#define Size 4
+#define Size 10
 
-typedef struct SeqList {
-  int * head;//声明了一个名为head的长度不确定的数组，也叫“动态数组”
-  int length;//记录当前顺序表的长度
-  int size;//记录顺序表分配的存储容量
-}SeqList;
+typedef struct seqstack {
+	int * head;//声明了一个名为head的长度不确定的数组，也叫“动态数组”
+	int top;//记录栈顶位置
+	int size;//记录堆栈分配的存储容量
+}seqstack;
 
 
-SeqList initList() {
-  SeqList t;
-  t.head = (int*)malloc(Size*sizeof(int));
-  if (!t.head) {
-    printf("初始化失败");
-    exit(0);
-  }
-  t.length = 0;
-  t.size = Size;
-  return t;
+seqstack init() {
+	seqstack t;
+	t.head = (int*)malloc(Size*sizeof(int));
+	t.top = 0;
+	t.size = Size;
+	return t;
 }
 
-SeqList listInsert(SeqList t, int i, int e) {
-  if (i < 0 || i > t.length) {
-    printf("插入位置有问题");
-    return t;
-  }
-  if (t.length == t.size) {
-    t.head = (int) realloc(t.head, (t.size+1)*sizeof(int));//改变head指向的内存空间大小
-    if (!t.head) {
-      printf("存储分配失败");
-      return t;
-    }
-    t.size++;
-  }
-  for (int j = t.length - 1; j >= i; j--) {//逐个后移
-    t.head[j + 1] = t.head[j];
-  }
-  t.head[i] = e;
-  t.length++;
-  return t;
+int push(seqstack *t, int e) {
+	if (t->top == t->size) {
+		t->head = (int)realloc(t->head, (t->size + 1)*sizeof(int));//改变head指向的内存空间大小
+		if (!t->head) {
+			printf("存储分配失败");
+			return 0;
+		}
+		t->size++;
+	}
+	t->head[t->top] = e;
+	t->top++;
+	return 1;
 }
 
-SeqList listDelete(SeqList t, int i) {
-  if (t.length == 0) {
-    printf("顺序表已空");
-    return t;
-  }
-  else if (i < 0 || i > t.length-1) {
-    printf("删除位置有问题");
-    return t;
-  }
-  for (int j = i; j < t.length - 1; j++) {//逐个前移
-    t.head[j] = t.head[j + 1];
-  }
-  t.length--;
-  return t;
+int pop(seqstack *t) {
+	if (t->top == 0) {
+		printf("堆栈已空");
+		return -1;
+	}
+	t->top--;
+	return t->head[t->top];
 }
 
-int listGet(SeqList t, int i) {
-  if (i < 0 || i > t.length - 1) {
-    printf("参数非法");
-    return NULL;
-  }
-  else {
-    return t.head[i];
-  }
+int size(seqstack *t) {
+	return t->top;
 }
 
-int listSize(SeqList t) {
-  return t.length;
+void display(seqstack *t) {
+	for (int i = t->top-1; i>=0; i--) {
+		printf("%d", t->head[i]);
+	}
+	printf("\n");
 }
-
-void display(SeqList t) {
-  for (int i = 0; i<t.length; i++) {
-    printf("%d", t.head[i]);
-  }
-  printf("\n");
-}
-
 
 int main() {
-  SeqList t1 = initList();
-  for (int i = 1; i <= Size; i++) {
-    t1.head[i - 1] = i;
-    t1.length++;
-  }
-  printf("原顺序表：\n");
-  display(t1);
+	seqstack t1 = init();
+	for (int i = 1; i <= Size; i++) {
+		push(&t1, i);
+	}
+	printf("原顺序表：\n");
+	display(&t1);
 
-  printf("删除第1个元素:\n");
-  t1 = listDelete(t1, 0);
-  display(t1);
+	printf("出栈:");
+	int e = pop(&t1);
+	printf("%d\n", e);
+	printf("出栈后：\n");
+	display(&t1);
 
-  printf("在第2的位置插入元素5:\n");
-  t1 = listInsert(t1, 1, 5);
-  display(t1);
+	printf("将元素8入栈:\n");
+	push(&t1, 8);
+	display(&t1);
 
-  printf("查找第2个元素:\n");
-  int e = listGet(t1, 1);
-  printf("%d\n", e);
-
-  return 0;
+	return 0;
 }
                   </code>
                 </pre>
 
-                <p>线性表的链式实现：</p>
+                <p>堆栈的链式实现：</p>
                 <!-- Code area -->
                 <pre>
                   <code>
 #include <stdio.h>
 #include <stdlib.h>
+#define Size 10
+
+typedef struct LinkStack {
+	int e;
+	struct LinkStack *next;
+}LinkStack;
 
 
-typedef struct DLNode {
-  int e;
-  struct DLNode *pre;
-  struct DLNode *next;
-}DLNode;
-
-DLNode * initLink() {
-  DLNode *p = (DLNode*)malloc(sizeof(DLNode));//申请头结点
-  p->pre = p;//构成前驱指针循环链表
-  p->next = p;//构成后驱指针循环链表
+LinkStack * init() {
+	LinkStack *p = (LinkStack*)malloc(sizeof(LinkStack));
+	p->next = NULL;
+	return p;
 }
 
-DLNode * insertElem(DLNode *p, int i, int e) {
-  DLNode *m = p;
-  int j = -1;
-  while(m->next != NULL && j < i) {
-    m = m->next;
-    j++;
-  }
-  if (j != i) {
-    printf("插入位置有问题");
-    return p;
-  }
-  DLNode *n = (DLNode*)malloc(sizeof(DLNode));//创建插入结点n
-  n->e = e;
-  n->pre = m->pre;
-  m->pre->next = n;
-  n->next = m;
-  m->pre = n;
-  return p;
+int push(LinkStack *p, int e) {
+	LinkStack *m = (LinkStack*)malloc(sizeof(LinkStack));
+	m->e = e;
+	m->next = p->next;
+	p->next = m;
+	return 1;
 }
 
-DLNode * removeElem(DLNode *p, int i) {
-  DLNode *m = p;
-  int j = -1;
-  while (m->next != NULL && j < i) {
-    m = m->next;
-    j++;
-  }
-  if (j != i) {
-    printf("删除位置有问题");
-    return p;
-  }
-  m->pre->next = m->next;
-  m->next->pre = m->pre;
-  return p;
+int pop(LinkStack *p) {
+	LinkStack *m = p->next;
+	if (m == NULL) {
+		printf("堆栈已空");
+		return -1;
+	}
+	p->next = p->next->next;
+	int e = m->e;
+	free(m);
+	return e;
 }
 
-int getElem(DLNode *p, int i) {
-  DLNode *m = p;
-  int j = -1;
-  while (m->next != NULL && j < i) {
-    m = m->next;
-    j++;
-  }
-  if (j != i) {
-    printf("查找位置有问题");
-    return -1;
-  }
-  return m->e;
+int size(LinkStack *p) {
+	LinkStack *m = p;
+	int size = 0;
+	while (m->next != NULL) {
+		m = m->next;
+		size++;
+	}
+	return size;
 }
 
-int getSize(DLNode *p) {
-  DLNode *m = p;
-  int size = 0;
-  while (m->next != p) {
-    m = m->next;
-    size++;
-  }
-  return size;
+void display(LinkStack *p) {
+	LinkStack *m = p;
+	while (m->next != NULL) {
+		m = m->next;
+		printf("%d", m->e);
+	}
+	printf("\n");
 }
-
-void display(DLNode *p) {
-  DLNode *m = p;
-  while (m->next != p) {
-    m = m->next;
-    printf("%d", m->e);
-  }
-  printf("\n");
-}
-
 
 int main() {
-  //初始化链表（1，2，3，4）
-  printf("初始化链表为：\n");
-  DLNode *p = initLink();
-  for (int i = 0; i < 5; i++)
-  {
-    p = insertElem(p, i, i+1);
-  }
-  display(p);
+	LinkStack *p = init();
+	for (int i = 1; i <= Size; i++) {
+		push(p, i);
+	}
+	printf("原顺序表：\n");
+	display(p);
 
-  printf("在第5的位置插入元素8：\n");
-  p = insertElem(p, 4, 8);
-  display(p);
+	printf("出栈:");
+	int e = pop(p);
+	printf("%d\n", e);
+	printf("出栈后：\n");
+	display(p);
 
-  printf("删除第4个元素:\n");
-  p = removeElem(p, 3);
-  display(p);
+	printf("将元素8入栈:\n");
+	push(p, 8);
+	display(p);
 
-  printf("查找第3个元素：\n");
-  int ele = getElem(p, 2);
-  printf("第3个元素为：%d\n", ele);
-
-  return 0;
+	return 0;
 }
                   </code>
                 </pre>
 
-                <p>双向循环链表的c语言实现：</p>
+                <p>队列的顺式实现：</p>
                 <!-- Code area -->
                 <pre>
                   <code>
 #include <stdio.h>
 #include <stdlib.h>
+#define Size 10
 
-typedef struct SLNode {
-  int e;
-  struct SLNode *next;
-}SLNode;
+typedef struct SeqQueue {
+	int * head;//声明了一个名为head的长度不确定的数组，也叫“动态数组”
+	int rear;//队尾指针
+	int front;//队头指针
+	int count;//计数器
+	int size;//记录堆栈分配的存储容量
+}SeqQueue;
 
-
-SLNode * initLink() {
-  SLNode *p = (SLNode*)malloc(sizeof(SLNode));//申请头结点
-  p->next = NULL;//置结束标志NULL
-  return p;
+SeqQueue init() {
+	SeqQueue t;
+	t.head = (int*)malloc(Size*sizeof(int));
+	t.rear = 0;
+	t.front = 0;
+	t.count = 0;
+	t.size = Size;
+	return t;
 }
 
-SLNode * insertElem(SLNode *p, int i, int e) {
-  SLNode *m = p;
-  int j = -1;
-  while (m->next != NULL && j < i-1) {//首先找到第i-1个结点
-    m = m->next;
-    j++;
-  }
-  if (j != i-1) {
-    printf("插入位置有问题");
-    return p;
-  }
-  SLNode *n = (SLNode*)malloc(sizeof(SLNode));//创建插入结点n
-  n->e = e;
-  n->next = m->next;
-  m->next = n;
-  return p;
+int isEmpty(SeqQueue *t) {
+	return t->count == 0 ? 1 : 0;
 }
 
-SLNode * removeElem(SLNode *p, int i) {
-  SLNode *m = p;
-  int j = -1;
-  while (m->next != NULL && j < i - 1) {//首先找到第i-1个结点
-    m = m->next;
-    j++;
-  }
-  if (j != i - 1) {
-    printf("删除位置有问题");
-    return p;
-  }
-  SLNode *n = m->next;
-  m->next = m->next->next;
-  free(n);  
-  return p;
+int isFull(SeqQueue *t) {
+	return (t->count > 0 && t->rear == t->front) ? 1 : 0;
 }
 
-int getElem(SLNode *p, int i) {
-  SLNode *m = p;
-  int j = -1;
-  while (m->next != NULL && j < i) {//首先找到第i个结点
-    m = m->next;
-    j++;
-  }
-  if (j != i) {
-    printf("查找位置有问题");
-    return -1;
-  }
-  return m->e;
+int offer(SeqQueue *t, int e) {
+	if(isFull(t) == 1){
+		t->head = (int)realloc(t->head, (t->size + 1)*sizeof(int));//改变head指向的内存空间大小
+		if (!t->head) {
+			printf("存储分配失败");
+			return 0;
+		}
+		t->rear = t->size;
+		t->size++;
+	}
+	t->head[t->rear] = e;
+	t->rear = (t->rear + 1) % t->size;
+	t->count++;
+	return 1;
 }
 
-int getSize(SLNode *p) {
-  SLNode *m = p;
-  int size = 0;
-  while (m->next != NULL) {
-    m = m->next;
-    size++;
-  }
-  return size;
+int poll(SeqQueue *t) {
+	if (isEmpty(t) == 1) {
+		printf("队列已空");
+		return -1;
+	}
+	int e = t->head[t->front];
+	t->front = (t->front + 1) % t->size;
+	t->count--;
+	return e;
 }
 
-void display(SLNode *p) {
-  SLNode *m = p;
-  while (m->next != NULL) {
-    m = m->next;
-    printf("%d", m->e);
-  }
-  printf("\n");
+int size(SeqQueue *t) {
+	return t->size;
+}
+
+void display(SeqQueue *t) {
+	if (isEmpty(t) == 0) {
+		int i = t->front;
+		int c = 0;
+		while (c < t->count) {
+			printf("%d", t->head[i]);
+			i = (i + 1) % t->size;
+			c++;
+		}
+		printf("\n");
+	}
 }
 
 
 int main() {
-  //初始化链表（1，2，3，4）
-  printf("初始化链表为：\n");
-  SLNode *p = initLink();
-  for (int i = 0; i < 5; i++)
-  {
-    p = insertElem(p, i, i+1);
-  }
-  display(p);
+	SeqQueue t1 = init();
+	for (int i = 1; i <= Size; i++) {
+		offer(&t1, i);
+	}
+	printf("原顺序表：\n");
+	display(&t1);
 
-  printf("在第5的位置插入元素8：\n");
-  p = insertElem(p, 4, 8);
-  display(p);
+	printf("出栈:");
+	int e = poll(&t1);
+	printf("%d\n", e);
+	printf("出栈后：\n");
+	display(&t1);
 
-  printf("删除第4个元素:\n");
-  p = removeElem(p, 3);
-  display(p);
+	printf("将元素8入栈:\n");
+	offer(&t1, 8);
+	display(&t1);
 
-  printf("查找第3个元素：\n");
-  int ele = getElem(p, 2);
-  printf("第3个元素为：%d\n", ele);
-
-  return 0;
+	return 0;
 }
                   </code>
                 </pre>
+
+                <p>队列的链式实现：</p>
+                <!-- Code area -->
+                <pre>
+                  <code>
+#include <stdio.h>
+#include <stdlib.h>
+#define Size 10
+
+typedef struct Node {
+	int e;
+	struct Node *next;
+}Node;
+
+typedef struct LinkQueue {
+	Node *front;//队头指针
+	Node *rear;//队尾指针
+}LinkQueue;
+
+LinkQueue * init() {
+	LinkQueue *p = (LinkQueue*)malloc(sizeof(LinkQueue));
+	p->front = NULL;
+	p->rear = NULL;
+	return p;
+}
+
+int offer(LinkQueue *p, int e) {
+	Node *m = (Node*)malloc(sizeof(Node));
+	m->e = e;
+	m->next = NULL;
+	if (p->rear != NULL) {
+		p->rear->next = m;
+	}
+	p->rear = m;
+	if (p->front == NULL) {//如果队头为空，需要修改队头
+		p->front = m;
+	}
+	return 1;
+}
+
+int poll(LinkQueue *p) {
+	if (p->front == NULL) {
+		printf("队列已空");
+		return -1;
+	}
+	Node *m = p->front;
+	int e = m->e;
+	p->front = p->front->next;
+	if (p->front == NULL) {//删除最后一个节点后，要置队尾为空
+		p->rear = NULL;
+	}
+	free(m);
+	return e;
+}
+
+int size(LinkQueue *p) {
+	Node *m = p->front;
+	int size = 0;
+	while (m != NULL) {
+		m = m->next;
+		size++;
+	}
+	return size;
+}
+
+void display(LinkQueue *p) {
+	Node *m = p->front;
+	while (m != NULL) {
+		printf("%d", m->e);
+		m = m->next;
+	}
+	printf("\n");
+}
+
+
+int main() {
+	LinkQueue *p = init();
+	for (int i = 1; i <= Size; i++) {
+		offer(p, i);
+	}
+	printf("原顺序表：\n");
+	display(p);
+
+	printf("出栈:");
+	int e = poll(p);
+	printf("%d\n", e);
+	printf("出栈后：\n");
+	display(p);
+
+	printf("将元素8入栈:\n");
+	offer(p, 8);
+	display(p);
+
+	return 0;
+}
+                  </code>
+                </pre>
+
 
 
 

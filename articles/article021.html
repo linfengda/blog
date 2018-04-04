@@ -37,418 +37,200 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">May 01, 2018</span>
-									<h1>primary javascript</h1>
-									<p>this page introduce primary javascript, including ECMAScript/data type/basic functions . </p>
+									<h1>tomcat linux deploy</h1>
+									<p>this page shows the process to deploy jdk and tomcat in linux, and deploy a webapp to tomcat. </p>
 								</header>
-						    
-              <!-- Definition area -->
-                <h3>Definition</h3>
+
+                <p>写在前面：之前看到java高级工程师的招聘，发现都要求熟悉tomcat、mysql、weblogic的部署和调优，于是兴冲冲的准备大搞一番，部署完了才发现tmd这么简单（当然不能跟有几年linux部署经验的运维人员比），没错，就是这么简单，毫无技术深度！估计是现在的HR没有东西写了，才写了这样的要求上去。在我看来，《计算机科学与技术》这门专业有科学两个字，必定离不开数学，对数学和计算机基础理论的掌握程度才是衡量一个计算机人才的标准。</p>
+                <h3>配置</h3>
                 <dl>
-                  <dt>ECMAScript</dt>
-                  <dd>
-                    <p>ECMAScript，正式名称为 ECMA 262 和 ISO/IEC 16262，是宿主环境中脚本语言的国际 Web 标准。 
-ECMAScript 描述了以下内容：</p>
-                  <ul>
-                      <li>语法</li>
-                      <li>类型</li>
-                      <li>语句</li>
-                      <li>关键字</li>
-                      <li>保留字</li>
-                      <li>运算符</li>
-                      <li>对象</li>
-                  </ul>
-                  <p>ECMAScript 仅仅是一个描述，定义了脚本语言的所有属性、方法和对象。其他语言可以实现 ECMAScript 来作为功能的基准，JavaScript 是 ECMAScript 规范的一种实现。</p>
-                  </dd>
-                  <dt>javacript组成</dt>
-                  <dd>
-                    <p>尽管 ECMAScript 是一个重要的标准，但它并不是 JavaScript 唯一的部分，当然，也不是唯一被标准化的部分。实际上，一个完整的 JavaScript 实现是由以下 3 个不同部分组成的：
-                    </p>
-                    <ul>
-                      <li>核心（ECMAScript）</li>
-                      <li>文档对象模型（DOM）</li>
-                      <li>浏览器对象模型（BOM）</li>
-                    </ul>
-                    <div class="full-div">
-                        <img style="max-width: 100%;max-height: 100%;" src="../images/article021_001.gif" alt="" />
-                    </div>
-                  </dd>
+                  <dt>CentOS Linux release 7.4.1708 (Core)</dt>
+                  <dt>jdk-7u80-linux-x64</dt>
+                  <dt>apache-tomcat-7.0.85</dt>
                 </dl>
 
-                <!-- Introduction area -->
-                  <h3>typeof 和 instance of的区别</h3>
-                  <h4>typeof</h4>
-                  <p>
-                    typeof 是一个一元运算，放在一个运算数之前，运算数可以是任意类型。
-                    它返回值是一个字符串，该字符串说明运算数的类型。typeof 一般只能返回如下几个结果：
-                    number,boolean,string,function,object,undefined。我们可以使用 typeof 来获取一个变量是否存在，如 if(typeof a!="undefined"){alert("ok")}，而不要去使用 if(a) 因为如果 a 不存在（未声明）则会出错，对于 Array,Null 等特殊对象使用 typeof 一律返回 object，这正是 typeof 的局限性。
-                  </p>
-                  <h4>instanceof</h4>
-                  <p>
-                    instanceof 用于判断一个变量是否某个对象的实例，
-                    如 var a=new Array();alert(a instanceof Array); 会返回 true，
-                    同时 alert(a instanceof Object) 也会返回 true;这是因为 Array 是 object的子类。
-                    再如：function test(){};var a=new test();alert(a instanceof test) 会返回true
-                  </p>
-
-                  <h3>this关键字的指向</h3>
-                  <div class="full-div">
-                      <img style="max-width: 100%;max-height: 100%;" src="../images/article021_002.png" alt="" />
-                  </div>
-                  <div class="full-div">
-                      <img style="max-width: 100%;max-height: 100%;" src="../images/article021_003.png" alt="" />
-                  </div>
-                  <div class="full-div">
-                      <img style="max-width: 100%;max-height: 100%;" src="../images/article021_004.png" alt="" />
-                  </div>
-
-                <h3>熟练度有关：js选择器</h3>
-                <!-- Code area -->
+                <p>可能用到的linux命令：</p>
                 <pre>
                   <code>
-&lt;html:radio&gt;
-获取选中的radio对象：var myradio= $(&#39;input:radio[name=&quot;type&quot;]:checked&#39;);  
-radio是否选中：var isCheck = $(&#39;#box&#39;)[0].checked;
-选中radio：$(&#39;#radioid&#39;).attr(&#39;checked&#39;, &#39;checked&#39;);
-
-&lt;html:checkbox&gt;标签
-获取所有选中的checkbox： var array = $(&#39;input:[name=checkboxname]:checked&#39;);
-checkbox是否选中： var isChecked = $(&#39;#checkboxid&#39;)[0].checked;
-选中checkbox： $(&#39;#checkboxid&#39;).attr(&#39;checked&#39;, &#39;checked&#39;);
-
-&lt;html:select&gt;标签
-获取select的所有option： var array = = $(&quot;#selectid option&quot;);
-获取选中的select： var isChecked = $(&quot;#selectid option:selected&quot;).val();
-选中select： $(&#39;#selectid &#39;).attr(&#39;selected&#39;, &#39;selected&#39;);
-
-选择HTML内容
-  ● innerHTML 设置或获取位于对象起始和结束标签内的 HTML
-  ● outerHTML 设置或获取对象及其内容的 HTML 形式
-  ● innerText 设置或获取位于对象起始和结束标签内的文本
-  ● outerText 设置(包括标签)或获取(不包括标签)对象的文本
+uname -a      //显示系统版本信息
+top      //显示系统进程
+kill pid      //杀死进程
+ls -a      //显示所有文件
+ls -r      //显示文件（带参数）
+ls -l      //显示文件（带详细参数）
+mkdir filename      //新建文件夹
+cp -a /root/aaa /root/bbb      //复制文件夹
+mv /root/aaa/1.txt /root/bbb/1.txt      //移动文件
+mv /root/aaa /root/bbb/      //移动文件夹
+rm /root/aaa/1.txt      //删除文件
+rm -rf /root/aaa      //删除文件夹
                   </code>
                 </pre>
 
-                <h3>熟练度有关：数组操作</h3>
-                <!-- Code area -->
+                <p>1.在usr目录下建立java目录</p>
                 <pre>
                   <code>
-Array.forEach()//遍历
-Array.map()//遍历并修改
-Array.filter()//遍历并过滤
-Array.indexOf()//某个元素在数组中的位置
-Array.every()//遍历每个元素，如果对于每个元素，这个回调函数都返回true，则.every()返回true。否则，.every() 返回false。
+mkdir java
+cd /usr/java
+                  </code>
+                </pre>
+                <p>2.上传jdk到java目录并解压</p>
+                <pre>
+                  <code>
+tar zxvf jdk-7u80-linux-x64.gz
+                  </code>
+                </pre>
+                <p>3.配置环境变量</p>
+                <pre>
+                  <code>
+vim /etc/profile
+                  </code>
+                </pre>
+                <p>3-1.打开profile配置文件后按i进入insert状态</p>
+				        <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_001.png" alt="" />
+                </div>
+                <p>3-2.然后添加如下内容：JAVA_HOME根据实际目录来</p>
+                <pre>
+                  <code>
+JAVA_HOME=/usr/java/jdk1.7
+JRE_HOME=/usr/java/jdk1.7/jre
+CLASSPATH=$JAVA_HOME/lib/
+PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
+export PATH JAVA_HOME CLASSPATH
+export JAVA_HOME JRE_HOME CLASS_PATH PATH
+                  </code>
+                </pre>
+                <p>3-3.编辑好之后，按esc键退出insert状态，输入":"，再输入"wq"，然后按回车键（如果不保存退出，则输入":"，再输入"q!"，然后按回车键）</p>
+                <p>4.激活配置</p>
+                <pre>
+                  <code>
+source /etc/profile
+                  </code>
+                </pre>
+                <p>5.查看安装情况</p>
+                <pre>
+                  <code>
+java -version
+
+//会有以下信息
+java version "1.8.0_60"
+Java(TM) SE Runtime Environment (build 1.8.0_60-b27)
+Java HotSpot(TM) Client VM (build 25.60-b23, mixed mode)
                   </code>
                 </pre>
 
-                <h3>熟练度有关：jquery操作</h3>
-                <!-- Code area -->
+                <p>6.在usr目录下建立tomcat目录</p>
                 <pre>
                   <code>
-jQuery.extend(object)//为jQuery类添加类方法，可以理解为添加静态方法。
-Objectj Query.extend( target, object1, [objectN])//用一个或多个其他对象来扩展一个对象，返回被扩展的对象
-jQuery.fn.extend(object)//对jQuery.prototype进得扩展，就是为jQuery类添加“成员函数”。
+mkdir tomcat
+cd /usr/tomcat
+                  </code>
+                </pre>
+                <p>7.上传tomcat到服务器并解压</p>
+                <pre>
+                  <code>
+tar zxvf apache-tomcat-7.0.85.tar.gz
+                  </code>
+                </pre>
+                <p>8.进入tomcat服务器的bin目录，然后执行"./startup.sh"命令启动Tomcat服务器（使用"./shutdown.sh"关闭tomcat），如下图所示：</p>
+				        <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_002.png" alt="" />
+                </div>
+                <p>9.进入tomcat服务器下的logs目录，打开catalina.out文件进行查看启动信息</p>
+				        <pre>
+                  <code>
+cat catalina.out
                   </code>
                 </pre>
 
-                <h3>熟练度有关：js闭包</h3>
-                <!-- Code area -->
-                <pre>
+                <p>10.将必要的jar包放到tomcat/lib目录下，如：mysql-connector-java-5.1.30.jar</p>
+                <p>在一个tomcat下部署多个webapp的时候，如果每个webapp都使用各自的连接池，那么mysql的连接数资源会紧张，我们可以通过配置jndi解决这个问题。</p>
+                <p>1.修改tomcat的context.xml，在&lt;context&quot;节点下添加</p>
+				        <pre>
                   <code>
-//闭包的例子
-function count() {
-    var arr = [];
-    for (var i=1; i<=3; i++) {
-        arr.push((function (n) {
-            return function () {
-                return n * n;
-            }
-        })(i));
-    }
-    return arr;
-}
-
-var results = count();
-var f1 = results[0];//1
-var f2 = results[1];//4
-var f3 = results[2];//9
-
-//在面向对象的程序设计语言里，比如Java和C++，要在对象内部封装一个私有变量，可以用private修饰一个成员变量。
-js没有class机制，只有函数，借助闭包，同样可以封装一个私有变量。我们用JavaScript创建一个计数器：
-'use strict';
-function create_counter(initial) {
-    var x = initial || 0;
-    return {
-        inc: function () {
-            x += 1;
-            return x;
-        }
-    }
-}
-//它用起来像这样：
-var c2 = create_counter(10);
-c2.inc(); // 11
-c2.inc(); // 12
-c2.inc(); // 13
+&lt;Resource name=&quot;jndi/qyswfx&quot; auth=&quot;Container&quot; type=&quot;javax.sql.DataSource&quot; driverClassName=&quot;com.mysql.jdbc.Driver&quot; url=&quot;jdbc:mysql://xx.xx.xx.xxx:3306/qyswfx&quot; username=&quot;db_qyswfx&quot; password=&quot;666666&quot; initialSize=&quot;10&quot; maxActive=&quot;20&quot; maxIdle=&quot;18&quot; maxWait=&quot;60000&quot;/&gt;
+                  </code>
+                </pre>
+                <p>2.修改webapp的web.xml，在&lt;web-app&quot;节点下添加</p>
+				        <pre>
+                  <code>
+&lt;resource-ref&gt;
+	&lt;res-ref-name&gt;qyswfx&lt;/res-ref-name&gt;
+	&lt;res-type&gt;javax.sql.DataSource&lt;/res-type&gt;
+	&lt;res-auth&gt;Container&lt;/res-auth&gt;
+&lt;/resource-ref&gt;
+                  </code>
+                </pre>
+                <p>3.如果你的应用使用spring框架，那么在org.springframework.web.context.ContextLoaderListener监听的配置文件中（通常为applicationContext.xml），数据源这样配置</p>
+				        <pre>
+                  <code>
+&lt;bean id=&quot;dataSource&quot;
+	class=&quot;org.springframework.jndi.JndiObjectFactoryBean&quot;&gt;
+	&lt;property name=&quot;jndiName&quot; value=&quot;java:comp/env/jndi/qyswfx&quot; /&gt;
+&lt;/bean&gt; 
                   </code>
                 </pre>
 
-                <h3>下面是使用闭包实现的一个分页js插件</h3>
-                <!-- Code area -->
+				        <p>11.部署webapp到tomcat/webapps目录，启动后访问webapp效果如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article022_003.png" alt="" />
+                </div>
+
+                <p>12.1. 增加tomcat启动内存，修改catalina.sh，设置 java_OPTS 参数：</p>
                 <pre>
                   <code>
-/**
- * fastPage分页插件
- * 
- * @author: 玄葬
- */
+JAVA_OPTS='-Xms1024m -Xmx2048m -XX: PermSize=256M -XX:MaxNewSize=256m -XX:MaxPermSize=256m'
+                  </code>
+                </pre>
+                <p>JAVA_OPTS参数说明
+              　　<br>-server 启用jdk 的 server 版；
+              　　<br>-Xms java虚拟机初始化时的最小内存；
+              　　<br>-Xmx java虚拟机可使用的最大内存；
+              　　<br>-XX: PermSize 内存永久保留区域
+              　　<br>-XX:MaxPermSize 内存最大永久保留区域 
+                </p>
 
-Page = function(opt){
-  var me = this;
-  me.uid = uuid();                            //当前实例唯一标识
-  me.holderID = opt.holderID;         //页数容器id
-  me.containerID = opt.containerID;       //分页容器id
-  me.holder = $(&quot;#&quot;+opt.holderID);      //页数容器对象
-  me.container = $(&quot;#&quot;+opt.containerID);    //分页容器对象
-  me.showLength = Number(opt.showLength);   //显示的页数长度
-  me.pageIndex = Number(opt.pageIndex);     //当前页索引
-  me.pageSize = Number(opt.pageSize);     //分页大小
-  me.orderColumn = opt.orderColumn;       //排序字段
-  me.order = opt.order;             //排序方式
-  me.showInfo = opt.showInfo;         //是否显示分页信息
-  me.url = opt.url;               //分页查询url
-  me.data = opt.data;             //分页查询参数
-  me.laterPage = opt.laterPage;         //是否稍后分页
-  me.pageRenderFn = opt.pageRenderFn;     //页面渲染回调函数
-  me.navRenderFn = opt.navRenderFn;       //导航栏渲染回调函数
-  
-  fastPage.instances[me.uid] = me;
-  if (!me.laterPage) {
-    this.gotoPage(this.pageIndex);
-  }
-}
+                <p>12.2. tomcat并发优化，修改server.xml中的connector配置，调整连接器connector的并发处理能力：</p>
+                <pre>
+                  <code>
+&lt;Connector port=&quot;9027&quot;
+　　protocol=&quot;HTTP/1.1&quot;
+　　maxHttpHeaderSize=&quot;8192&quot;
+　　maxThreads=&quot;1000&quot;
+　　minSpareThreads=&quot;100&quot;
+　　maxSpareThreads=&quot;1000&quot;
+　　minProcessors=&quot;100&quot;
+　　maxProcessors=&quot;1000&quot;
+　　enableLookups=&quot;false&quot;
+　　URIEncoding=&quot;utf-8&quot;
+　　acceptCount=&quot;1000&quot;
+　　redirectPort=&quot;8443&quot;
+　　disableUploadTimeout=&quot;true&quot;/&gt;
+                  </code>
+                </pre>
+                <p>connector参数说明
+              　　<br>maxThreads 客户请求最大线程数
+              　　<br>minSpareThreads Tomcat初始化时创建的 socket 线程数
+              　　<br>maxSpareThreads Tomcat连接器的最大空闲 socket 线程数
+              　　<br>enableLookups 若设为true, 则支持域名解析，可把 ip 地址解析为主机名
+              　　<br>redirectPort 在需要基于安全通道的场合，把客户请求转发到基于SSL 的 redirectPort 端口
+              　　<br>acceptAccount 监听端口队列最大数，满了之后客户请求会被拒绝（不能小于maxSpareThreads ）
+              　　<br>connectionTimeout 连接超时
+              　　<br>minProcessors 服务器创建时的最小处理线程数
+              　　<br>maxProcessors 服务器同时最大处理线程数
+              　　<br>URIEncoding URL统一编码
+                </p>
 
-Page.prototype = {
-    constructor: Page,
-    reload: function(url, data){
-      this.url = url;
-      this.data = data;
-      this.gotoPage(1);
-    },
-    refresh: function(){
-      this.gotoPage(this.pageIndex);
-    },
-    gotoPage: function(idx){
-      if (typeof idx == &quot;undefined&quot; || idx == null) {
-        this.pageIndex = 1;
-      }else{
-        this.pageIndex = idx;
-      }
-      this.ajaxPage();
-    },
-    prePage: function(){
-      this.pageIndex--;
-      this.ajaxPage();
-    },
-    nextPage: function(){
-      this.pageIndex++;
-      this.ajaxPage();
-    },
-    /**
-     * 翻页方法
-     */
-    ajaxPage: function(){
-      var url = this.url;
-      var data = this.data;
-      if (typeof this.data == &quot;undefined&quot; || this.data == null) {
-        data = {};
-      }
-      data.iDisplayStart = (this.pageIndex-1)*this.pageSize;
-      data.iDisplayLength = this.pageSize;
-      data.orderColumn = this.orderColumn;
-      data.sSortDir_0 = this.order;
-      var instance = this;
-      var callback = function(data) {
-        if (typeof this.pageRenderFn == &quot;function&quot;) { //渲染页面
-          this.pageRenderFn(data, this);
-        } else {
-          console.error(&quot;fastPage插件未声明渲染回调函数&quot;);
-        }
-        if (typeof this.navRenderFn == &quot;function&quot;) { //渲染导航栏
-          this.navRenderFn(data, this);
-        }else{
-          this.defaultNavRenderFn(data);
-        }
-        scrollTo(0, 0);
-      }
-      
-      $.ajax({
-            type: &quot;POST&quot;,
-            url: url,
-            data: data,
-            dataType: &quot;json&quot;,
-            success: function(data){
-               if(data.operationFlag==1){
-                 if (typeof callback == &quot;function&quot;) {
-                   callback.call(instance, data);
-                 }
-             }else{
-               console.error(&quot;ajax请求出错：&quot;+data.retMessage); 
-             } 
-            },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.error(&quot;ajax请求失败，网络异常状态码：&quot;+textStatus); 
-        }
-        }); 
-    },
+                
+
     
-    /**
-     * 默认的渲染分页栏函数
-     */
-    defaultNavRenderFn: function(data){
-      var rowTotal = data.pageVo.iTotalRecords; //总记录数量
-      var pageTotal = Math.ceil(rowTotal/this.pageSize); //总页数
-      var startRow = (this.pageIndex-1)*this.pageSize+1; //当前开始条数
-      var endRow = (this.pageIndex)*this.pageSize; //当前结束条数
-      endRow = endRow&gt;rowTotal ? rowTotal : endRow;
-      
-      var navHtml = &#39;&#39;;
-      if (this.showInfo) {
-        navHtml += &#39;&lt;div class=&quot;col-md-5&quot;&gt;&#39;;
-        if (rowTotal == 0) {
-          navHtml += &#39;&lt;div class=&quot;pagination navbar-left&quot; style=&quot;margin-top: 30px;&quot; id=&quot;pageNav_info&quot;&gt;总共&#39;+pageTotal+&#39; 页，全部记录&#39;+rowTotal+&#39; 条 &lt;/div&gt;&#39;;
-        }else{
-          navHtml += &#39;&lt;div class=&quot;pagination navbar-left&quot; style=&quot;margin-top: 30px;&quot; id=&quot;pageNav_info&quot;&gt;总共&#39;+pageTotal+&#39; 页，显示第&#39;+startRow+&#39; 到第 &#39;+endRow+&#39; 条，全部记录&#39;+rowTotal+&#39; 条 &lt;/div&gt;&#39;;
-        }
-        navHtml += &#39;&lt;/div&gt;&#39;;
-        navHtml += &#39;&lt;div class=&quot;col-md-7&quot;&gt;&lt;ul class=&quot;pagination navbar-right&quot; id=&quot;pageNav_content&quot;&gt;&#39;;
-      }else{
-        navHtml += &#39;&lt;div class=&quot;col-md-12&quot;&gt;&lt;ul class=&quot;pagination navbar-right&quot; id=&quot;pageNav_content&quot;&gt;&#39;;
-      }
-      navHtml += &#39;&lt;li&gt; &lt;a href=&quot;javascript:fastPage.executeCommand(\&#39;&#39;+this.uid+&#39;\&#39;, \&#39;prePage\&#39;);&quot;&gt; &amp;laquo; &lt;/a&gt; &lt;/li&gt;&#39;;
-      if (pageTotal &gt; this.showLength) {
-        append(this.uid, this.pageIndex, 1); //显示首页
-        
-        if (this.pageIndex &lt; this.showLength-1) {
-          for (var i = 2; i &lt; this.showLength-1; i++) {
-            append(this.uid, this.pageIndex, i);
-          }
-          navHtml+= &#39;&lt;li&gt;&lt;a href=&quot;javascript:return false;&quot;&gt;...&lt;/a&gt;&lt;/li&gt;&#39;;
-        }else if(this.pageIndex &gt;= this.showLength-1 &amp;&amp; this.pageIndex &lt;= pageTotal-(this.showLength-2)) {
-          navHtml+= &#39;&lt;li&gt;&lt;a href=&quot;javascript:return false;&quot;&gt;...&lt;/a&gt;&lt;/li&gt;&#39;;
-          for (var i = this.pageIndex; i &lt; this.pageIndex+(this.showLength-4); i++) {
-            append(this.uid, this.pageIndex, i);
-          }
-          navHtml+= &#39;&lt;li&gt;&lt;a href=&quot;javascript:return false;&quot;&gt;...&lt;/a&gt;&lt;/li&gt;&#39;;
-        }else if(this.pageIndex &gt; pageTotal-(this.showLength-2)) {
-          navHtml+= &#39;&lt;li&gt;&lt;a href=&quot;javascript:return false;&quot;&gt;...&lt;/a&gt;&lt;/li&gt;&#39;;
-          for (var i = (pageTotal-(this.showLength-3)); i &lt; pageTotal; i++) {
-            append(this.uid, this.pageIndex, i);
-          }
-        }
-        append(this.uid, this.pageIndex, pageTotal); //显示尾页
-      }else{
-        for (var i = 1; i &lt;= pageTotal; i++) {
-          append(this.uid, this.pageIndex, i);
-        }
-      }
-      navHtml+= &#39;&lt;li&gt; &lt;a href=&quot;javascript:fastPage.executeCommand(\&#39;&#39;+this.uid+&#39;\&#39;, \&#39;nextPage\&#39;);&quot;&gt; &amp;raquo; &lt;/a&gt; &lt;/li&gt;&#39;;
-      navHtml += &#39;&lt;/ul&gt;&lt;/div&gt;&#39;;
-      
-      this.holder.html(navHtml);
-      
-      if (this.pageIndex == 1) { //置灰上一页下一页
-        this.holder.find(&quot;#pageNav_content&quot;).children().first().find(&quot;a&quot;).addClass(&quot;disable&quot;);
-        this.holder.find(&quot;#pageNav_content&quot;).children().first().find(&quot;a&quot;).attr(&quot;href&quot;, &quot;javascript:return false;&quot;);
-      }
-      if (this.pageIndex == pageTotal) {
-        this.holder.find(&quot;#pageNav_content&quot;).children().last().find(&quot;a&quot;).addClass(&quot;disable&quot;);
-        this.holder.find(&quot;#pageNav_content&quot;).children().last().find(&quot;a&quot;).attr(&quot;href&quot;, &quot;javascript:return false;&quot;);
-      }
-      
-      /** 叠加页数 **/
-      function append(uid, pageIndex, i){
-        if (pageIndex == i) {
-          navHtml+=  &#39;&lt;li class=&quot;active&quot;&gt;&lt;a href=&quot;javascript:fastPage.executeCommand(\&#39;&#39;+uid+&#39;\&#39;, \&#39;gotoPage\&#39;, &#39;+i+&#39;);&quot;&gt;&#39;+i+&#39;&lt;/a&gt;&lt;/li&gt;&#39;;
-        }else{
-          navHtml+=  &#39;&lt;li&gt;&lt;a href=&quot;javascript:fastPage.executeCommand(\&#39;&#39;+uid+&#39;\&#39;, \&#39;gotoPage\&#39;, &#39;+i+&#39;);&quot;&gt;&#39;+i+&#39;&lt;/a&gt;&lt;/li&gt;&#39;;
-        }
-      }
-      
-    }
-}
 
-var fastPage = {
-    instances: {},
-    page: function(opt){
-      var p = new Page(opt);
-      return p;
-    },
-    
-    /**
-     * 公共类方法
-     * 用于执行Page实例的指定方法
-     * @param id 实例id
-     * @param fnName 函数名
-     * @param param 参数
-     */
-    executeCommand: function(id, fnName, param){
-      var p = this.instances[id];
-      p[fnName].call(p, param);
-    }
-};
+                
+
+                
 
 
-function uuid() {
-    var s = [];
-    var hexDigits = &quot;0123456789abcdef&quot;;
-    for (var i = 0; i &lt; 36; i++) {
-        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-    }
-    s[14] = &quot;4&quot;;  // bits 12-15 of the time_hi_and_version field to 0010
-    s[19] = hexDigits.substr((s[19] &amp; 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
-    s[8] = s[13] = s[18] = s[23] = &quot;-&quot;;
- 
-    var uuid = s.join(&quot;&quot;);
-    return uuid;
-}
-                  </code>
-                </pre>
-
-                <h3>熟练度有关：JavaScript 箭头函数</h3>
-                <!-- Code area -->
-                <pre>
-                  <code>
-//箭头函数就是丢掉了关键字 function，然后用一个箭头 => 来分离一个匿名函数的参数部分和函数体：
-(x, y) => x * y;
-//这相当于:
-function(x, y){
-    return x * y;
-}
-                  </code>
-                </pre>
-                <h3>熟练度有关：JavaScript 解构</h3>
-                <!-- Code area -->
-                <pre>
-                  <code>
-//一个新的赋值语法，可以让您快速解压缩对象属性和数组中的值，并将它们分配给各个变量。
-var jsondata = {
-    title: 'Top 5 JavaScript ES6 Features',
-    Details: {
-        date: {
-            created: '2017/09/19',
-            modified: '2017/09/20',
-        },
-        Category: 'JavaScript',
-    },
-    url: '/top-5-es6-features/'
-};
-
-var {title, Details: {date: {created, modified}}} = jsondata
-console.log(title) // 'Top 5 JavaScript ES6 Features'
-console.log(created) // '2017/09/19'
-console.log(modified) // '2017/09/20'
-                  </code>
-                </pre>
 
 
 							</section>

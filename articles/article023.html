@@ -36,25 +36,30 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-									<span class="date">May 02, 2018</span>
-									<h1>zookeeper linux deploy</h1>
-									<p>in distributed applications, coordination services are notoriously hard to get right. They are especially prone to errors such as race conditions and deadlock. <br>
-                  zooKeeper is a distributed, open-source coordination service for distributed applications. It exposes a simple set of primitives that distributed applications can build upon to implement higher level services for synchronization, configuration maintenance, and groups and naming. It is designed to be easy to program to, and uses a data model styled after the familiar directory tree structure of file systems. It runs in Java and has bindings for both Java and C.<br>
-                  ZooKeeper is simple. ZooKeeper allows distributed processes to coordinate with each other through a shared hierarchal namespace which is organized similarly to a standard file system. The name space consists of data registers - called znodes, in ZooKeeper parlance - and these are similar to files and directories. Unlike a typical file system, which is designed for storage, ZooKeeper data is kept in-memory, which means ZooKeeper can acheive high throughput and low latency numbers. <br>
-                  The ZooKeeper implementation puts a premium on high performance, highly available, strictly ordered access. The performance aspects of ZooKeeper means it can be used in large, distributed systems. The reliability aspects keep it from being a single point of failure. The strict ordering means that sophisticated synchronization primitives can be implemented at the client.<br>
-
+									<span class="date">May 10, 2018</span>
+									<h1>solr linux deploy</h1>
+									<p>
+Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more. Solr powers the search and navigation features of many of the world's largest internet sites. 
                   </p>
 								</header>
 
                 <!-- Definition area -->
                 <h3>Definition</h3>
                 <dl>
-                  <dt>同步原语</dt>
-                  <dd>当一个进程调用一个send原语时，在消息开始发送后，发送进程便处于阻塞状态，直至消息完全发送完毕，send原语的后继语句才能继续执行。当一个进程调用一个receive原语时，并不立即返回控制，而是等到把消息实际接收下来，并把它放入指定的接收区，才返回控制，继续执行该原语的后继指令。在这段时间它一直处于阻塞状态。上述的send和receive被称为同步通信原语或阻塞通信原语。（不懂得去复习《计算机操作系统》） </dd>
-                  <dt>数据模型和分层命名空间</dt>
-                  <dd>ZooKeeper的数据模型是内存中的一个ZNode数，由斜杠/进行分割的路径，就是一个ZNode，每个ZNode上除了保存自己的数据内容，还保存一系列属性信息； 
-                  ZooKeeper中的数据节点分为两种：持久节点和临时节点。
-                  所谓的持久节点是指一旦这个ZNode创建成功，除非主动进行ZNode的移除操作，节点会一直保存在ZooKeeper上；而临时节点的生命周期是跟客户端的会话相关联的，一旦客户端会话失效，这个会话上的所有临时节点都会被自动移除。</dd>
+                  <dt>Collections</dt>
+                  <dd>SolrCloud集群中的一个完整的逻辑上的倒排索引(什么是倒排索引?)，和一个独立的config set相关联，由一个或者多个shard组成，shard可以在不同的服务器上，shard对搜索接口的调用者来说是隐形的，搜索者不用考虑在搜索时如何指定shard，只需要传入Collection名即可。</dd>
+                  <dt>Config Set</dt>
+                  <dd>包含两个最根本的配置文件:solrconfig.xml和schema.xml，视这两个文件的内容而定是否需要包含其他文件。SolrCloud的config set目录会上传到zookeeper中，而传统单机Solr的config set是保存在本地文件夹中。</dd>
+                  <dt>Core</dt>
+                  <dd>一个Solr Core是一个包含索引和配置文件的运行实例，以前Solr Core是单例模式的，后来重构成了多实例的，(什么是SolrCores?)。一个Replica对应一个Core实例，同一个Shard对应的Replica的Core的配置和索引数据是一样的，但是是不同实例。</dd>
+                  <dt>Replica</dt>
+                  <dd>Shard的一个副本。一个Shard会在不同的服务器上保留Repicas(副本)，通过选举机制(和zookeeper的leader选举机制类似)在Replicas(副本)中选出一个leader来对外提供服务。leader连不上了就重新选其他副本作为leader，这样能保证至多(副本数-1)台服务器挂掉后仍然能正常工作。</dd>
+                  <dt>Shard</dt>
+                  <dd>Collection的一个逻辑分片。每个Shard对应一个Core，并且包含一个索引(Collection)的文档(Documents)的不相交子集，一个Shard由至少一个Replica组成，当有多个Replicas时，选举机制选出作为leader的Replica。单机Solr中，Shard指的是Solr cores.</dd>
+                  <dt>Zookeeper</dt>
+                  <dd>分布式集群的基本组件，MapReduce、HDFS、Hive等分布式系统都基于它，Leader选举也要靠它。Solr有自己的内嵌Zookeeper，但是一般不会用内嵌的。部署Zookeeper至少需要3台主机(出于节约成本，可以和Solr实例部署在相同的服务器上，目前很多Solr users都是这么用的)。</dd>
+                  <dt></dt>
+                  <dd></dd>
                 </dl>
 
                 <p></p>
@@ -63,163 +68,244 @@
                   <dt>CentOS Linux release 7.4.1708 (Core)</dt>
                   <dt>jdk-7u80-linux-x64</dt>
                   <dt>zookeeper-3.4.11.tar.gz</dt>
+                  <dt>solr-5.2.1.tgz</dt>
                 </dl>
-                
-                <p>可能用到的zk命令：</p>
-                <pre>
-                  <code>
-        zkServer.sh start
-        zkServer.sh stop
-        zkServer.sh status
-        zkCli.sh -server ip:port
-        create /node nodeName
-        get /node
-        setAcl path acl
-        getAcl path
-        quit
-                  </code>
-                </pre>
 
-                <p>1.上传zookeeper到zookeeper目录并解压，并建立data目录，logs目录</p>
-                <pre>
-                  <code>
-tar zxvf zookeeper-3.4.11.tar.gz
-                  </code>
-                </pre>
+                <p>各个术语之间对应关系图：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article023_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article024_003.png" alt="" />
                 </div>
-                <p>2.zoo.cfg基本配置</p>
-                <pre>
-                  <code>
-#数据目录
-dataDir=/usr/zookeeper/data
-#日志目录
-dataLogDir=/usr/zookeeper/logs
-#心跳间隔时间，zookeeper中使用的基本时间单位，毫秒值。每隔2秒发送一个心跳
-tickTime=2000
-#leader与客户端连接超时时间。表示5个心跳间隔
-initLimit=5
-#Leader与Follower之间的超时时间，表示2个心跳间隔
-syncLimit=2
-#客户端连接端口。多个实例的端口配置不可重复
-clientPort=2181 
-#server.NUM=IP:port1:port2  NUM表示本机为第几号服务器；IP为本机ip地址；
-#port1为leader与follower通信端口；port2为参与竞选leader的通信端口
-#多个实例的端口配置不能重复，如下：
-server.1=111.230.223.233:2888:3888
-server.2=111.230.211.90:2888:3888
-#server.3=我没有这么多节点所以注释掉:2888:3888
-                  </code>
-                </pre>
-                <p>3.添加myid文件，myid文件存储一个数值，是ZooKeeper Server进程的标识。即上面配置中的server.后面的数字。 </p>
-                <p>4.集群方式启动 </p>
-                <pre>
-                  <code>
-zkServer.sh start
-                  </code>
-                </pre>
-                <p>5.查看状态 </p>
-                <pre>
-                  <code>
-zkServer.sh status
-                  </code>
-                </pre>
+                <p>创建上图collection对应的配置为：<br>
+                numShards=2<br>
+                replicationFactor=3<br>
+                maxShardsPerNode=2<br>
+                liveSolrNode=3<p>
+                
+                <p>1.上传solr到linux并解压，solr目录如下（只需了解红线部分，其他忽略。）：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article023_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article024_001.png" alt="" />
                 </div>
-                <p>原因是配置的机器111.230.211.90没有配置正确，先注释掉再启动，启动成功，状态：Mode: standalone。配置正确启动后是这样的：</p>
+                <p>2.sorl的server目录是重点：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article024_002.png" alt="" />
+                </div>
+                <p>3.复制server\lib\ext内log4j-1.2.17.jar包到server\solr-webapp\webapp\WEB-INF\lib，<br>
+    复制contrib\analysis-extras\lucene-libs内lucene-analyzers-smartcn-5.2.1.jar包到server\solr-webapp\webapp\WEB-INF\lib</p>
+                <p>4.修改server\solr-webapp\webapp\WEB-INF\web.xml，配置solr home</p>
                 <pre>
                   <code>
-[root@VM_0_7_centos bin]# ./zkServer.sh start
-ZooKeeper JMX enabled by default
-Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
-Starting zookeeper ... STARTED
-[root@VM_0_7_centos bin]# ./zkServer.sh status
-ZooKeeper JMX enabled by default
-Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
-Mode: follower
+&lt;env-entry&gt;
+   &lt;env-entry-name&gt;solr/home&lt;/env-entry-name&gt;
+   &lt;env-entry-value&gt;yourSolrHomeDir&lt;/env-entry-value&gt;
+   &lt;env-entry-type&gt;java.lang.String&lt;/env-entry-type&gt;
+&lt;/env-entry&gt;
+                  </code>
+                </pre>
+                <p>5.新建solrHome文件夹server/qyswfx文件夹，并保证该文件夹有solr.xml和zoo.cfg配置文件：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article024_004.png" alt="" />
+                </div>
+                <p>6.从solr-5.2.1/server/solr/configsets/复制一份data_driven_schema_configs配置文件夹qyswfx，并修改solrconfig.xml和schema.xml文件：</p>
+                <p>6.1配置solrconfig.xml，这里只展示真正修改的代码片段，文件在这里：
+                <a style="color: red;" href="../files/solrconfig.xml" download="solrconfig.xml">solrconfig.xml</a><br>设置索引插入时的提交方式为服务端提交。autoCommit为15000ms提交一次，autoSoftCommit为1000ms或doc数量>=1000时提交一次</p>
+                <pre>
+                  <code>
+&lt;updateHandler class=&quot;solr.DirectUpdateHandler2&quot;&gt;
+    &lt;updateLog&gt;
+      &lt;str name=&quot;dir&quot;&gt;${solr.ulog.dir:}&lt;/str&gt;
+    &lt;/updateLog&gt;
+ 
+     &lt;autoCommit&gt; 
+        &lt;maxTime&gt;${solr.autoCommit.maxTime:15000}&lt;/maxTime&gt; 
+        &lt;openSearcher&gt;false&lt;/openSearcher&gt; 
+     &lt;/autoCommit&gt;
 
+     &lt;autoSoftCommit&gt; 
+        &lt;maxDocs&gt;1000&lt;/maxDocs&gt;  
+        &lt;maxTime&gt;${solr.autoSoftCommit.maxTime:1000}&lt;/maxTime&gt; 
+     &lt;/autoSoftCommit&gt;
 
-[root@VM_0_12_centos bin]# ./zkServer.sh start
-ZooKeeper JMX enabled by default
-Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
-Starting zookeeper ... STARTED
-[root@VM_0_12_centos bin]# ./zkServer.sh status
-ZooKeeper JMX enabled by default
-Using config: /usr/zookeeper/zookeeper-3.4.11/bin/../conf/zoo.cfg
-Mode: leader
+&lt;/updateHandler&gt;
                   </code>
                 </pre>
 
-                <p>在111.230.223.233上连接111.230.211.90</p>
+                <p>6.2配置schema.xml，这里只展示真正修改的代码片段，文件在这里：
+                <a style="color: red;" href="../files/schema.xml" download="schema.xml">schema.xml</a><br>
+                schema.xml作用：Solr stores details about the field types and fields it is expected to understand in a schema file. The name and location of this file may vary depending on how you initially configured Solr or if you modified it later.<br>
+                根据业务需求定制schema.xml：给一个数据库表并指定表里的若干字段，将表里的数据导入索引集合。因为字段名是动态的，所以要使用dynamicField
+                </p>
                 <pre>
                   <code>
-zkCli.sh -server 111.230.211.90:2181
-
-//信息如下，连接成功
-2018-03-19 11:43:36,614 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@1035] - Opening socket connection to server 111.230.211.90/111.230.211.90:2181. Will not attempt to authenticate using SASL (unknown error)
-Welcome to ZooKeeper!
-JLine support is enabled
-2018-03-19 11:43:36,656 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@877] - Socket connection established to 111.230.211.90/111.230.211.90:2181, initiating session
-[zk: 111.230.211.90:2181(CONNECTING) 0] 2018-03-19 11:43:36,781 [myid:] - INFO  [main-SendThread(111.230.211.90:2181):ClientCnxn$SendThread@1302] - Session establishment complete on server 111.230.211.90/111.230.211.90:2181, sessionid = 0x2000acd6fea0000, negotiated timeout = 30000
+  &lt;fields&gt;
+    &lt;field name=&quot;_version_&quot; type=&quot;long&quot; indexed=&quot;true&quot; stored=&quot;true&quot;/&gt;
+    &lt;field name=&quot;text&quot; type=&quot;text_smartcn&quot; indexed=&quot;true&quot; stored=&quot;false&quot; multiValued=&quot;true&quot;/&gt;
+    &lt;field name=&quot;id&quot; type=&quot;string&quot; indexed=&quot;true&quot; stored=&quot;true&quot; required=&quot;true&quot; multiValued=&quot;false&quot; /&gt; 
+  &lt;/fields&gt;
+  
+  &lt;!-- 动态字段，用于后台维护索引字段，不可索引部分 --&gt;  
+  &lt;dynamicField name=&quot;*_i&quot;  type=&quot;int&quot;    indexed=&quot;false&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_s&quot;  type=&quot;string&quot;  indexed=&quot;false&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_l&quot;  type=&quot;long&quot;   indexed=&quot;false&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_d&quot; type=&quot;double&quot; indexed=&quot;false&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_f&quot;  type=&quot;float&quot;  indexed=&quot;false&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_b&quot;  type=&quot;boolean&quot; indexed=&quot;false&quot; stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_text&quot; type=&quot;text_general&quot;   indexed=&quot;false&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_textcn&quot;  type=&quot;text_smartcn&quot;    indexed=&quot;false&quot;  stored=&quot;true&quot;/&gt;
+  
+  &lt;!-- 动态字段，用于后台维护索引字段，可索引部分 --&gt;  
+  &lt;dynamicField name=&quot;*_i_i&quot;  type=&quot;int&quot;    indexed=&quot;true&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_i_s&quot;  type=&quot;string&quot;  indexed=&quot;true&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_i_l&quot;  type=&quot;long&quot;   indexed=&quot;true&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_i_d&quot; type=&quot;double&quot; indexed=&quot;true&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_i_f&quot;  type=&quot;float&quot;  indexed=&quot;true&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_i_b&quot;  type=&quot;boolean&quot; indexed=&quot;true&quot; stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_i_text&quot; type=&quot;text_general&quot;   indexed=&quot;true&quot;  stored=&quot;true&quot;/&gt;
+  &lt;dynamicField name=&quot;*_i_textcn&quot;  type=&quot;text_smartcn&quot;    indexed=&quot;true&quot;  stored=&quot;true&quot;/&gt;
+  
+  &lt;!-- 文档的唯一标识，可理解为主键，除非标识为required=&quot;false&quot;, 否则值不能为空--&gt;  
+  &lt;uniqueKey&gt;id&lt;/uniqueKey&gt;
+                  </code>
+                </pre>
+                <p>6.3配置schema.xml的中文分词器</p>
+                <pre>
+                  <code>
+    &lt;fieldType name=&quot;text_smartcn&quot; class=&quot;solr.TextField&quot; positionIncrementGap=&quot;100&quot;&gt;
+    &lt;!--  solr自带中文分词器 --&gt;
+    &lt;analyzer type=&quot;index&quot; isMaxWordLength=&quot;true&quot;&gt;
+      &lt;tokenizer class=&quot;solr.SmartChineseSentenceTokenizerFactory&quot; /&gt;
+      &lt;filter class=&quot;solr.SmartChineseWordTokenFilterFactory&quot; /&gt;
+    &lt;/analyzer&gt;
+    &lt;analyzer type=&quot;query&quot; isMaxWordLength=&quot;true&quot;&gt;
+      &lt;tokenizer class=&quot;solr.SmartChineseSentenceTokenizerFactory&quot; /&gt;
+      &lt;filter class=&quot;solr.SmartChineseWordTokenFilterFactory&quot; /&gt;
+    &lt;/analyzer&gt;
+    &lt;/fieldType&gt;
                   </code>
                 </pre>
 
-                <p>然后在111.230.211.90上创建一个叫qyswfx节点，这个节点会以znode的形式存储在111.230.211.90机器上，并同步到其他机器。</p>
+                <p style="color: red;">////////////////////////////上面solr基本配置完成，下面介绍SolrCloud的配置////////////////////////////</p>
+
+                <p>7.配置solrhome目录下的solr.xml<br>
+                只有当solr实例以集群的方式启动的时候，也就是启动带有参数-DzkRun 或 -DzkHost的时候，&lt;/solrcloud&gt;才会起效。</p>
                 <pre>
                   <code>
-[zk: 111.230.211.90:2181(CONNECTED) 2] create /qyswfx qyswfx_node
-Created /qyswfx
-[zk: 111.230.211.90:2181(CONNECTED) 3] get /qyswfx
-qyswfx_node
-cZxid = 0x100000002
-ctime = Mon Mar 19 14:07:31 CST 2018
-mZxid = 0x100000002
-mtime = Mon Mar 19 14:07:31 CST 2018
-pZxid = 0x100000002
-cversion = 0
-dataVersion = 0
-aclVersion = 0
-ephemeralOwner = 0x0
-dataLength = 11
-numChildren = 0
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+
+&lt;solr&gt;
+
+  &lt;solrcloud&gt;
+
+    &lt;str name=&quot;host&quot;&gt;${host:}&lt;/str&gt;
+    &lt;int name=&quot;hostPort&quot;&gt;${jetty.port:8983}&lt;/int&gt;
+    &lt;str name=&quot;hostContext&quot;&gt;${hostContext:solr}&lt;/str&gt;
+
+    &lt;!--zk地址列表--&gt;
+    &lt;str name=&quot;zkHost&quot;&gt;111.230.211.90:2181,111.230.223.233:2181&lt;/str&gt; 
+    &lt;int name=&quot;zkClientTimeout&quot;&gt;${zkClientTimeout:30000}&lt;/int&gt;
+
+    &lt;bool name=&quot;genericCoreNodeNames&quot;&gt;${genericCoreNodeNames:true}&lt;/bool&gt;
+    &lt;int name=&quot;distribUpdateSoTimeout&quot;&gt;${distribUpdateSoTimeout:600000}&lt;/int&gt;
+    &lt;int name=&quot;distribUpdateConnTimeout&quot;&gt;${distribUpdateConnTimeout:60000}&lt;/int&gt;
+
+  &lt;/solrcloud&gt;
+
+  &lt;shardHandlerFactory name=&quot;shardHandlerFactory&quot;
+    class=&quot;HttpShardHandlerFactory&quot;&gt;
+    &lt;int name=&quot;socketTimeout&quot;&gt;${socketTimeout:600000}&lt;/int&gt;
+    &lt;int name=&quot;connTimeout&quot;&gt;${connTimeout:60000}&lt;/int&gt;
+  &lt;/shardHandlerFactory&gt;
+
+&lt;/solr&gt;
+
                   </code>
                 </pre>
 
-                <p>在111.230.211.90上连接111.230.223.233，可以查看到节点已经同步</p>
+
+                <p>8.因为上传配置文件到要求solr必须以cloud的方式启动，所以以solr cloud的方式在solrHome启动solr<br>
+                我们暂时只有2个节点：111.230.211.90; 111.230.223.233，端口都是2181。</p>
                 <pre>
                   <code>
-[zk: 111.230.223.233:2181(CONNECTED) 7] get /qyswfx
-qyswfx_node
-cZxid = 0x100000002
-ctime = Mon Mar 19 14:07:31 CST 2018
-mZxid = 0x100000002
-mtime = Mon Mar 19 14:07:31 CST 2018
-pZxid = 0x100000002
-cversion = 0
-dataVersion = 0
-aclVersion = 0
-ephemeralOwner = 0x0
-dataLength = 11
-numChildren = 0
+.bin/solr start -c -s /usr/solr-5.2.1/server/qyswfx -p 8983 -z 111.230.211.90:2181,111.230.223.233:2181
+//如果需要停止solr服务，使用下面命令
+.bin/solr stop -all
+                  </code>
+                </pre>
+                <p>启动成功后信息如下：</p>
+                <pre>
+                  <code>
+[root@VM_0_12_centos bin]# ./solr start -c -s /usr/solr-5.2.1/server/qyswfx -p 8983 -z 111.230.211.90:2181,111.230.223.233:2181
+Waiting to see Solr listening on port 8983 [/]  
+Started Solr server on port 8983 (pid=11211). Happy searching!
                   </code>
                 </pre>
 
-                <p>此时集群配置完成，如果leader节点挂掉，根据算法会有一个follower节点被选举为leader节点。</p>
-                <p style="color: red;">前方高能！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！<br>下面介绍怎么根据我们的业务需求配置zookeeper集群&&zookeeper集群选举具体动作</p>
-                
+                <p>9.利用zkcli上传配置文件夹到zk集群，供后面创建collection使用。<br>
+                -zkhost指定ZooKeeper地址，逗号分割，-confdir为配置文件目录。-confname指定该配置的名称。</p>
+                <pre>
+                  <code>
+server/scripts/cloud-scripts/zkcli.sh -zkhost 111.230.211.90:2181,111.230.223.233:2181 -cmd upconfig -confname qyswfx_conf -confdir server/qyswfx/qyswfx_configs/conf
+
+//查看命令  
+server/scripts/cloud-scripts/zkcli help 
+//查看zk配置文件信息
+server/scripts/cloud-scripts/zkcli -zkhost 111.230.211.90:2181,111.230.223.233:2181 -cmd list
+                  </code>
+                </pre>
+                <p>上传成功后部分信息如下：</p>
+                <pre>
+                  <code>
+ /configs/qyswfx_conf/mapping-FoldToASCII.txt
+INFO  - 2018-03-22 12:57:12.382; org.apache.solr.common.cloud.SolrZkClient; makePath /configs/qyswfx_conf/protwords.txt
+INFO  - 2018-03-22 12:57:12.395; org.apache.solr.common.cloud.SolrZkClient; makePath /configs/qyswfx_conf/spellings.txt
+INFO  - 2018-03-22 12:57:12.402; org.apache.solr.common.cloud.SolrZkClient; makePath /configs/qyswfx_conf/elevate.xml
+INFO  - 2018-03-22 12:57:12.409; org.apache.solr.common.cloud.SolrZkClient; makePath /configs/qyswfx_conf/stopwords.txt
+INFO  - 2018-03-22 12:57:12.421; org.apache.solr.common.cloud.SolrZkClient; makePath /configs/qyswfx_conf/solrconfig.xml
+INFO  - 2018-03-22 12:57:13.750; org.apache.solr.common.cloud.SolrZkClient; makePath /configs/qyswfx_conf/update-script.js
+INFO  - 2018-03-22 12:57:13.761; org.apache.zookeeper.ZooKeeper; Session: 0x2001ceb33a0000 closed
+INFO  - 2018-03-22 12:57:13.761; org.apache.zookeeper.ClientCnxn$EventThread; EventTread shut down
+                  </code>
+                </pre>
+
+                <p>10.通过http协议与solr交互（可以在浏览器栏测试，生产中我们使用代码自动化执行。），使用上传的配置文件qyswfx_conf，创建一个collection集合，分片数量numShards=2，复制因子replicationFactor=2</p>
+                <pre>
+                  <code>
+//如果你在1台机器：111.230.211.90:8983部署了solr
+http://111.230.211.90:8983/solr/admin/collections?action=CREATE&amp;name=collection_hmdcx&amp;numShards=2&amp;replicationFactor=1&amp;maxShardsPerNode=2&amp;collection.configName=qyswfx_conf
+
+//如果你在2台机器：111.230.211.90:8983,111.230.223.233:8983都部署了solr
+http://111.230.211.90:8983/solr/admin/collections?action=CREATE&amp;name=collection_hmdcx&amp;numShards=2&amp;replicationFactor=2&amp;maxShardsPerNode=2&amp;collection.configName=qyswfx_conf
+                  </code>
+                </pre>
+                <p>
+numShards: collection分成多少片shard<br>
+replicationFactor：每片shard由多少个复制组成，（replicationFactor=1表示每份shard只有1份，replicationFactor=2表示每份shard有2份，1份数据节点，1份备份节点）<br>
+maxShardsPerNode: 对于某个collection，每个节点允许的最大分片数<br>
+liveSolrNode：当前存活的solr节点<br>
+注意：一个正常的solrCloud集群不容许一个liveSolrNode上部署同一个shard的多个replic，因此正确时因满足以下条件：numShards*replicationFactor&lt;liveSolrNode*maxShardsPerNode<br>
+                </p>
+                <p>11.删除collection集合collection_hmdcx</p>
+                <pre>
+                  <code>
+http://111.230.211.90:8983/solr/admin/collections?action=DELETE&amp;name=collection_hmdcx
+                  </code>
+                </pre>
+
+                <p>12.在webapp控制台查看我们创建的collection集合：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article024_005.png" alt="" />
+                </div>
+
+
+
+
+                <p>12.关于solr控制台webapp由solr内置jetty启动还是放到tomcat里面的问题，个人认为还是由jetty启动该webapp，原因如下：
+                <br>(1)在业务上，tomcat用来运行我们项目的webapp，版本发行的时候需要重启，我们的搜索服务在业务场景上应该跟它剥离。
+                <br>(2)在技术上，使用jetty来运行solr控制台webapp，一样可以做访问控制/二次定制。
+                </p>
 
                 
 
-
-
-
-                
-
-                
-
-
+             
 
 
 							</section>
