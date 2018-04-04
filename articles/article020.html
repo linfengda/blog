@@ -118,7 +118,7 @@
 	 * 从算法描述来看，堆排序需要两个过程，一是建立堆，二是堆顶与堆的最后一个元素交换位置。
 	 * 所以堆排序有两个函数组成。一是建堆的渗透函数，二是反复调用渗透函数实现排序的函数
 	 */
-	public void heapSort(int[] array) {
+	public void duipaixu(int[] array) {
 		// 循环建堆
 		for (int i = 0; i &lt; array.length - 1; i++) {
 			buildMaxHeap(array, array.length-1-i); // 建堆
