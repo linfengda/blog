@@ -36,84 +36,22 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-									<span class="date">February 30, 2018</span>
-									<h1>String implementation and KMP match</h1>
-									<p>this page shows a implementation of String and KMP match algorithm.</p>
+									<span class="date">February 31, 2018</span>
+									<h1>Symmetric Matrices and sparse matrix</h1>
+									<p>this page introduce symmetric Matrices and sparse matrix.</p>
 								</header>
 
-                <!-- Introduction area -->
-                  <p>KMP算法是在Brute-Force算法的基础上同时提出的模式匹配算法，KMP算法消除了Brute-Force算法的主串比较位置在多个字符比较相等后只要一个字符不相等就回退的缺点。
-                  </p>
-
-                <p>/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////</p>
-                <p>串的C语言实现：</p>
-                <!-- Code area -->
-                <pre>
-                  <code>
-#include <stdio.h>
-#include <stdlib.h>
-#define Size 10
-
-typedef struct String {
-	char *s;
-	int length;
-	int size;
-}String;
-
-String init() {
-	String str;
-	str.s = (char*)malloc(Size*sizeof(char));
-	str.length = 0;
-	str.size = Size;
-	return str;
-}
-
-int insert(String *str, int pos, String *t) {
-	if (pos < 0) {
-		printf("插入位置错误");
-		return 0;
-	}
-	if (str->length + t->length > str->size) {
-		str->s = (char*)realloc(str->s, (str->length + t->length)*sizeof(char));//改变s指向的内存空间大小
-		if (!str->s) {
-			printf("存储分配失败");
-			return 0;
-		}
-		str->size = str->length + t->length;
-	}
-	for (int i = str->length - 1; i >= pos; i--) {
-		str->s[i + t->length] = str->s[i];//依次后移t->length长度
-	}
-	for (int i = 0; i < t->length; i++) {
-		str->s[pos + i] = t->s[i];
-	}
-	return 1;
-}
-
-int delete(String *str, int pos, int len) {
-	if (str->length == 0) {
-		printf("字符串已空");
-		return 0;
-	}
-	if (pos < 0 || len <0 || pos + len > str->length) {
-		printf("参数错误");
-		return 0;
-	}
-	for (int i = pos+len; i < str->length; i++) {
-		str->s[i - len] = str->s[i];
-	}
-	str->length = str->length - len;
-	return 1;
-}
-                  </code>
-                </pre>
-
-				<p>KMP算法的原理：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article006_010.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article006_001.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article006_011.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article006_002.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article006_003.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article006_004.png" alt="" />
                 </div>
 
 
