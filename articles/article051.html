@@ -271,10 +271,10 @@ public class TestAOP {
                 <p>值得注意的是Around、Before、After、Return的执行顺序，3者的执行顺序取决于在xml中的配置顺序。图中标记了3块，分别对应Before，Around，Return。其中Around中包含有Return，这是因为aop:after配在aop:around的前面，而Around是先执行的，执行完之后直接执行Return，所以After的位置反而在最后。如果将aop:around配在aop:after和aop:after-returning前面，这三块就会分开独立显示：</p>
                 <pre>
                   <code>
-			&lt;aop:before method=&quot;doBefore&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-			&lt;aop:around method=&quot;doAround&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-			&lt;aop:after method=&quot;doAfter&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-			&lt;aop:after-returning method=&quot;doReturn&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
+&lt;aop:before method=&quot;doBefore&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
+&lt;aop:around method=&quot;doAround&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
+&lt;aop:after method=&quot;doAfter&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
+&lt;aop:after-returning method=&quot;doReturn&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
                   </code>
                 </pre>
                 <div class="full-div">
