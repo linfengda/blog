@@ -45,7 +45,7 @@
                 <p>AOP(Aspect Oriented Programming)，是面向切面编程的技术。AOP基于IoC基础，是对OOP的有益补充。</p>
                 <p>AOP之所以能得到广泛认可，主要是因为它将应用系统拆分分了2个部分：核心业务逻辑（Core business concerns）及横向的通用逻辑，也就是所谓的切面Crosscutting enterprise concerns。例如，所有大中型应用都要涉及到的持久化管理（Persistent）、事务管理（Transaction Management）、权限管理（Privilege Management）、日志管理（Logging）和调试管理（Debugging）等。使用AOP技术，可以让开发人员只专注核心业务，而通用逻辑则使用AOP技术进行横向切入，由专人去处理这些通用逻辑，会使得任务简单明了，提高开发和调试的效率。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_001.png" alt="" />
                 </div>
 
                 <h3>要想了解AOP，首先得了解几个重要的基本概念：</h3>
@@ -59,7 +59,7 @@
 			    编织（Weaving）：组装方面来创建一个被通知对象。这可以在编译时完成（例如使用AspectJ编译器），也可以在运行时完成。Spring和其他纯Java AOP框架一样，在运行时完成织入。
 				</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_002.png" alt="" />
                 </div>
 
                 <h3>各种通知（Advice）类型：</h3>
@@ -76,7 +76,7 @@
 				ApplicationContext中在&lt;aop:aspect&gt;里面使用&lt;aop:after-throwing&gt;元素进行声明。
 				</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_003.png" alt="" />
                 </div>
 
                 <h3>Spring Aop实例之xml配置 ：</h3>
@@ -266,7 +266,7 @@ public class TestAOP {
 
                 <p>测试的结果如图所示：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_004.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_004.png" alt="" />
                 </div>
                 <p>值得注意的是Around、Before、After、Return的执行顺序，3者的执行顺序取决于在xml中的配置顺序。图中标记了3块，分别对应Before，Around，Return。其中Around中包含有Return，这是因为aop:after配在aop:around的前面，而Around是先执行的，执行完之后直接执行Return，所以After的位置反而在最后。如果将aop:around配在aop:after和aop:after-returning前面，这三块就会分开独立显示：</p>
                 <pre>
@@ -278,12 +278,12 @@ public class TestAOP {
                   </code>
                 </pre>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_005.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_005.png" alt="" />
                 </div>
 
                 <p>当有异常抛出时，Return不会执行，Before、After、Throwing会执行，Around只会执行Before Advice部分：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_006.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_006.png" alt="" />
                 </div>
 
                 <h3>Spring Aop实例之注解配置 ：</h3>
