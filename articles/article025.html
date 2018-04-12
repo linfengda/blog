@@ -43,7 +43,7 @@
 
 				<h3>下载源码：</h3>
                 <p>1. 在githu上下载源码：<a href="https://github.com/apache/zookeeper">https://github.com/apache/zookeeper</a></p>
-                <p>2. 使用ant将源码构建成eclipse工程：Apache Ant是一个将软件进行编译、测试、部署的工具，下载地址为<a href="http://www.apache.org/ ">http://www.apache.org/ r</a>。</p>
+                <p>2. 使用ant将源码构建成eclipse工程：Apache Ant是一个将软件进行编译、测试、部署的工具，下载地址为<a href="http://www.apache.org/">http://www.apache.org/</a>。</p>
 				<p>在这里需要提醒：ant的版本要跟你使用的JDK版本保持一致，原因如下：<br>
 				每个class文件都有一个major或者minor版本号，这是存在于Java编译器中的，并且和JDK的版本号是对应的，下面我们列出对应JRE的major版本号：
 				</p>
@@ -71,16 +71,18 @@ Build failed
                 <p>修改build.xml文件，将地址修改下：</p>
                 <blockquote>
 				<p>
-				get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
-				更换成如下地址
+				get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"\n
+				更换成如下地址\n
 				get src="http://ufpr.dl.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"</p>
 				</blockquote>
 				<p>进入build.xml的当前目录，用ant eclipse命令进行编译。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article025_001.png" alt="" />
                 </div>
-                <p>编译完成之后，发现zookeeper目录下已经多了.classpath和.project文件，可以直接导入eclipse（如有报错，切换项目compiled jdk为1.7）。</p>
-
+                <p>编译完成之后，发现zookeeper目录下已经多了.classpath和.project文件，可以直接导入eclipse（如有报错，切换项目compiler jdk为1.7）。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article025_002.png" alt="" />
+                </div>
                 
 
 
