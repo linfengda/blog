@@ -48,6 +48,23 @@
 		-webkit-text-size-adjust: none;
 	}
 
+	blockquote {
+		border-left: 5px solid #ddd;
+		margin: 0;
+		background: none;
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+
+	blockquote p {
+		margin: 0;
+		padding: 0;
+		color: #777;
+	}
+
+
 /* Box Model */
 
 	*, *:before, *:after {

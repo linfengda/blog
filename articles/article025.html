@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 14, 2018</span>
+									<h1>zoopkeeper: source code reading</h1>
+								</header>
+
+
+				<h3>下载源码：</h3>
+                <p>1. 在githu上下载源码：<a href="https://github.com/apache/zookeeper">https://github.com/apache/zookeeper</a></p>
+                <p>2. 使用ant将源码构建成eclipse工程：Apache Ant是一个将软件进行编译、测试、部署的工具，下载地址为<a href="http://www.apache.org/ ">http://www.apache.org/ r</a>。</p>
+				<p>在这里需要提醒：ant的版本要跟你使用的JDK版本保持一致，原因如下：<br>
+				每个class文件都有一个major或者minor版本号，这是存在于Java编译器中的，并且和JDK的版本号是对应的，下面我们列出对应JRE的major版本号：
+				</p>
+				<pre>
+                  <code>
+Java SE 8 = 52,
+Java SE 7 = 51,
+Java SE 6.0 = 50,
+Java SE 5.0 = 49,
+JDK 1.4 = 48,
+JDK 1.3 = 47,
+JDK 1.2 = 46,
+JDK 1.1 = 45
+                  </code>
+                </pre>
+				<p>antapache-ant-1.10是JDK8编译的，如果你使用JDK7运行这些class文件，你就会收到"Unsupported major.minor version 52.0"。JDK7下载apache-ant-1.9.11就可以了。</p>
+				<p>配置环境变量ANT_HOME:D:\apache-ant-1.9.2, PATH:%ANT_HOME%\bin， cmd测试下，ok。</p>
+				<pre>
+                  <code>
+C:\Users\admin>ant
+Buildfile: build.xml does not exist!
+Build failed
+                  </code>
+                </pre>
+                <p>修改build.xml文件，将地址修改下：</p>
+                <blockquote>
+				<p>
+				get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
+				更换成如下地址
+				get src="http://ufpr.dl.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"</p>
+				</blockquote>
+				<p>进入build.xml的当前目录，用ant eclipse命令进行编译。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article025_001.png" alt="" />
+                </div>
+                <p>编译完成之后，发现zookeeper目录下已经多了.classpath和.project文件，可以直接导入eclipse（如有报错，切换项目compiled jdk为1.7）。</p>
+
+                
+
+
+
+
+                
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
+
+
+
+				
+                
+
+              
+                
+                
+
+               
+
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
