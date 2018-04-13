@@ -68,15 +68,15 @@
                 <p>可能用到的zk命令：</p>
                 <pre>
                   <code>
-        zkServer.sh start
-        zkServer.sh stop
-        zkServer.sh status
-        zkCli.sh -server ip:port
-        create /node nodeName
-        get /node
-        setAcl path acl
-        getAcl path
-        quit
+zkServer.sh start
+zkServer.sh stop
+zkServer.sh status
+zkCli.sh -server ip:port
+create /node nodeName
+get /node
+setAcl path acl
+getAcl path
+quit
                   </code>
                 </pre>
 
@@ -104,8 +104,7 @@ initLimit=5
 syncLimit=2
 #客户端连接端口。多个实例的端口配置不可重复
 clientPort=2181 
-#server.NUM=IP:port1:port2  NUM表示本机为第几号服务器；IP为本机ip地址；
-#port1为leader与follower通信端口；port2为参与竞选leader的通信端口
+#server.NUM=IP:port1:port2  NUM表示本机为第几号服务器，IP为本机ip地址，port1为leader与follower通信端口，port2为参与竞选leader的通信端口
 #多个实例的端口配置不能重复，如下：
 server.1=111.230.223.233:2888:3888
 server.2=111.230.211.90:2888:3888
