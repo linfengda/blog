@@ -64,15 +64,6 @@
 		color: #777;
 	}
 
-	.hljs pre {
-		padding: 1em;
-		border: none;
-		overflow: auto;
-		line-height: 1.45;
-		max-height: 35em;
-		position: relative;
-		background: url(../img/blueprint.png) #F6F6F6;
-	}
 
 
 /* Box Model */
