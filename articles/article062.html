@@ -131,7 +131,7 @@ public class MyClient {
                   </code>
                 </pre>
 
-                <p>代码运行结果如下图</p>
+                <p>3. 代码运行结果如下图</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article062_002.png" alt="" />
                 </div>
@@ -139,22 +139,26 @@ public class MyClient {
 					如果一个客户端请求中，IO写入到服务端过程中耗时10秒，即每个请求占用服务端线程10秒<br>
 					然后有大量的客户端请求，每个请求都占用那么长时间，那么服务端的并能能力就会大幅度下降<br>
 					这并不是因为服务端有多少繁重的任务，而仅仅是因为服务线程在等待IO（因为accept，read，write都是阻塞式的）<br>
-					让高速运行的CPU去等待及其低效的网络IO是非常不合算的行为<br>
+					让高速运行的CPU去等待及其低效的网络IO是非常不合算的行为<br><br><br>
 				</p>
 
 
 				<h3>NIO编程：</h3>
                 <p>
 					New IO成功的解决了上述问题，它是怎样解决的呢？<br>
-					IO处理客户端请求的最小单位是线程<br>
-					而NIO使用了比线程还小一级的单位：通道（Channel）<br>
+					IO处理客户端请求的最小单位是线程，而NIO使用了比线程还小一级的单位：通道（Channel）<br>
 					可以说，NIO中只需要一个线程就能完成所有接收，读，写等操作<br><br>
 
 					要学习NIO，首先要理解它的三大核心<br>
+				</p>
+				<blockquote>
+				<p>
 					Buffer，缓冲区<br>
 					Channel，通道<br>
 					Selector，选择器<br>
 				</p>
+				</blockquote>
+
 				<p>类关系图：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article062_003.png" alt="" />
@@ -164,9 +168,9 @@ public class MyClient {
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article062_004.png" alt="" />
                 </div>
 
-				<h4>Buffer</h4>
+				<h3>Buffer</h3>
 				<p>
-					buffer是一个连续数组，它通过几个变量来保存这个数据的当前位置状态：<br>
+					buffer是一个数组，它通过几个变量来保存数据写入状态：<br>
 					1.capacity：容量，缓冲区能容纳元素的数量<br>
 					2.position：当前位置，是缓冲区中下一次发生读取和写入操作的索引，当前位置通过大多数读写操作向前推进<br>
 					3.limit：界限，是缓冲区中最后一个有效位置之后下一个位置的索引<br>
@@ -180,7 +184,7 @@ public class MyClient {
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article062_006.png" alt="" />
                 </div>
 
-				<h4>Channel</h4>
+				<h3>Channel</h3>
 				<p>
 					共有四种通道：<br>
 					FileChannel：作用于IO文件流<br>
@@ -204,18 +208,15 @@ public class MyClient {
     			<blockquote>
 				<p>
 					while(true){
-					    SocketChannel socketChannel = serverSocketChannel.accept();
+					    SocketChannel socketChannel = serverSocketChannel.accept();<br>
 					    clientChannel.configureBlocking(false);	//设置为非阻塞
 					}
 				</p>
 				</blockquote>
 
-				<h4>多路复用器 Selector</h4>
+				<h3>多路复用器 Selector</h3>
 				<p>
-					Selector是channel的管理者：Selector会不断轮询注册在其上的Channel，如果某个Channel上面发生读或者写事件，这个Channel就处于就绪状态，会被Selector轮询出来，然后通过SelectionKey可以获取就绪Channel的集合，进行后续的I/O操作。<br><br>
-
-					所以服务端通常会死循环执行select()方法，直到有channl准备就绪，然后开始工作每个channel都会和Selector绑定一个事件，然后生成一个SelectionKey的对象<br><br>
-
+					Selector是channel的管理者：Selector会不断轮询注册在其上的Channel，如果某个Channel上面发生读或者写事件，这个Channel就处于就绪状态，会被Selector轮询出来，然后通过SelectionKey可以获取就绪Channel的集合，进行后续的I/O操作。所以服务端通常会死循环执行select()方法，直到有channl准备就绪，然后开始工作每个channel都会和Selector绑定一个事件，然后生成一个SelectionKey的对象<br>
 					在NIO中一共有四种事件：<br>
 					1.SelectionKey.OP_CONNECT：连接事件<br>
 					2.SelectionKey.OP_ACCEPT：接收事件<br>
