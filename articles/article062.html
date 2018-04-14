@@ -147,8 +147,7 @@ public class MyClient {
                 <p>
 					NIO成功的解决了上述问题，它是怎样解决的呢？<br>
 					IO处理客户端请求的最小单位是线程，而NIO使用了比线程还小一级的单位：通道（Channel）<br>
-					一个Channel可以理解为一个客户端输入/输出通道，每个Channel在一个Selector上注册，Selector会轮询每个Channel，当Channel有数据输入/输出，将Channel select出来，并用SelectionKey唯一标识Channel<br>
-					因此，NIO中只需要一个线程就能完成所有接收，读，写等操作<br>
+					一个Channel可以理解为一个客户端输入/输出通道，每个Channel都在一个Selector上注册，Selector会轮询每个Channel，当Channel有数据输入/输出，将Channel select出来，并用SelectionKey唯一标识Channel。因此，NIO中只需要一个线程就能完成所有接收，读，写等操作<br>
 
 					要学习NIO，首先要理解它的三大核心设计：<br>
 				</p>
