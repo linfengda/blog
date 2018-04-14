@@ -171,18 +171,73 @@ public class MyClient {
 				<h3>Buffer</h3>
 				<p>
 					buffer是一个数组，它通过几个变量来保存数据写入状态：<br>
-					1.capacity：容量，缓冲区能容纳元素的数量<br>
-					2.position：当前位置，是缓冲区中下一次发生读取和写入操作的索引，当前位置通过大多数读写操作向前推进<br>
-					3.limit：界限，是缓冲区中最后一个有效位置之后下一个位置的索引<br>
+					1.capacity：指的是缓冲区的容量；<br>
+					2.position：指的是下一个要被读写的元素的数组下标索引，该值会随get()和put()的调用自动更新；<br>
+					3.limit：指的是缓冲区中第一个不能读写的元素的数组下标索引，也可以认为是缓冲区中实际元素的数量；<br>
 					如图：
     			</p>
     			<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article062_005.png" alt="" />
                 </div>
-                <p>buff是这样操作的：</p>
+                <p>buffer是这样操作的：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article062_006.png" alt="" />
                 </div>
+                <p>1、创建一个容量大小为10的字符缓冲区</p>
+                <pre>
+                  <code>
+ByteBuffer buff = ByteBuffer.allocate(10);
+                  </code>
+                </pre>
+    			<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_007.png" alt="" />
+                </div>
+                <p>2、往缓冲区中put()五个字节</p>
+                <pre>
+                  <code>
+buff.put((byte)'H').put((byte)'e').put((byte)'l').put((byte)'l').put((byte)'0');
+                  </code>
+                </pre>
+    			<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_008.png" alt="" />
+                </div>
+                <p>3、调用flip()方法，切换为读就绪状态</p>
+                <pre>
+                  <code>
+buff.flip();
+                  </code>
+                </pre>
+    			<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_009.png" alt="" />
+                </div>
+                <p>4、读取两个元素</p>
+                <pre>
+                  <code>
+System.out.println("" + (char) buff.get() + (char) buff.get());
+                  </code>
+                </pre>
+    			<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_010.png" alt="" />
+                </div>
+                <p>5、标记此时的position位置</p>
+                <pre>
+                  <code>
+buff.mark();
+                  </code>
+                </pre>
+    			<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_011.png" alt="" />
+                </div>
+                <p>6、调用compact()方法，释放已读数据的空间，准备重新填充缓存区</p>
+                <pre>
+                  <code>
+buff.compact();
+                  </code>
+                </pre>
+    			<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_012.png" alt="" />
+                </div>
+
 
 				<h3>Channel</h3>
 				<p>
@@ -221,33 +276,43 @@ public class MyClient {
 					1.SelectionKey.OP_CONNECT：连接事件<br>
 					2.SelectionKey.OP_ACCEPT：接收事件<br>
 					3.SelectionKey.OP_READ：读事件<br>
-					4.SelectionKey.OP_WRITE：写事件<br>
+					4.SelectionKey.OP_WRITE：写事件<br><br>
     			</p>
 
-                <blockquote>
-				<p>
-					1).数据从Buffer到Channel：channel.write(byteBuffer);<br>
-					2).数据从Buffer到Server：byteBuffer.get(...);
-				</p>
-				</blockquote>
+    			<p>1. 写一个NIO处理输入输出的服务端：</p>
+				<pre>
+                  <code>
 
-				
+                  </code>
+                </pre>
+                <p>
+                	我打印了监听channel，告诉大家ServerSocketChannel是在什么时候开始运行的<br>
+					如果配合NIO客户端的debug，就能很清楚的发现，进入select()轮询前<br>
+					虽然已经有了ACCEPT事件的KEY，但select()默认并不会去调用<br>
+					而是要等待有其它感兴趣事件被select()捕获之后，才会去调用ACCEPT的SelectionKey<br>
+					这时候ServerSocketChannel才开始进行循环监听<br>
+
+					也就是说一个Selector中，始终保持着ServerSocketChannel的运行<br>
+					而serverChannel.accept();真正做到了异步（在initServer方法中的channel.configureBlocking(false);）<br>
+					如果没有接受到connect，会返回一个null<br>
+					如果成功连接了一个SocketChannel，则此SocketChannel会注册写入（READ）事件，并且设置为异步<br>
+                </p>
+
+                <p>2. 写一个NIO处理输入输出的客户端：</p>
+				<pre>
+                  <code>
+
+                  </code>
+                </pre>
+
+                <p>3. 代码运行结果如下图（这里我打开一个服务端，两个客户端）：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_013.png" alt="" />
+                </div>
 				<p>接下来，你可以试下同时打开一千个客户端，只要你的CPU够给力，服务端就不可能因为阻塞而降低性能</p>
 				
                
                 
-
-
-				
-                
-
-              
-                
-                
-
-               
-
-
 
 							</section>
 					</div>
