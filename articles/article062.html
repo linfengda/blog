@@ -42,7 +42,7 @@
 
 
 				<h3>传统的BIO编程：</h3>
-                <p>传统的同步阻塞模型开发中，ServerSocket负责绑定IP地址，启动监听端口；Socket负责发起连接操作。连接成功后，双方通过输入和输出流进行同步阻塞式通信。 可以看到，多个客户端同时向服务端发送请求服务端做出的措施是开启多个线程来匹配相对应的客户端，并且每个线程去独自完成他们的客户端请求。</p>
+                <p>传统的同步阻塞模型开发中，ServerSocket负责绑定IP地址，启动监听端口；Socket负责发起连接操作。连接成功后，双方通过输入和输出流进行同步阻塞式通信。 可以看到，一个客户端对应于服务端一个独立线程。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article062_001.png" alt="" />
                 </div>
@@ -145,11 +145,12 @@ public class MyClient {
 
 				<h3>NIO编程：</h3>
                 <p>
-					New IO成功的解决了上述问题，它是怎样解决的呢？<br>
+					NIO成功的解决了上述问题，它是怎样解决的呢？<br>
 					IO处理客户端请求的最小单位是线程，而NIO使用了比线程还小一级的单位：通道（Channel）<br>
-					可以说，NIO中只需要一个线程就能完成所有接收，读，写等操作<br>
+					一个Channel可以理解为一个客户端输入/输出通道，每个Channel在一个Selector上注册，Selector会轮询每个Channel，当Channel有数据输入/输出，将Channel select出来，并用SelectionKey唯一标识Channel<br>
+					因此，NIO中只需要一个线程就能完成所有接收，读，写等操作<br>
 
-					要学习NIO，首先要理解它的三大核心<br>
+					要学习NIO，首先要理解它的三大核心设计：<br>
 				</p>
 				<blockquote>
 				<p>
