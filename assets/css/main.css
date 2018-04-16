@@ -1711,9 +1711,10 @@
 	}
 
 	body, input, select, textarea {
+		/*font-family: "Merriweather", Georgia, serif;*/
 		font-family: Verdana,Arial,Helvetica,sans-serif;
 		font-weight: 300;
-		font-size: 0.7rem;
+		font-size: 0.9rem;
 		line-height: 2.375;
 	}
 
