@@ -191,7 +191,7 @@ protected void initializeAndRun(String[] args) throws ConfigException, IOExcepti
 				    ●  创建cnxnFactory，zk的 socket工厂，负责处理网络请求，zk里有netty和NIO两种实现<br>
 				    ●  cnxnFactory.startup(zkServer)，启动zk服务器<br>
                 </p>
-                <p>cnxnFactory负责zk的网络请求，默认是使用NIOServerCnxnFactory，基于java的NIO实现。</p>
+                <p>然后是初始化连接工厂。默认使用NIO,这里是NIOServerCnxnFactory</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_004.png" alt="" />
                 </div>
@@ -375,6 +375,53 @@ private boolean doAccept() {
 }
                   </code>
                 </pre>
+                <p>之后初始化QuorumPeer，进行对应的配置，最后启动QuorumPeer</p>
+                <pre>
+                  <code>
+    ServerCnxnFactory cnxnFactory = ServerCnxnFactory.createFactory();
+    cnxnFactory.configure(config.getClientPortAddress(),
+                        config.getMaxClientCnxns());
+
+    quorumPeer = new QuorumPeer();
+    quorumPeer.setClientPortAddress(config.getClientPortAddress());
+    quorumPeer.setTxnFactory(new FileTxnSnapLog(
+              new File(config.getDataLogDir()),
+              new File(config.getDataDir())));
+    quorumPeer.setQuorumPeers(config.getServers());
+    quorumPeer.setElectionType(config.getElectionAlg());
+    quorumPeer.setMyid(config.getServerId());
+    quorumPeer.setTickTime(config.getTickTime());
+    quorumPeer.setMinSessionTimeout(config.getMinSessionTimeout());
+    quorumPeer.setMaxSessionTimeout(config.getMaxSessionTimeout());
+    quorumPeer.setInitLimit(config.getInitLimit());
+    quorumPeer.setSyncLimit(config.getSyncLimit());
+    quorumPeer.setQuorumVerifier(config.getQuorumVerifier());
+    quorumPeer.setCnxnFactory(cnxnFactory);
+    quorumPeer.setZKDatabase(new ZKDatabase(quorumPeer.getTxnFactory()));
+    quorumPeer.setLearnerType(config.getPeerType());
+    quorumPeer.setSyncEnabled(config.getSyncEnabled());
+    quorumPeer.setQuorumListenOnAllIPs(config.getQuorumListenOnAllIPs());
+
+    quorumPeer.start();
+    quorumPeer.join();
+                  </code>
+                </pre>
+                <p>QuorumPeer.start()</p>
+                <pre>
+                  <code>
+public synchronized void start() {
+    loadDataBase();
+    cnxnFactory.start();        
+    startLeaderElection();
+    super.start();
+}
+                  </code>
+                </pre>
+                <p> 
+                1，首先载入数据 loadDataBase();<br>
+                2。启动NIO线程;<br>
+                3，启动leader选举;<br>
+                </p>
 
                 <p>zookeeper中很多自定义线程类都继承ZooKeeperThread类，ZooKeeperThread类通过setUncaughtExceptionHandler()方法定义了错误处理者uncaughtExceptionalHandler，一旦线程出错就跳到handleException()方法处理。</p>
                 <pre>
@@ -424,7 +471,7 @@ class ZooKeeperServerListenerImpl implements ZooKeeperServerListener {
                   </code>
                 </pre>
 
-                <h3>zookeeper单机启动流程：ZooKeeperServer请求处理器链介绍</h3>
+                <h3>ZooKeeperServer请求处理器链介绍</h3>
                 <p></p>
                 <pre>
                   <code>
