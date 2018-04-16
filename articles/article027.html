@@ -472,14 +472,6 @@ class ZooKeeperServerListenerImpl implements ZooKeeperServerListener {
                 </pre>
 
                 <h3>ZooKeeperServer请求处理器链介绍</h3>
-                <p></p>
-                <pre>
-                  <code>
-
-                  </code>
-                </pre>
-
-                <h3>ZooKeeperServer请求处理器链介绍</h3>
                 <p>
                 LeaderZooKeeperServer，FollowerZooKeeperServer和ObserverZooKeeperServer的代码结构是高度统一的。区别是：每一种server类型(无论leader，follower还是observer)实现了某一个特定的request processor的责任链来处理请求。处理过程中有很多不同的阶段，一个request processor代表其中的一个阶段，每一个processor可以任意加到一条处理消息的责任链中。<br>
                 ZooKeeperServer类关系图
