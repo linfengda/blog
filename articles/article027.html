@@ -479,12 +479,105 @@ class ZooKeeperServerListenerImpl implements ZooKeeperServerListener {
                   </code>
                 </pre>
 
-                <h3>ZooKeeperServer类关系图</h3>
-                <p></p>
+                <h3>ZooKeeperServer请求处理器链介绍</h3>
+                <p>
+                LeaderZooKeeperServer，FollowerZooKeeperServer和ObserverZooKeeperServer的代码结构是高度统一的。区别是：每一种server类型(无论leader，follower还是observer)实现了某一个特定的request processor的责任链来处理请求。处理过程中有很多不同的阶段，一个request processor代表其中的一个阶段，每一个processor可以任意加到一条处理消息的责任链中。<br>
+                ZooKeeperServer类关系图
+                </p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_005.png" alt="" />
                 </div>
-                
+                <p>让我们来看下他们各自的请求处理链，首先在Standalone模式使用的是ZooKeeperServer</p>
+                <pre>
+                  <code>
+/**
+ * This class implements a simple standalone ZooKeeperServer. It sets up the following chain of RequestProcessors to process requests:
+ * PrepRequestProcessor -> SyncRequestProcessor -> FinalRequestProcessor
+ */
+public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
+                  </code>
+                </pre>
+                <p>
+                    PrepRequestProcessor接收client的请求并执行，产生一个事务作为处理结果。执行一个操作后产生一个事务的处理结果，结果会直接反馈到ZK的data tree上。事务数据被附加到Request对象上。注意只有会改变ZK状态的操作才会产生一个事务，读操作不会产生事务，Request对象也不会附加事务数据。<br>
+                     -> SyncRequestProcessor。它负责持久化事务到磁盘上。本质上是把事务按照顺序append到事务日志上，并每隔一段时间产生快照。<br>
+                     -> FinalRequestProcessor。当Request对象包括一个事务时它会改变data tree。另一方面，还会读data tree，返回结果给client。
+                </p>
+                <p>在quorum模式时，使用的是LeaderZooKeeperServer，FollowerZooKeeperServer和ObserverZooKeeperServer，首先看LeaderZooKeeperServer的请求处理链</p>
+                <pre>
+                  <code>
+@Override
+protected void setupRequestProcessors() {
+    RequestProcessor finalProcessor = new FinalRequestProcessor(this);
+    RequestProcessor toBeAppliedProcessor = new Leader.ToBeAppliedRequestProcessor(finalProcessor, getLeader());
+    commitProcessor = new CommitProcessor(toBeAppliedProcessor,
+            Long.toString(getServerId()), false,
+            getZooKeeperServerListener());
+    commitProcessor.start();
+    ProposalRequestProcessor proposalProcessor = new ProposalRequestProcessor(this,
+            commitProcessor);
+    proposalProcessor.initialize();
+    prepRequestProcessor = new PrepRequestProcessor(this, proposalProcessor);
+    prepRequestProcessor.start();
+    firstProcessor = new LeaderRequestProcessor(this, prepRequestProcessor);
+
+    setupContainerManager();
+}
+                  </code>
+                </pre>
+                <pre>
+                  <code>
+/**
+ *
+ * Just like the standard ZooKeeperServer. We just replace the request processors: 
+ * PrepRequestProcessor -> ProposalRequestProcessor -> CommitProcessor -> Leader.ToBeAppliedRequestProcessor -> FinalRequestProcessor
+ */
+public class LeaderZooKeeperServer extends QuorumZooKeeperServer {
+                  </code>
+                </pre>
+                <p>
+                    第一个processor仍然是PrepRequestProcessor，然后是ProposalRequestProcessor。它负责准备proposal并发送到follower。ProposalRequestProcessor把所有的请求转发到CommitRequestProcessor，如果接收到足够的ack，它会commit这个proposal。详见Leader类(Leader.processAck()方法)。
+                    然后是ToBeAppliedRequestProcessor，它负责从要被执行的proposal列表中丢弃不需要处理的proposal。这个列表就是收到足够的ack的，等待执行的proposal。leader使用这个列表来跟follow进行同步，当收到ack时，会把proposal加到这个列表中。ToBeAppliedRequestProcessor在FinalRequestProcess处理之前丢弃列表中的一些元素。
+                    最后的processor是FinalRequestProcessor，它的作用跟standalone模式下是相同的。它会处理更新请求和读请求(可以将leader配置成不进行持久化，专注于处理proposal，降低负载)。
+                </p>
+                <p>FollowerZooKeeperServer</p>
+                <pre>
+                  <code>
+@Override
+protected void setupRequestProcessors() {
+    RequestProcessor finalProcessor = new FinalRequestProcessor(this);
+    commitProcessor = new CommitProcessor(finalProcessor,
+            Long.toString(getServerId()), true, getZooKeeperServerListener());
+    commitProcessor.start();
+    firstProcessor = new FollowerRequestProcessor(this, commitProcessor);
+    ((FollowerRequestProcessor) firstProcessor).start();
+    syncProcessor = new SyncRequestProcessor(this,
+            new SendAckRequestProcessor((Learner)getFollower()));
+    syncProcessor.start();
+}
+                  </code>
+                </pre>
+                <pre>
+                  <code>
+/**
+ * Just like the standard ZooKeeperServer. We just replace the request
+ * processors: FollowerRequestProcessor -> CommitProcessor -> FinalRequestProcessor
+ *
+ * A SyncRequestProcessor is also spawned off to log proposals from the leader.
+ */
+public class FollowerZooKeeperServer extends LearnerZooKeeperServer {
+                  </code>
+                </pre>
+
+                <p>RequestProcessor包含以下实现</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_006.png" alt="" />
+                </div>
+
+
+
+
+
+
 
 
 
