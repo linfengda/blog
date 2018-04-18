@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">May 11, 2018</span>
+									<h1>data structures：Balance Binary Tree</h1>
+									<p>this page intruduce balance binary Tree.</p>
+								</header>
+
+
+                <h3>二叉排序树</h3>
+                <p>用c语言描述</p>
+                <pre>
+                  <code>
+#pragma once
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+
+typedef struct BBTreeNode{
+	int data;
+	struct BBTreeNode *leftChild;
+	struct BBTreeNode *rightChild;
+}BBTreeNode;
+
+
+//中序遍历
+void inOrder(BBTreeNode *root, void visit(BBTreeNode *curr)) {
+	if (root != NULL) {
+		inOrder(root-&gt;leftChild, visit);
+		visit(root);
+		inOrder(root-&gt;rightChild, visit);
+	}
+}
+
+void visit(BBTreeNode *curr) {
+	printf(&quot;%d, &quot;, curr-&gt;data);
+}
+
+//查找某个结点
+BBTreeNode * search(BBTreeNode *root, int e) {
+	if (root != NULL) {
+		BBTreeNode *p = root;
+		while(p != NULL){
+			if(p-&gt;data == e) return p;
+			if(p-&gt;data &gt; e) p = p-&gt;leftChild;
+			else p = p-&gt;rightChild;
+		}
+	}
+	return NULL;
+}
+
+//插入结点
+int insertNode(BBTreeNode *root, int e) {
+	BBTreeNode *parent = NULL;
+	BBTreeNode *current = root;
+	while(current != NULL){ //向下找到末端插入位置
+		parent = current;
+		if(current-&gt;data == e) return 0; //数据元素已存在
+		if(current-&gt;data &gt; e) current = current-&gt;leftChild;
+		else current = current-&gt;rightChild;
+	}
+
+	BBTreeNode *p = (BBTreeNode*)malloc(sizeof(BBTreeNode));
+	p-&gt;data = e;
+	p-&gt;leftChild = NULL;
+	p-&gt;rightChild = NULL;
+	if(root == NULL) root = p; //新结点成为根结点
+	else{
+		if(parent-&gt;data &gt; e) parent-&gt;leftChild = p;
+		else parent-&gt;rightChild = p;
+	}
+	return 1;
+}
+
+//插入结点
+int deleteNode(BBTreeNode *root, int e) {
+	//1. 要删除的结点没有孩子结点：直接删除
+	//2. 要删除的结点只有左孩子结点：删除该结点，并用左孩子结点代替原结点位置
+	//3. 要删除的结点只有右孩子结点：删除该结点，并用右孩子结点代替原结点位置
+	//4. 要删除的结点有左右孩子结点：删除该节点，并将左右孩子结点重新调整为顺序二叉树，并用根结点代替原结点位置
+	return -1;
+}
+                  </code>
+                </pre>
+                <p>测试下</p>
+                <pre>
+                  <code>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#include &quot;BBTreeNode.h&quot;
+
+
+void main(void) {
+
+	int test[] = {4,5,7,2,1,9,8,11,3};
+
+	BBTreeNode *root = NULL;
+	for(int i = 0; i &lt; 9; i++){
+		if(i == 0){
+			root = (BBTreeNode*)malloc(sizeof(BBTreeNode));
+			root-&gt;data = test[0];
+			root-&gt;leftChild = NULL;
+			root-&gt;rightChild = NULL;
+		}
+		else insertNode(root, test[i]);
+	}
+	printf(&quot;\n中序遍历&quot;);
+	inOrder(root, visit);
+
+	BBTreeNode *find = search(root, 8);
+	if(find == NULL) printf(&quot;\n元素不存在&quot;);
+	else  printf(&quot;\n元素%d存在&quot;, find-&gt;data);
+}
+                  </code>
+                </pre>
+
+                <p>二叉排序树性能分析</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article007_001.png" alt="" />
+                </div>
+                <p>
+                可以看到最坏情况下平均查找长度为O(n)，一般情况下平均查找长度为lb(n)<br>
+                为了防止最坏情况发生，可以将二叉排序树改造成二叉平衡树，所谓二叉平衡树，就是左右子树深度之差不超过1的二叉排序树。
+                </p>
+
+
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
