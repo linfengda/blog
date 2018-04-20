@@ -1427,7 +1427,7 @@
 	@media screen and (max-width: 360px) {
 
 		.full-div {
-			width: 310px;
+			width: 270px;
 			height: 100%;
 		}
 		.row > * {
