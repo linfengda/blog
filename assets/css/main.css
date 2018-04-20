@@ -989,7 +989,7 @@
 	@media screen and (max-width: 736px) {
 
 		.full-div {
-			width: 600px;
+			width: 620px;
 			height: 100%;
 		}
 		.row > * {
@@ -1208,7 +1208,7 @@
 	@media screen and (max-width: 480px) {
 
 		.full-div {
-			width: 350px;
+			width: 420px;
 			height: 100%;
 		}
 		.row > * {
@@ -1427,7 +1427,7 @@
 	@media screen and (max-width: 360px) {
 
 		.full-div {
-			width: 300px;
+			width: 310px;
 			height: 100%;
 		}
 		.row > * {
