@@ -124,7 +124,7 @@ public V put(K key, V value) {
     int hash = hash(key.hashCode());
     // 搜索指定hash值在对应table中的索引。
     int i = indexFor(hash, table.length);
-    // 如果 i 索引处的 Entry 不为 null，通过循环不断遍历 e 元素的下一个元素。
+    // 如果i索引处的Entry不为null，通过循环不断遍历e元素的下一个元素。
     for (Entry&lt;K,V&gt; e = table[i]; e != null; e = e.next) {
         Object k;
         if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) {
@@ -155,7 +155,7 @@ void addEntry(int hash, K key, V value, int bucketIndex) {
     	// 扩容
         resize(2 * table.length);
         hash = (null != key) ? hash(key) : 0;
-        // 根据hash获取 Entry 位置
+        // 根据hash获取Entry位置
         bucketIndex = indexFor(hash, table.length);
     }
 
@@ -164,9 +164,9 @@ void addEntry(int hash, K key, V value, int bucketIndex) {
 ...
 
 void createEntry(int hash, K key, V value, int bucketIndex) {
-	// 获取指定 bucketIndex 索引处的 Entry 
+	// 获取指定bucketIndex索引处的Entry 
     Entry&lt;K,V&gt; e = table[bucketIndex];
-    // 将新创建的 Entry 放入 bucketIndex 索引处，并让新的 Entry 指向原来的 Entry
+    // 将新创建的Entry放入bucketIndex索引处，并让新的Entry指向原来的Entry
     table[bucketIndex] = new Entry&lt;&gt;(hash, key, value, e);
     size++;
 }
@@ -252,7 +252,7 @@ final Entry&lt;K,V&gt; getEntry(Object key) {
 }
                   </code>
                 </pre>
-                <p>从HashMap中get元素时，首先计算key-->has-->Entry链表位置-->遍历Entry链表找到需要的元素。</p>
+                <p>从HashMap中get元素时，首先计算key-->hash-->Entry链表位置-->遍历Entry链表找到需要的元素。</p>
 				<h3>Iterator迭代器</h3>
                 <p>直观的理解，迭代器就是将for(int i==0;i&lt;size;i++)，中的控制变量i放到了Iterator里面，将i&lt;size变成hasNext()方法，将i++放到next()方法里面而已。</p>
 				<pre>
