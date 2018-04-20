@@ -408,13 +408,201 @@ public class AspceJAdvice {
                   </code>
                 </pre>
 
+                <p>
+                	Spring中AOP的两种代理方式：Java动态代理和CGLIB代理<br>
+                	原理区别：<br>
+					java动态代理是利用反射机制生成一个实现代理接口的匿名类，在调用具体方法前调用InvokeHandler来处理。而cglib动态代理是利用asm开源包，对代理对象类的class文件加载进来，通过修改其字节码生成子类来处理。<br>
+
+					1、如果目标对象实现了接口，默认情况下会采用JDK的动态代理实现AOP<br>
+					2、如果目标对象实现了接口，可以强制使用CGLIB实现AOP<br>
+					3、如果目标对象没有实现了接口，必须采用CGLIB库，spring会自动在JDK动态代理和CGLIB之间转换<br>
+                </p>
+
+				<h3>1. 静态代理</h3>
+				<p>被代理类为GreetingImpl</p>
+                <pre>
+                  <code>
+package com.linfengda.spring.aop;
+
+public interface Greeting {
+	
+	void sayHello(String name);
+
+}
+...
+
+package com.linfengda.spring.aop;
+
+public class GreetingImpl implements Greeting {
+
+	@Override
+	public void sayHello(String name) {
+		
+		System.out.println("Hello! " + name);
+	}
+
+}
+                  </code>
+                </pre>
+                <p>我们要在sayHello接口方法中加入切面，最简单的解决方案就是使用静态代理模式了，我们单独为 GreetingImpl 这个类写一个代理类： </p>
+                <pre>
+                  <code>
+package com.linfengda.spring.aop;
+
+public class GreetingProxy implements Greeting {
+	
+	private GreetingImpl greetingImpl;
+
+    public GreetingProxy(GreetingImpl greetingImpl) {
+        this.greetingImpl = greetingImpl;
+    }
+
+    @Override
+    public void sayHello(String name) {
+        before();
+        greetingImpl.sayHello(name);
+        after();
+    }
+
+    private void before() {
+        System.out.println("Before");
+    }
+
+    private void after() {
+        System.out.println("After");
+    }
+
+}
+                  </code>
+                </pre>
+                <p>就用这个 GreetingProxy 去代理 GreetingImpl，测试一下： </p>
+                <pre>
+                  <code>
+@Test
+public void test1() {
+	Greeting greetingProxy = new GreetingProxy(new GreetingImpl());
+    greetingProxy.sayHello("Jack");
+}
+                  </code>
+                </pre>
+                <p>这样写没错，但是写死了。</p>
+
+                <h3>2. JDK动态代理</h3>
+                <pre>
+                  <code>
+package com.linfengda.spring.aop;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+public class JDKDynamicProxy implements InvocationHandler {
+
+	private Object target;
+
+    public JDKDynamicProxy(Object target) {
+        this.target = target;
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public &lt;T&gt; T getProxy() {
+        return (T) Proxy.newProxyInstance(
+            target.getClass().getClassLoader(),
+            target.getClass().getInterfaces(),
+            this
+        );
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        before();
+        Object result = method.invoke(target, args);
+        after();
+        return result;
+    }
+
+    private void before() {
+        System.out.println(&quot;Before&quot;);
+    }
+
+    private void after() {
+        System.out.println(&quot;After&quot;);
+    }
+
+}
+                  </code>
+                </pre>
+                <p>测试一下： </p>
+                <pre>
+                  <code>
+@Test
+public void test2() {
+	Greeting greeting = new JDKDynamicProxy(new GreetingImpl()).getProxy();
+    greeting.sayHello("Jack");
+}
+                  </code>
+                </pre>
+                <p>但是JDK动态代理只能代理接口，而不能代理没有接口的类。</p>
+                
+                <h3>3. CGLib 动态代理</h3>
+                <p>开源的 CGLib 类库可以代理没有接口的类，这样就弥补了 JDK 的不足。CGLib 动态代理类是这样玩的： </p>
+                <pre>
+                  <code>
+package com.linfengda.spring.aop;
+
+import java.lang.reflect.Method;
+
+import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
+
+public class CGLibDynamicProxy implements MethodInterceptor {
+
+	private static CGLibDynamicProxy instance = new CGLibDynamicProxy();
+
+    private CGLibDynamicProxy() {
+    }
+
+    public static CGLibDynamicProxy getInstance() {
+        return instance;
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public &lt;T&gt; T getProxy(Class&lt;T&gt; cls) {
+        return (T) Enhancer.create(cls, this);
+    }
+
+    @Override
+    public Object intercept(Object target, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+        before();
+        Object result = proxy.invokeSuper(target, args);
+        after();
+        return result;
+    }
+
+    private void before() {
+        System.out.println(&quot;Before&quot;);
+    }
+
+    private void after() {
+        System.out.println(&quot;After&quot;);
+    }
+}
+                  </code>
+                </pre>
+                <p>测试一下： </p>
+                <pre>
+                  <code>
+@Test
+public void test3() {
+	Greeting greeting = CGLibDynamicProxy.getInstance().getProxy(GreetingImpl.class);
+    greeting.sayHello("Jack");
+}
+                  </code>
+                </pre>
+
                 <p><a href="https://my.oschina.net/huangyong/blog/161338?spm=a2c4e.11153940.blogcont39075.4.424a4e53Yowr7D">
                 推荐博客：AOP 那点事儿 （黄勇）</a></p>
-
-                
-                
-
-               
 
 
 
