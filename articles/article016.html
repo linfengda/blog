@@ -377,6 +377,7 @@ public class CopyOnWriteArraySet&lt;E&gt; extends AbstractSet&lt;E&gt;
 public class ConcurrentLinkedQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
         implements Queue&lt;E&gt;, java.io.Serializable {
 
+    //Node结构体声明
     private static class Node&lt;E&gt; {
         volatile E item;
         volatile Node&lt;E&gt; next;
