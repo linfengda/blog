@@ -1,0 +1,655 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 21, 2018</span>
+									<h1>java 集合</h1>
+									<p>
+this page introduce java Collection classes which implements interface java.util.Collection, including classes from both package: java.util.* and java.util.concurrent.*. 
+								    </p>
+								</header>
+
+				        <h3>Collection接口</h3>
+                <p>Map接口下面的子类，这里只讲解ArrayList、LinkedList、Vector、CopyOnWriteArrayList；HashSet、CopyOnWriteArraySet；ConcurrentLinkedQueue、ArrayBlockingQueue、LinkedBlockingQueue，因为其他的也不会更难。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article016_001.png" alt="" />
+                </div>
+
+                <h3>1. Collection接口</h3>
+                <p>接口定义了如下方法。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article016_002.png" alt="" />
+                </div>
+
+                <h3>2. ArrayList</h3>
+                <p>ArrayList就是典型的java版本顺序表，</p>
+				        <pre>
+                  <code>
+public class ArrayList&lt;E&gt; extends AbstractList&lt;E&gt;
+        implements List&lt;E&gt;, RandomAccess, Cloneable, java.io.Serializable
+{
+...
+
+    //数组
+    private transient Object[] elementData;
+
+    //数组大小
+    private int size;
+                  </code>
+                </pre>
+                <p>数组扩容函数</p>
+                <pre>
+                  <code>
+public void ensureCapacity(int minCapacity) {
+    if (minCapacity > 0)
+        ensureCapacityInternal(minCapacity);
+}
+
+private void ensureCapacityInternal(int minCapacity) {
+    modCount++;
+    // overflow-conscious code
+    if (minCapacity - elementData.length > 0)
+        grow(minCapacity);
+}
+
+private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+private void grow(int minCapacity) {
+    // overflow-conscious code
+    int oldCapacity = elementData.length;
+    // 最少扩充为1.5倍
+    int newCapacity = oldCapacity + (oldCapacity >> 1);
+    if (newCapacity - minCapacity < 0)
+        newCapacity = minCapacity;
+    if (newCapacity - MAX_ARRAY_SIZE > 0)
+        newCapacity = hugeCapacity(minCapacity);
+    // minCapacity is usually close to size, so this is a win:
+    elementData = Arrays.copyOf(elementData, newCapacity);
+}
+                  </code>
+                </pre>
+                <p>向数组中添加元素</p>
+                <pre>
+                  <code>
+public void add(int index, E element) {
+    // 检查数组越界
+    rangeCheckForAdd(index);
+
+    ensureCapacityInternal(size + 1);  // Increments modCount!!
+    // index以后的元素后移
+    System.arraycopy(elementData, index, elementData, index + 1,
+                     size - index);
+    elementData[index] = element;
+    size++;
+}
+                  </code>
+                </pre>
+                <p>删除数组指定位置元素</p>
+                <pre>
+                  <code>
+public E remove(int index) {
+    rangeCheck(index);
+
+    modCount++;
+    E oldValue = elementData(index);
+
+    int numMoved = size - index - 1;
+    if (numMoved > 0)
+        // index以后的元素前移
+        System.arraycopy(elementData, index+1, elementData, index,
+                         numMoved);
+    elementData[--size] = null; // Let gc do its work
+    return oldValue;
+}
+                  </code>
+                </pre>
+
+                <h3>2. LinkedList</h3>
+                <p>LinkedList就是典型的java版本的双向循环链表。</p>
+                <pre>
+                  <code>
+public class LinkedList&lt;E&gt;
+    extends AbstractSequentialList&lt;E&gt;
+    implements List&lt;E&gt;, Deque&lt;E&gt;, Cloneable, java.io.Serializable
+{
+    transient int size = 0;
+
+    //头结点
+    transient Node&lt;E&gt; first;
+
+    //尾结点
+    transient Node&lt;E&gt; last;
+                  </code>
+                </pre>
+                <p>清空链表。</p>
+                <pre>
+                  <code>
+public void clear() {
+    for (Node&lt;E&gt; x = first; x != null; ) {
+        Node&lt;E&gt; next = x.next;
+        x.item = null;
+        x.next = null;
+        x.prev = null;
+        x = next;
+    }
+    //头尾相连
+    first = last = null;
+    size = 0;
+    modCount++;
+}
+                  </code>
+                </pre>
+                <p>向链表中添加元素</p>
+                <pre>
+                  <code>
+public boolean add(E e) {
+    linkLast(e);
+    return true;
+}
+...
+
+void linkLast(E e) {
+    final Node&lt;E&gt; l = last;
+    //Node&lt;&gt;(l, e, null)的3个参数依次为prev, element, next
+    //放入链表尾部
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null);
+    last = newNode;
+    if (l == null)
+        first = newNode;
+    else
+        l.next = newNode;
+    size++;
+    modCount++;
+}
+                  </code>
+                </pre>
+                <p>删除链表指定位置元素</p>
+                <pre>
+                  <code>
+public E remove(int index) {
+    //检查越界
+    checkElementIndex(index);
+    return unlink(node(index));
+}
+...
+
+//找到该位置Node，也就是链表查找比数组慢的原因
+Node&lt;E&gt; node(int index) {
+
+    if (index &lt; (size &gt;&gt; 1)) {
+        Node&lt;E&gt; x = first;
+        for (int i = 0; i &lt; index; i++)
+            x = x.next;
+        return x;
+    } else {
+        Node&lt;E&gt; x = last;
+        for (int i = size - 1; i &gt; index; i--)
+            x = x.prev;
+        return x;
+    }
+}
+...
+
+E unlink(Node&lt;E&gt; x) {
+    // assert x != null;
+    final E element = x.item;
+    final Node&lt;E&gt; next = x.next;
+    final Node&lt;E&gt; prev = x.prev;
+
+    //删除中间Node，将左右Node连接
+    if (prev == null) {
+        first = next;
+    } else {
+        prev.next = next;
+        x.prev = null;
+    }
+
+    if (next == null) {
+        last = prev;
+    } else {
+        next.prev = prev;
+        x.next = null;
+    }
+
+    x.item = null;
+    size--;
+    modCount++;
+    return element;
+}
+                  </code>
+                </pre>
+
+                <h3>3. Vector</h3>
+                <p>通过给insertElementAt、get、remove、clear等方法加synchronized关键字来简单粗暴的达到同步的目的，直接锁住整个数组了，效率不高。</p>
+
+                <h3>4. CopyOnWriteArrayList</h3>
+                <p>向数组中添加元素，先用lock锁住，然后copy出新数组进行插入操作，原数组不做任何改变，就不会影响读取了。</p>
+                <pre>
+                  <code>
+public void add(int index, E element) {
+    final ReentrantLock lock = this.lock;
+    //先锁住
+    lock.lock();
+    try {
+        Object[] elements = getArray();
+        int len = elements.length;
+        if (index > len || index < 0)
+            throw new IndexOutOfBoundsException("Index: "+index+
+                                                ", Size: "+len);
+        Object[] newElements;
+        int numMoved = len - index;
+        if (numMoved == 0)
+            newElements = Arrays.copyOf(elements, len + 1);
+        else {
+            //copy出新数组进行插入操作，原数组不做任何改变，就不会影响get()方法了
+            newElements = new Object[len + 1];
+            System.arraycopy(elements, 0, newElements, 0, index);
+            System.arraycopy(elements, index, newElements, index + 1,
+                             numMoved);
+        }
+        newElements[index] = element;
+        //插入后将数组指向copy出的新数组
+        setArray(newElements);
+    } finally {
+        lock.unlock();
+    }
+}
+                  </code>
+                </pre>
+                <p>其他操作都类似，用到了ReentrantLock。</p>
+
+                <h3>5. HashSet</h3>
+                <p>HashSet其实基于HashMap做了一层封装，HashMap里面放键值对，HashSet放的是对象。</p>
+                <pre>
+                  <code>
+public class HashSet&lt;E&gt;
+    extends AbstractSet&lt;E&gt;
+    implements Set&lt;E&gt;, Cloneable, java.io.Serializable
+{
+
+    private transient HashMap&lt;E,Object&gt; map;
+
+    // PRESENT用来表示HashMap key-value的value
+    private static final Object PRESENT = new Object();
+
+    public HashSet() {
+        map = new HashMap&lt;&gt;();
+    }
+    ...
+
+    public boolean add(E e) {
+        return map.put(e, PRESENT)==null;
+    }
+
+    public boolean remove(Object o) {
+        return map.remove(o)==PRESENT;
+    }
+    ...
+                  </code>
+                </pre>
+
+                <h3>6. CopyOnWriteArraySet</h3>
+                <p>
+                CopyOnWriteArraySet基于CopyOnWriteArrayList实现，CopyOnWriteArraySet具有以下特性：
+                1. 它最适合于Set大小通常保持很小，只读操作远多于可变操作的情景。
+                2. 它是线程安全的。
+                3. 因为通常需要复制整个基础数组，所以可变操作（add()、set() 和 remove() 等等）的开销很大。
+                4. 迭代器支持hasNext(), next()等不可变操作，但不支持可变 remove()等操作。
+                5. 使用迭代器进行遍历的速度很快，并且不会与其他线程发生冲突。在构造迭代器时，迭代器依赖于不变的数组快照。
+                </p>
+                <pre>
+                  <code>
+public class CopyOnWriteArraySet&lt;E&gt; extends AbstractSet&lt;E&gt;
+        implements java.io.Serializable {
+
+    private final CopyOnWriteArrayList&lt;E&gt; al;
+
+    public CopyOnWriteArraySet() {
+        al = new CopyOnWriteArrayList&lt;E&gt;();
+    }
+    ...
+
+    public boolean contains(Object o) {
+        return al.contains(o);
+    }
+
+    public boolean remove(Object o) {
+        return al.remove(o);
+    }
+
+    public boolean add(E e) {
+        return al.addIfAbsent(e);
+    }
+                  </code>
+                </pre>
+
+                <h3>7. Queue</h3>
+                <p>
+                  (1)分为没有实现的阻塞接口的：<br>
+                    * PriorityQueue<br>
+                    * ConcurrentLinkedQueue<br>
+                  (2)实现阻塞接口BlockingQueue的：<br>
+                    * ArrayBlockingQueue ：一个由数组支持的有界队列。<br>
+                　　* LinkedBlockingQueue ：一个由链接节点支持的可选有界队列。<br>
+                　　* PriorityBlockingQueue ：一个由优先级堆支持的无界优先级队列。<br>
+                　　* DelayQueue ：一个由优先级堆支持的、基于时间的调度队列。<br>
+                　　* SynchronousQueue ：一个利用BlockingQueue接口的简单聚集（rendezvous）机制。<br>
+                </p>
+
+                <h3>ConcurrentLinkedQueue</h3>
+                <p>ConcurrentLinkedQueue是典型的基于链表实现的队列，同时基于CAS实现同步操作，以下代码表示队列结构和链表结点类型：</p>
+                <pre>
+                  <code>
+public class ConcurrentLinkedQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
+        implements Queue&lt;E&gt;, java.io.Serializable {
+
+    private static class Node&lt;E&gt; {
+        volatile E item;
+        volatile Node&lt;E&gt; next;
+        ...
+    }
+
+    //头结点
+    private transient volatile Node&lt;E&gt; head;
+
+    //尾结点
+    private transient volatile Node&lt;E&gt; tail;
+                  </code>
+                </pre>
+                <p>ConcurrentLinkedQueue的入队列操作使用了CAS算法，CAS是项乐观锁技术，当多个线程尝试使用CAS同时更新同一个变量时，只有其中一个线程能更新变量的值，而其它线程都失败，失败的线程并不会被挂起，而是被告知这次竞争中失败，并可以再次尝试。CAS有3个操作数，内存值V，旧的预期值A，要修改的新值B。当且仅当预期值A和内存值V相同时，将内存值V修改为B，否则什么都不做。<br>
+                CAS无锁算法的C实现如下：
+                </p>
+                <p></p>
+                <pre>
+                  <code>
+int compare_and_swap (int* reg, int oldval, int newval) 
+{
+  ATOMIC();
+  int old_reg_val = *reg;
+  if (old_reg_val == oldval) 
+     *reg = newval;
+  END_ATOMIC();
+  return old_reg_val;
+}
+                  </code>
+                </pre>
+                <p>ConcurrentLinkedQueue的入队列操作。</p>
+                <pre>
+                  <code>
+public boolean offer(E e) {
+    checkNotNull(e);
+    final Node&lt;E&gt; newNode = new Node&lt;E&gt;(e);
+
+    for (Node&lt;E&gt; t = tail, p = t;;) {
+        Node&lt;E&gt; q = p.next;
+        if (q == null) {
+            // 通过CAS方法更新最后结点的next属性
+            if (p.casNext(null, newNode)) {
+                // Successful CAS is the linearization point
+                // for e to become an element of this queue,
+                // and for newNode to become "live".
+                if (p != t) // hop two nodes at a time
+                    casTail(t, newNode);  // Failure is OK.
+                return true;
+            }
+            // 与另外的线程CAS竞争失败，重新读取next结点
+        }
+        else if (p == q)
+            // We have fallen off list.  If tail is unchanged, it
+            // will also be off-list, in which case we need to
+            // jump to head, from which all live nodes are always
+            // reachable.  Else the new tail is a better bet.
+            p = (t != (t = tail)) ? t : head;
+        else
+            // Check for tail updates after two hops.
+            p = (p != t &amp;&amp; t != (t = tail)) ? t : q;
+    }
+}
+...
+
+/**
+ * compareAndSwapObject(Object var1, long var2, Object var3, Object var4)
+ * var1 操作的对象
+ * var2 内存值
+ * var3 旧的预期值
+ * var4 更新值
+ */
+boolean casNext(Node&lt;E&gt; cmp, Node&lt;E&gt; val) {
+    return UNSAFE.compareAndSwapObject(this, nextOffset, cmp, val);
+}
+                  </code>
+                </pre>
+                
+                <h3>ArrayBlockingQueue</h3>
+                <p>ArrayBlockingQueue是典型的基于数组实现的队列，同时使用ReentrantLock实现同步操作。</p>
+                <pre>
+                  <code>
+public class ArrayBlockingQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
+      implements BlockingQueue&lt;E&gt;, java.io.Serializable {
+
+  //数组
+  final Object[] items;
+
+  //指向队头
+  int takeIndex;
+
+  //指向队尾的下一个位置
+  int putIndex;
+
+  //数组长度
+  int count;
+
+  //入队列和出队列共用一把锁
+  final ReentrantLock lock;
+  /** Condition for waiting takes */
+  private final Condition notEmpty;
+  /** Condition for waiting puts */
+  private final Condition notFull;
+
+  //ArrayBlockingQueue是有界的队列
+  final int inc(int i) {
+      return (++i == items.length) ? 0 : i;
+  }
+
+  //ArrayBlockingQueue是有界的队列
+  final int dec(int i) {
+      return ((i == 0) ? items.length : i) - 1;
+  }
+                  </code>
+                </pre>
+                <p>在这里发现一个很有意思的细节：对于泛型的使用，java集合类都这样来使用泛型</p>
+                <pre>
+                  <code>
+@SuppressWarnings(&quot;unchecked&quot;)
+static &lt;E&gt; E cast(Object item) {
+    return (E) item;
+}
+
+final E itemAt(int i) {
+    return this.&lt;E&gt;cast(items[i]);
+}
+                  </code>
+                </pre>
+                <p>入队列操作：很简单的操作，先锁住-->入队列-->释放锁</p>
+                <pre>
+                  <code>
+public boolean offer(E e) {
+    checkNotNull(e);
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    try {
+        if (count == items.length)
+            return false;
+        else {
+            insert(e);
+            return true;
+        }
+    } finally {
+        lock.unlock();
+    }
+}
+                  </code>
+                </pre>
+
+                <h3>LinkedBlockingQueue</h3>
+                <p>LinkedBlockingQueue是典型的基于链表实现的队列，因为其对于入队列和出队列分别采用了独立的锁来控制数据同步，这也意味着在高并发的情况下生产者和消费者可以并行地操作队列中的数据，以此来提高整个队列的并发性能。 </p>
+                <pre>
+                  <code>
+public class LinkedBlockingQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
+        implements BlockingQueue&lt;E&gt;, java.io.Serializable {
+    private static final long serialVersionUID = -6903933977591709194L;
+
+    //Node结构体声明
+    static class Node&lt;E&gt; {
+        E item;
+
+        Node&lt;E&gt; next;
+
+        Node(E x) { item = x; }
+    }
+
+    //链表容量
+    private final int capacity;
+
+    //链表长度
+    private final AtomicInteger count = new AtomicInteger(0);
+
+    //头结点
+    private transient Node&lt;E&gt; head;
+
+    //尾结点
+    private transient Node&lt;E&gt; last;
+
+    //读锁
+    private final ReentrantLock takeLock = new ReentrantLock();
+
+    //获取读锁条件
+    private final Condition notEmpty = takeLock.newCondition();
+
+    //写锁
+    private final ReentrantLock putLock = new ReentrantLock();
+
+    //获取写锁条件
+    private final Condition notFull = putLock.newCondition();
+                  </code>
+                </pre>
+                <p>先来看下入队列操作</p>
+                <pre>
+                  <code>
+public boolean offer(E e) {
+    //不允许空值
+    if (e == null) throw new NullPointerException();
+    //原子类型count
+    final AtomicInteger count = this.count;
+    if (count.get() == capacity)
+        return false;
+    int c = -1;
+    Node&lt;E&gt; node = new Node(e);
+    final ReentrantLock putLock = this.putLock; //写锁
+    putLock.lock();
+    try {
+        if (count.get() &lt; capacity) {
+            enqueue(node);  //入队列
+            c = count.getAndIncrement();  //使用CAS同步方法更新链表长度
+            if (c + 1 &lt; capacity)
+                notFull.signal(); //更新写锁条件
+        }
+    } finally {
+        putLock.unlock(); //写操作完成，释放写锁
+    }
+    if (c == 0)
+        signalNotEmpty(); //更新读锁条件
+    return c &gt;= 0;
+}
+...
+
+private void signalNotEmpty() {
+    final ReentrantLock takeLock = this.takeLock;
+    takeLock.lock();
+    try {
+        notEmpty.signal();
+    } finally {
+        takeLock.unlock();
+    }
+}
+                  </code>
+                </pre>
+                
+                <h3>ArrayBlockingQueue与LinkedBlockingQueue的不同之处：</h3>
+                <h3>1、锁的实现不同</h3>
+                <p>
+                  ArrayBlockingQueue队列中的锁是没有分离的，即入队列和出队列用的是同一个锁，由此也意味着两者无法真正并行运行。<br>
+                  LinkedBlockingQueue实现的队列中的锁是分离的，即入队列用的是putLock，出队列是takeLock。<br>
+                </p>
+                <h3>2、内部元素操作不同</h3>
+                <p>
+                  ArrayBlockingQueue实现的队列中在入队列和出队列的时候，是直接将枚举对象插入或移除的，即不会产生任何额外的对象实例。<br>
+                  LinkedBlockingQueue实现的队列中在入队列和出队列的时候，需要把枚举对象转换为Node进行插入或移除，这在长时间内需要高效并发地处理大批量数据的系统中，对GC和性能会有一定影响。 <br>
+                </p>
+                <h3>3、 队列初始化方式不同</h3>
+                <p>
+                  ArrayBlockingQueue实现的队列中必须指定队列的大小。<br>
+                  LinkedBlockingQueue实现的队列中可以不指定队列的大小，默认是Integer.MAX_VALUE。<br>
+                </p>
+                
+
+
+
+   
+                
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
