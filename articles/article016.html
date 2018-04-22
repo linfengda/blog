@@ -568,7 +568,7 @@ public class LinkedBlockingQueue&lt;E&gt; extends AbstractQueue&lt;E&gt;
     private final Condition notFull = putLock.newCondition();
                   </code>
                 </pre>
-                <p>先来看下入队列操作</p>
+                <p>先来看下入队列操作，很简单：</p>
                 <pre>
                   <code>
 public boolean offer(E e) {
