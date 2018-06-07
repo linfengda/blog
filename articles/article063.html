@@ -1,0 +1,315 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 21, 2018</span>
+									<h1>mybatis拦截器</h1>
+									<p>
+mybatis interceptor is part of mybatis proccess pieline to intercept program before or after specific progress. 
+								    </p>
+								</header>
+
+
+
+                <h3>1. 什么是mybatis拦截器？</h3>
+                <p>Mybatis采用责任链模式，通过动态代理组织多个插件（拦截器），通过这些插件可以改变Mybatis的默认行为（诸如SQL重写之类的），MyBatis 允许你在已映射语句执行过程中的某一点进行拦截调用。默认情况下，MyBatis允许使用插件来拦截的责任链节点包括：
+                </p>
+                <blockquote>
+                <p>
+                Executor (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)<br>
+                ParameterHandler (getParameterObject, setParameters)<br>
+                ResultSetHandler (handleResultSets, handleOutputParameters)<br>
+                StatementHandler (prepare, parameterize, batch, update, query)</p>
+
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article063_001.png" alt="" />
+                </div>
+                </blockquote>
+                <p>它们分别是：</p>
+                <p>
+                1. Executor是 Mybatis的内部执行器，它负责调用StatementHandler操作数据库，并把结果集通过 
+                ResultSetHandler进行自动映射，另外，他还处理了二级缓存的操作。从这里可以看出，我们也是可以通过插件来实现自定义的二级缓存的。
+                2. StatementHandler是Mybatis直接和数据库执行sql脚本的对象。另外它也实现了Mybatis的一级缓存。这里，我们可以使用插件来实现对一级缓存的操作(禁用等等)。
+                3. ParameterHandler是Mybatis实现Sql入参设置的对象。插件可以改变我们Sql的参数默认设置。
+                4. ResultSetHandler是Mybatis把ResultSet集合映射成POJO的接口对象。我们可以定义插件对Mybatis的结果集自动映射进行修改。
+                </p>
+                <p>通过拦截它们可以实现：</p>
+                <blockquote>
+                <p>
+                拦截执行器的方法<br>
+                拦截参数的处理<br>
+                拦截结果集的处理<br>
+                拦截Sql语法构建的处理</p>
+                </blockquote>
+
+                <h3>2. 如何实现一个拦截器？</h3>
+                <p>实现Interceptor接口，我们看下这个接口定义的方法：</p>
+                <pre>
+                  <code>
+package org.apache.ibatis.plugin;
+
+import java.util.Properties;
+
+public interface Interceptor {
+    Object intercept(Invocation var1) throws Throwable;
+
+    Object plugin(Object var1);
+
+    void setProperties(Properties var1);
+}
+                  </code>
+                </pre>
+                <p>
+                这个接口只声明了三个方法。
+
+                setProperties方法是在Mybatis进行配置插件的时候可以配置自定义相关属性，即：接口实现对象的参数配置;
+                plugin方法是插件用于封装目标对象的，通过该方法我们可以返回目标对象本身，也可以返回一个它的代理，可以决定是否要进行拦截进而决定要返回一个什么样的目标对象，官方提供了示例：return Plugin.wrap(target, this);
+                intercept方法就是要进行拦截的时候要执行的方法;
+                </p>
+                <p>注解拦截哪个责任链节点的哪个方法，例如拦截StatementHandler的prepare方法：</p>
+                <pre>
+                  <code>
+@Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
+@Slf4j
+public class PermissionInterceptor implements Interceptor {
+                  </code>
+                </pre>
+                <p>StatementHandler节点类：</p>
+                <pre>
+                  <code>
+package org.apache.ibatis.executor.statement;
+......
+
+public interface StatementHandler {
+    Statement prepare(Connection var1, Integer var2) throws SQLException;
+
+    void parameterize(Statement var1) throws SQLException;
+
+    void batch(Statement var1) throws SQLException;
+
+    int update(Statement var1) throws SQLException;
+
+    &lt;E&gt; List&lt;E&gt; query(Statement var1, ResultHandler var2) throws SQLException;
+
+    &lt;E&gt; Cursor&lt;E&gt; queryCursor(Statement var1) throws SQLException;
+
+    BoundSql getBoundSql();
+
+    ParameterHandler getParameterHandler();
+}
+                  </code>
+                </pre>
+
+                <h3>3. 拦截器怎么拦截责任链节点？</h3>
+                <p>Mybatis的插件首先对责任链节点的对象生成动态代理，例如对StatementHandler对象生成动态代理，然后在被代理对象执行对应方法的时候，代理方法会执行，从而实现拦截StatementHandler对象的方法的效果，拦截后我们就可以为所欲为了。<br>
+                那么现在我们看下Mybatis是怎么创建这四大接口对象的。</p>
+                <pre>
+                  <code>
+public Executor newExecutor(Transaction transaction, ExecutorType executorType) { 
+    executorType = executorType == null ? defaultExecutorType : executorType; 
+    executorType = executorType == null ? ExecutorType.SIMPLE : executorType; 
+    Executor executor; 
+    if (ExecutorType.BATCH == executorType) { 
+        executor = new BatchExecutor(this, transaction); 
+    } else if (ExecutorType.REUSE == executorType) { 
+        executor = new ReuseExecutor(this, transaction); 
+    } else { 
+        executor = new SimpleExecutor(this, transaction); 
+    } 
+    if (cacheEnabled) { 
+        executor = new CachingExecutor(executor); 
+    } 
+        executor = (Executor) interceptorChain.pluginAll(executor); 
+        return executor; 
+    } 
+
+public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) { 
+    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql); statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler); 
+    return statementHandler; 
+} 
+
+public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) { 
+    ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql); 
+    parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler); 
+    return parameterHandler; 
+} 
+
+public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) { 
+    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds); resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler); return resultSetHandler; 
+}
+                  </code>
+                </pre>
+                <p>所有的责任链节点对象都调用InterceptorChain.pluginAll()方法，该方法会把节点对象插入我们声明的所有拦截器中。</p>
+                <pre>
+                  <code>
+public Object pluginAll(Object target) { 
+    for (Interceptor interceptor : interceptors) {
+        target = interceptor.plugin(target); 
+    } 
+    return target; 
+}
+                  </code>
+                </pre>
+                <p>其中interceptor.plugin(target)方法这样实现：Plugin.wrap(target, this);</p>
+                <pre>
+                  <code>
+/**
+ * @param target        被代理节点对象 
+ * @param Interceptor   拦截器
+ */
+public static Object wrap(Object target, Interceptor interceptor) { 
+    // 获取拦截器的@Intercepts注解 
+    Map&lt;Class&lt;?&gt;, Set&lt;Method&gt;&gt; signatureMap = getSignatureMap(interceptor); 
+    Class&lt;?&gt; type = target.getClass(); 
+    // 获取@Intercepts注解拦截了哪些方法
+    Class&lt;?&gt;[] interfaces = getAllInterfaces(type, signatureMap); 
+    if (interfaces.length &gt; 0) { //如果有拦截该节点类的某个方法
+        // 拦截的对象创建了一个动态代理对象。代理对象的InvocationHandler处理器为新建的Plugin对象。
+        return Proxy.newProxyInstance(type.getClassLoader(), interfaces, new Plugin(target, interceptor, signatureMap)); 
+    } 
+    return target; 
+}
+                  </code>
+                </pre>
+                <p>在代理对象执行对应方法的时候，会调用InvocationHandler处理器的invoke方法</p>
+                <pre>
+                  <code>
+public Object invoke(Object proxy, Method method, Object[] args) throws Throwable { 
+    try { 
+        // 查看@Intercepts注解是否拦截该节点类
+        Set&lt;Method&gt; methods = signatureMap.get(method.getDeclaringClass());
+    if (methods != null &amp;&amp; methods.contains(method)) { 
+        // 执行拦截器的拦截方法
+        return interceptor.intercept(new Invocation(target, method, args)); 
+    } 
+        return method.invoke(target, args);
+    } 
+    catch (Exception e) { 
+        throw ExceptionUtil.unwrapThrowable(e);
+    } 
+}
+                  </code>
+                </pre>
+
+                <h3>3. 一个使用拦截器为查询自动添加权限的例子</h3>
+                <pre>
+                  <code>
+package cn.dotfashion.support.dbaccess;
+......
+
+
+@Intercepts({@Signature(type = StatementHandler.class, method = &quot;prepare&quot;, args = {Connection.class, Integer.class})})
+@Slf4j
+public class PermissionInterceptor implements Interceptor {
+
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+        try {
+            if (invocation.getTarget() instanceof StatementHandler) {
+
+                String permissionField = PermissionHelper.getPermissionfield();
+                if (null != permissionField) {
+                    //添加权限条件
+                    List&lt;Long&gt; permissions = SessionContext.getCurrentUserOrganizations();
+                    StatementHandler statementHandler = (StatementHandler) invocation.getTarget();
+                    MetaObject metaStatementHandler = SystemMetaObject.forObject(statementHandler);
+                    BoundSql boundSql = (BoundSql) metaStatementHandler.getValue(&quot;delegate.boundSql&quot;);
+                    String sql = boundSql.getSql();
+                    if (CollectionUtils.isEmpty(permissions)) {
+                        sql += &quot;\nand 0 = 1&quot;;
+                    } else {
+                        Long[] permissionArray = permissions.toArray(new Long[permissions.size()]);
+                        String permissionArrayStr = Arrays.toString(permissionArray);
+                        String permissionCondition = &quot; &quot; + permissionField + &quot; in(&quot; + permissionArrayStr.substring(1, permissionArrayStr.length() - 1) + &quot;) &quot;;
+                        if (sql.contains(&quot;where&quot;)) {
+                            sql = sql.substring(0, sql.indexOf(&quot;where&quot;) + 5) + permissionCondition + &quot;and&quot; + sql.substring(sql.indexOf(&quot;where&quot;) + 5, sql.length());
+                        } else {
+                            //暂时不需要支持
+                            sql += &quot;\nand 0 = 1&quot;;
+                        }
+                    }
+                    metaStatementHandler.setValue(&quot;delegate.boundSql.sql&quot;, sql);
+                }
+            }
+        } finally {
+            PermissionHelper.clearPermissionfield();
+        }
+        return invocation.proceed();
+    }
+
+    @Override
+    public Object plugin(Object o) {
+        return Plugin.wrap(o, this);
+    }
+
+    @Override
+    public void setProperties(Properties properties) {}
+}
+                  </code>
+                </pre>
+
+                
+
+                
+
+
+
+   
+                
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
