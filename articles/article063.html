@@ -77,7 +77,7 @@ mybatis interceptor is part of mybatis proccess pieline to intercept program bef
                 </blockquote>
 
                 <h3>2. 如何实现一个拦截器？</h3>
-                <p>实现Interceptor接口，我们看下这个接口定义的方法：</p>
+                <p> 首先实现Interceptor接口，我们来看下这个接口的定义：</p>
                 <pre>
                   <code>
 package org.apache.ibatis.plugin;
@@ -139,6 +139,7 @@ public interface StatementHandler {
                 那么现在我们看下Mybatis是怎么创建这四大接口对象的。</p>
                 <pre>
                   <code>
+...
 public Executor newExecutor(Transaction transaction, ExecutorType executorType) { 
     executorType = executorType == null ? defaultExecutorType : executorType; 
     executorType = executorType == null ? ExecutorType.SIMPLE : executorType; 
@@ -153,12 +154,14 @@ public Executor newExecutor(Transaction transaction, ExecutorType executorType) 
     if (cacheEnabled) { 
         executor = new CachingExecutor(executor); 
     } 
-        executor = (Executor) interceptorChain.pluginAll(executor); 
-        return executor; 
-    } 
+    executor = (Executor) interceptorChain.pluginAll(executor); 
+    return executor; 
+} 
 
-public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) { 
-    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql); statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler); 
+public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, 
+    RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) { 
+    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
+    statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler); 
     return statementHandler; 
 } 
 
@@ -168,8 +171,10 @@ public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Obj
     return parameterHandler; 
 } 
 
-public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) { 
-    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds); resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler); return resultSetHandler; 
+public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, 
+    ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) { 
+    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds); resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler); 
+    return resultSetHandler; 
 }
                   </code>
                 </pre>
@@ -177,6 +182,7 @@ public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement m
                 <pre>
                   <code>
 public Object pluginAll(Object target) { 
+    //给每一个拦截器注入责任链节点
     for (Interceptor interceptor : interceptors) {
         target = interceptor.plugin(target); 
     } 
@@ -192,13 +198,13 @@ public Object pluginAll(Object target) {
  * @param Interceptor   拦截器
  */
 public static Object wrap(Object target, Interceptor interceptor) { 
-    // 获取拦截器的@Intercepts注解 
+    // @Intercepts注解拦截的所有节点方法
     Map&lt;Class&lt;?&gt;, Set&lt;Method&gt;&gt; signatureMap = getSignatureMap(interceptor); 
     Class&lt;?&gt; type = target.getClass(); 
-    // 获取@Intercepts注解拦截了哪些方法
+    // @Intercepts注解拦截的target类方法
     Class&lt;?&gt;[] interfaces = getAllInterfaces(type, signatureMap); 
-    if (interfaces.length &gt; 0) { //如果有拦截该节点类的某个方法
-        // 拦截的对象创建了一个动态代理对象。代理对象的InvocationHandler处理器为新建的Plugin对象。
+    if (interfaces.length &gt; 0) {
+        // 返回被拦截对象的动态代理，动态代理的InvocationHandler处理器为新建的Plugin对象。
         return Proxy.newProxyInstance(type.getClassLoader(), interfaces, new Plugin(target, interceptor, signatureMap)); 
     } 
     return target; 
@@ -228,57 +234,90 @@ public Object invoke(Object proxy, Method method, Object[] args) throws Throwabl
                 <h3>3. 一个使用拦截器为查询自动添加权限的例子</h3>
                 <pre>
                   <code>
-package cn.dotfashion.support.dbaccess;
 ......
 
 
-@Intercepts({@Signature(type = StatementHandler.class, method = &quot;prepare&quot;, args = {Connection.class, Integer.class})})
+@Intercepts({@Signature(type = Executor.class, method = &quot;query&quot;, args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
+        @Signature(type = Executor.class, method = &quot;query&quot;, args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}
+)})
 @Slf4j
 public class PermissionInterceptor implements Interceptor {
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
+        Object result = null;
         try {
-            if (invocation.getTarget() instanceof StatementHandler) {
 
-                String permissionField = PermissionHelper.getPermissionfield();
-                if (null != permissionField) {
-                    //添加权限条件
-                    List&lt;Long&gt; permissions = SessionContext.getCurrentUserOrganizations();
-                    StatementHandler statementHandler = (StatementHandler) invocation.getTarget();
-                    MetaObject metaStatementHandler = SystemMetaObject.forObject(statementHandler);
-                    BoundSql boundSql = (BoundSql) metaStatementHandler.getValue(&quot;delegate.boundSql&quot;);
-                    String sql = boundSql.getSql();
-                    if (CollectionUtils.isEmpty(permissions)) {
-                        sql += &quot;\nand 0 = 1&quot;;
+            PermissionSql permissionSql = PermissionHelper.getPermissionSql();
+            if (!SessionContext.isSuperAdmin() &amp;&amp; null != permissionSql) {
+                Executor executor = (Executor)invocation.getTarget();
+                Object[] args = invocation.getArgs();
+                MappedStatement ms = (MappedStatement)args[0];
+                Object parameter = args[1];
+                RowBounds rowBounds = (RowBounds)args[2];
+                ResultHandler resultHandler = (ResultHandler)args[3];
+                CacheKey cacheKey;
+                BoundSql boundSql;
+                if (args.length == 4) {
+                    boundSql = ms.getBoundSql(parameter);
+                    cacheKey = executor.createCacheKey(ms, parameter, rowBounds, boundSql);
+                } else {
+                    cacheKey = (CacheKey)args[4];
+                    boundSql = (BoundSql)args[5];
+                }
+                Configuration configuration = ms.getConfiguration();
+
+                //添加权限条件
+                String sql = boundSql.getSql().replaceAll(&quot;where&quot;, &quot;WHERE&quot;);
+                String permissionCondition = &quot;&quot;;
+                List&lt;Long&gt; permissions = SessionContext.getCurrentUserOrganizations();
+                if (!CollectionUtils.isEmpty(permissions)) {
+                    String permissionField = permissionSql.getPermissionField();
+                    Long[] permissionArray = permissions.toArray(new Long[permissions.size()]);
+                    String permissionArrayStr = Arrays.toString(permissionArray);
+                    permissionCondition = &quot; &quot; + permissionField + &quot; IN(&quot; + permissionArrayStr.substring(1, permissionArrayStr.length() - 1) + &quot;) &quot;;
+                } else {
+                    permissionCondition = &quot; 0 = 1 &quot;;
+                }
+                if (sql.contains(&quot;WHERE&quot;)) {
+                    int whereIndex = permissionSql.getWhereIndex();
+                    if (whereIndex == 1) {
+                        sql = sql.substring(0, sql.indexOf(&quot;WHERE&quot;) + 5) + permissionCondition + &quot;AND&quot; + sql.substring(sql.indexOf(&quot;WHERE&quot;) + 5, sql.length());
                     } else {
-                        Long[] permissionArray = permissions.toArray(new Long[permissions.size()]);
-                        String permissionArrayStr = Arrays.toString(permissionArray);
-                        String permissionCondition = &quot; &quot; + permissionField + &quot; in(&quot; + permissionArrayStr.substring(1, permissionArrayStr.length() - 1) + &quot;) &quot;;
-                        if (sql.contains(&quot;where&quot;)) {
-                            sql = sql.substring(0, sql.indexOf(&quot;where&quot;) + 5) + permissionCondition + &quot;and&quot; + sql.substring(sql.indexOf(&quot;where&quot;) + 5, sql.length());
-                        } else {
-                            //暂时不需要支持
-                            sql += &quot;\nand 0 = 1&quot;;
+                        int count = 0;
+                        int idx = 0;
+                        while ((idx = sql.indexOf(&quot;WHERE&quot;, idx)) != -1 &amp;&amp; (++count) != whereIndex) {idx += 5;}
+                        if (count == whereIndex) {
+                            sql = sql.substring(0, idx + 5) + permissionCondition + &quot;AND&quot; + sql.substring(idx + 5, sql.length());
                         }
                     }
-                    metaStatementHandler.setValue(&quot;delegate.boundSql.sql&quot;, sql);
+                } else {
+                    sql += &quot;\nWHERE&quot; + permissionCondition;
                 }
+                BoundSql permissionBoundSql = new BoundSql(configuration, sql, boundSql.getParameterMappings(), parameter);
+
+                //执行查询
+                result = executor.query(ms, parameter, rowBounds, resultHandler, cacheKey, permissionBoundSql);
+            }else {
+                result = invocation.proceed();
             }
         } finally {
             PermissionHelper.clearPermissionfield();
         }
-        return invocation.proceed();
+        return result;
     }
 
     @Override
-    public Object plugin(Object o) {
-        return Plugin.wrap(o, this);
+    public Object plugin(Object target) {
+        return Plugin.wrap(target, this);
     }
 
     @Override
-    public void setProperties(Properties properties) {}
+    public void setProperties(Properties properties) {
+
+    }
 }
+
                   </code>
                 </pre>
 
@@ -286,10 +325,6 @@ public class PermissionInterceptor implements Interceptor {
 
                 
 
-
-
-   
-                
 
 							</section>
 					</div>
