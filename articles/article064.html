@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 21, 2018</span>
+									<h1>spring boot chapter1</h1>
+									<p>
+spring boot chapter1: How to build a sample spring boot project. 
+								    </p>
+								</header>
+
+
+
+                <h3>1. 什么是spring boot？</h3>
+                <p>
+随着使用 Spring 进行开发的个人和企业越来越多，Spring 也慢慢从一个单一简洁的小框架变成一个大而全的开源软件，Spring 的边界不断的进行扩充，到了后来 Spring 几乎可以做任何事情了，市面上主流的开源软件、中间件都有 Spring 对应组件支持，人们在享用 Spring 的这种便利之后，也遇到了一些问题。
+
+Spring 每集成一个开源软件，就需要增加一些基础配置，慢慢的随着人们开发的项目越来越庞大，往往需要集成很多开源软件，因此后期使用 Spirng 开发大型项目需要引入很多配置文件，太多的配置非常难以理解，并容易配置出错，到了后来人们甚至称 Spring 为配置地狱。
+
+Spring 似乎也意识到了这些问题，急需有这么一套软件可以解决这些问题，这个时候微服务的概念也慢慢兴起，快速开发微小独立的应用变得更为急迫，Spring 刚好处在这么一个交叉点上，于 2013 年初开始的 Spring Boot 项目的研发，2014年4月，Spring Boot 1.0.0 发布。
+
+Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： 用来简化Spring应用的初始搭建以及开发过程。该框架使用了特定的方式来进行配置，从而使开发人员不再需要定义样板化的配置。用我的话来理解，就是 Spring Boot 其实不是什么新的框架，它默认配置了很多框架的使用方式。
+                </p>
+
+                <h3>2. 怎样1分钟构建一个spring boot应用？</h3>
+                <p>(1)intel idea创建new project</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_001.png" alt="" />
+                </div>
+                <p>(2)选择Spring Initializr</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_002.png" alt="" />
+                </div>
+                <p>(3)填写项目信息</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_003.png" alt="" />
+                </div>
+                <p>(4)选择项目默认依赖web</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_004.png" alt="" />
+                </div>
+                <p>(5)项目创建完成，其中Chapter1Application是spring boot默认启动类，application.properties是默认配置文件，module1包是我新建的示例业务模块</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_005.png" alt="" />
+                </div>
+                <p>(6)我们删掉application.properties文件，新建application.yml文件，使用新式的语法来写配置项。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_005.png" alt="" />
+                </div>
+
+
+
+
+                <blockquote>
+                <p>
+                Executor (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)<br>
+                ParameterHandler (getParameterObject, setParameters)<br>
+                ResultSetHandler (handleResultSets, handleOutputParameters)<br>
+                StatementHandler (prepare, parameterize, batch, update, query)</p>
+                </blockquote>
+
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
+
+                
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

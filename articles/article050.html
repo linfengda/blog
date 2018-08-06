@@ -44,7 +44,7 @@
 				<h3>传统的BIO编程：</h3>
                 <p>传统的同步阻塞模型开发中，ServerSocket负责绑定IP地址，启动监听端口；Socket负责发起连接操作。连接成功后，双方通过输入和输出流进行同步阻塞式通信。 可以看到，一个客户端对应于服务端一个独立线程。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_001.png" alt="" />
                 </div>
 
                 <p>用代码演示下，1. 写一个简单的服务器（用到了线程池的技术来创建线程）：</p>
@@ -133,7 +133,7 @@ public class MyClient {
 
                 <p>3. 代码运行结果如下图</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_002.png" alt="" />
                 </div>
 				<p>
 					如果一个客户端请求中，IO写入到服务端过程中耗时10秒，即每个请求占用服务端线程10秒<br>
@@ -161,11 +161,11 @@ public class MyClient {
 
 				<p>类关系图：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_003.png" alt="" />
                 </div>
                 <p>TCP下的NIO工作流程图：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_004.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_004.png" alt="" />
                 </div>
 
 				<h3>Buffer</h3>
@@ -177,11 +177,11 @@ public class MyClient {
 					如图：
     			</p>
     			<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_005.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_005.png" alt="" />
                 </div>
                 <p>buffer是这样操作的：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_006.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_006.png" alt="" />
                 </div>
                 <p>1、创建一个容量大小为10的字符缓冲区</p>
                 <pre>
@@ -190,7 +190,7 @@ ByteBuffer buff = ByteBuffer.allocate(10);
                   </code>
                 </pre>
     			<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_007.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_007.png" alt="" />
                 </div>
                 <p>2、往缓冲区中put()五个字节</p>
                 <pre>
@@ -199,7 +199,7 @@ buff.put((byte)'H').put((byte)'e').put((byte)'l').put((byte)'l').put((byte)'0');
                   </code>
                 </pre>
     			<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_008.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_008.png" alt="" />
                 </div>
                 <p>3、调用flip()方法，切换为读就绪状态</p>
                 <pre>
@@ -208,7 +208,7 @@ buff.flip();
                   </code>
                 </pre>
     			<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_009.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_009.png" alt="" />
                 </div>
                 <p>4、读取两个元素</p>
                 <pre>
@@ -217,7 +217,7 @@ System.out.println("" + (char) buff.get() + (char) buff.get());
                   </code>
                 </pre>
     			<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_010.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_010.png" alt="" />
                 </div>
                 <p>5、标记此时的position位置</p>
                 <pre>
@@ -226,7 +226,7 @@ buff.mark();
                   </code>
                 </pre>
     			<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_011.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_011.png" alt="" />
                 </div>
                 <p>6、调用compact()方法，释放已读数据的空间，准备重新填充缓存区</p>
                 <pre>
@@ -235,7 +235,7 @@ buff.compact();
                   </code>
                 </pre>
     			<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_012.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_012.png" alt="" />
                 </div>
 
 
@@ -455,7 +455,7 @@ public class MyNioClient {
 
                 <p>3. 代码运行结果如下图（这里我打开一个服务端，两个客户端）：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article062_013.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_013.png" alt="" />
                 </div>
 				<p>接下来，你可以试下同时打开一千个客户端，只要你的CPU够给力，服务端就不可能因为阻塞而降低性能。</p>
 				
