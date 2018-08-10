@@ -77,11 +77,27 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_005.png" alt="" />
                 </div>
-                <p>(6)我们删掉application.properties文件，新建application.yml文件，使用新式的语法来写配置项。</p>
+                <p>(6)项目创建完成后的pom文件如下。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_006.png" alt="" />
+                </div>
+                <p>(7)查看spring-boot-starter-parent的pom文件，发现项目结构是myApp---->spring-boot-starter-parent---->spring-boot-dependencies，我们在spring-boot-dependencies的pom文件中看到了dependencyManagement标签，dependencyManagement标签一般声明在父POM中，用来声明依赖项的默认版本号。该依赖不会引入，因此子项目需要显示声明所需要引入的依赖（不需要声明版本号），保证所有的子项目都是一个版本号。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_007.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_008.png" alt="" />
+                </div>
+                <p>(8)解决办法就是：我们不直接依赖spring-boot-starter-parent父项目，而是import项目spring-boot-dependencies。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_009.png" alt="" />
+                </div>
+
+
+				<p>(9)我们删掉application.properties文件，新建application.yml文件，使用新式的语法来写配置项。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_005.png" alt="" />
                 </div>
-
 
 
 
