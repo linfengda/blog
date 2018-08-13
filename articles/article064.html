@@ -99,7 +99,7 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
 				<p>(10)然后在pom文件中，显式的声明必要的依赖项。</p>
 				<pre>
                   <code>
-	&lt;!-- dependencies标签：声明依赖的jar包 --&gt;
+&lt;!-- dependencies标签：声明依赖的jar包 --&gt;
     &lt;dependencies&gt;
 
         &lt;!-- DAO相关 --&gt;
@@ -107,10 +107,12 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
             &lt;groupId&gt;mysql&lt;/groupId&gt;
             &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
         &lt;/dependency&gt;
+
         &lt;dependency&gt;
             &lt;groupId&gt;com.zaxxer&lt;/groupId&gt;
             &lt;artifactId&gt;HikariCP&lt;/artifactId&gt;
         &lt;/dependency&gt;
+
         &lt;dependency&gt;
             &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;
             &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;
@@ -134,6 +136,7 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                 &lt;/exclusion&gt;
             &lt;/exclusions&gt;
         &lt;/dependency&gt;
+
         &lt;dependency&gt;
             &lt;groupId&gt;com.github.pagehelper&lt;/groupId&gt;
             &lt;artifactId&gt;pagehelper&lt;/artifactId&gt;
@@ -176,25 +179,13 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
             &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
             &lt;artifactId&gt;slf4j-api&lt;/artifactId&gt;
         &lt;/dependency&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
-            &lt;artifactId&gt;slf4j-log4j12&lt;/artifactId&gt;
-        &lt;/dependency&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
-            &lt;artifactId&gt;slf4j-simple&lt;/artifactId&gt;
-        &lt;/dependency&gt;
 
-        &lt;dependency&gt;
-            &lt;groupId&gt;commons-io&lt;/groupId&gt;
-            &lt;artifactId&gt;commons-io&lt;/artifactId&gt;
-        &lt;/dependency&gt;
         &lt;dependency&gt;
             &lt;groupId&gt;org.apache.commons&lt;/groupId&gt;
             &lt;artifactId&gt;commons-lang3&lt;/artifactId&gt;
         &lt;/dependency&gt;
 
-        &lt;!-- 一个很好用的通过bean注解提供getter setter的插件 --&gt;
+        &lt;!-- 一个很好用的通过注解提供getter setter方法的插件 --&gt;
         &lt;dependency&gt;
             &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
             &lt;artifactId&gt;lombok&lt;/artifactId&gt;
@@ -205,9 +196,19 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                   </code>
                 </pre>
 
-                <p>(11)我们删掉application.properties文件，新建application.yml文件，使用新式的语法来写配置项。</p>
+                <p>spring boot提供了一系列类似spring-boot-starter-*的模块化依赖，方便你构建你直接的项目，例如spring-boot-starter-web模块就声明了以下依赖。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_010.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_011.png" alt="" />
+                </div>
+
+                <p>(11)项目启动。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_012.png" alt="" />
+                </div>
+
+                <p>(12)接下来我们测试下DAO。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_013.png" alt="" />
                 </div>
 
 
