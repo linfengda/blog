@@ -221,9 +221,40 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_016.png" alt="" />
                 </div>
                 <p>使用pagehelper进行自动分页。</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_013.png" alt="" />
-                </div>
+                <pre>
+                  <code>
+package com.linfengda.sb.chapter1.module1.service.impl;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.linfengda.sb.chapter1.module1.dao.FilmBizDao;
+import com.linfengda.sb.chapter1.module1.entity.vo.FilmPlacardInfo;
+import com.linfengda.sb.chapter1.module1.service.FilmBizService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+
+/**
+ * 描述: 电影信息业务相关
+ *
+ * @author linfengda
+ * @create 2018-08-14 15:59
+ */
+@Service
+public class FilmBizServiceImpl implements FilmBizService {
+    @Resource
+    private FilmBizDao filmBizDao;
+
+    @Override
+    public Page&lt;FilmPlacardInfo&gt; queryFilmPlacardInfo(String actorName, String category, String language) {
+
+        PageHelper.startPage(1, 20);
+        Page&lt;FilmPlacardInfo&gt; page = (Page) filmBizDao.queryFilmPlacardInfo(actorName, category, language);
+        return page;
+    }
+}
+                  </code>
+                </pre>
 
                 <p>(13)接下来我们为MVC配置下视图解析器。</p>
                 <div class="full-div">
