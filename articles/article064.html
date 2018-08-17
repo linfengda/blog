@@ -217,6 +217,7 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_015.png" alt="" />
                 </div>
+                <p>打印信息如下。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_016.png" alt="" />
                 </div>
@@ -256,7 +257,40 @@ public class FilmBizServiceImpl implements FilmBizService {
                   </code>
                 </pre>
 
-                <p>(13)接下来我们为MVC配置下视图解析器。</p>
+                <p>(13)接下来我们配置下MVC，我们都知道HttpServletRequest类提供的获取请求参数方法getParameter()返回类型为java.lang.String，对于restful接口的断言不够方便，我们在这里提取HttpServletRequest的参数，封装成JSON形式的参数类，提供方便的获取请求参数的接口。<br>
+                首先添加fastjson的依赖
+                </p>
+                <pre>
+                  <code>
+&lt;!-- json相关 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-json&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;artifactId&gt;fastjson&lt;/artifactId&gt;
+    &lt;version&gt;1.2.47&lt;/version&gt;
+&lt;/dependency&gt;
+                  </code>
+                </pre>
+                <p>定义参数类</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_017.png" alt="" />
+                </div>
+                <p>统一controller层参数处理</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_018.png" alt="" />
+                </div>
+                <p>添加restful api，可以直接使用postma测试请求</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_019.png" alt="" />
+                </div>
+
+
+                
+
+                <p>(13)接下来我们为MVC配置下视图解析器，同样的使用fastjson。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_013.png" alt="" />
                 </div>
