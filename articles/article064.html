@@ -100,99 +100,115 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
 				<pre>
                   <code>
 &lt;!-- dependencies标签：声明依赖的jar包 --&gt;
-    &lt;dependencies&gt;
+&lt;dependencies&gt;
 
-        &lt;!-- DAO相关 --&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;mysql&lt;/groupId&gt;
-            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;!-- DAO相关 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;
+    &lt;/dependency&gt;
 
-        &lt;dependency&gt;
-            &lt;groupId&gt;com.zaxxer&lt;/groupId&gt;
-            &lt;artifactId&gt;HikariCP&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;mysql&lt;/groupId&gt;
+        &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+    &lt;/dependency&gt;
 
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;
-            &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;
-            &lt;version&gt;1.3.2&lt;/version&gt;
-            &lt;exclusions&gt;
-                &lt;exclusion&gt;
-                    &lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;
-                    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-                &lt;/exclusion&gt;
-                &lt;exclusion&gt;
-                    &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;
-                    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-                &lt;/exclusion&gt;
-                &lt;exclusion&gt;
-                    &lt;artifactId&gt;mybatis-spring-boot-autoconfigure&lt;/artifactId&gt;
-                    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-                &lt;/exclusion&gt;
-                &lt;exclusion&gt;
-                    &lt;artifactId&gt;mybatis-spring&lt;/artifactId&gt;
-                    &lt;groupId&gt;mybatis-spring&lt;/groupId&gt;
-                &lt;/exclusion&gt;
-            &lt;/exclusions&gt;
-        &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.zaxxer&lt;/groupId&gt;
+        &lt;artifactId&gt;HikariCP&lt;/artifactId&gt;
+    &lt;/dependency&gt;
 
-        &lt;dependency&gt;
-            &lt;groupId&gt;com.github.pagehelper&lt;/groupId&gt;
-            &lt;artifactId&gt;pagehelper&lt;/artifactId&gt;
-            &lt;version&gt;5.1.4&lt;/version&gt;
-        &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;
+        &lt;version&gt;1.3.2&lt;/version&gt;
+        &lt;exclusions&gt;
+            &lt;exclusion&gt;
+                &lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;/exclusion&gt;
+            &lt;exclusion&gt;
+                &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;/exclusion&gt;
+            &lt;exclusion&gt;
+                &lt;artifactId&gt;mybatis-spring-boot-autoconfigure&lt;/artifactId&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;/exclusion&gt;
+            &lt;exclusion&gt;
+                &lt;artifactId&gt;mybatis-spring&lt;/artifactId&gt;
+                &lt;groupId&gt;mybatis-spring&lt;/groupId&gt;
+            &lt;/exclusion&gt;
+        &lt;/exclusions&gt;
+    &lt;/dependency&gt;
 
-        &lt;!-- spring mvc相关 --&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.github.pagehelper&lt;/groupId&gt;
+        &lt;artifactId&gt;pagehelper&lt;/artifactId&gt;
+        &lt;version&gt;5.1.4&lt;/version&gt;
+    &lt;/dependency&gt;
 
-        &lt;!-- spring test相关 --&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
-            &lt;scope&gt;test&lt;/scope&gt;
-        &lt;/dependency&gt;
+    &lt;!-- spring mvc相关 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
 
-        &lt;!-- spring aop相关 --&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-boot-starter-aop&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;!-- spring test相关 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
 
-        &lt;!-- 数据源DataSource相关 --&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;!-- json相关 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-json&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+        &lt;artifactId&gt;fastjson&lt;/artifactId&gt;
+        &lt;version&gt;1.2.47&lt;/version&gt;
+    &lt;/dependency&gt;
 
-        &lt;!-- redis java api --&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;!-- spring aop相关 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-aop&lt;/artifactId&gt;
+    &lt;/dependency&gt;
 
-        &lt;!-- 日志相关 --&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
-            &lt;artifactId&gt;slf4j-api&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;!-- redis java api --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
+    &lt;/dependency&gt;
 
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.apache.commons&lt;/groupId&gt;
-            &lt;artifactId&gt;commons-lang3&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;!-- 日志相关 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+        &lt;artifactId&gt;slf4j-api&lt;/artifactId&gt;
+    &lt;/dependency&gt;
 
-        &lt;!-- 一个很好用的通过注解提供getter setter方法的插件 --&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
-            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
-        &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;commons-io&lt;/groupId&gt;
+        &lt;artifactId&gt;commons-io&lt;/artifactId&gt;
+        &lt;version&gt;2.6&lt;/version&gt;
+    &lt;/dependency&gt;
 
-        &lt;!-- end --&gt;
-	&lt;/dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.commons&lt;/groupId&gt;
+        &lt;artifactId&gt;commons-lang3&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;!-- 一个很好用的通过注解提供getter setter方法的插件 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+        &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;!-- end --&gt;
+&lt;/dependencies&gt;
                   </code>
                 </pre>
 
@@ -213,13 +229,6 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                 <p>直接使用spring boot的测试类Chapter1ApplicationTests。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_014.png" alt="" />
-                </div>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_015.png" alt="" />
-                </div>
-                <p>打印信息如下。</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_016.png" alt="" />
                 </div>
                 <p>使用pagehelper进行自动分页。</p>
                 <pre>
@@ -256,8 +265,15 @@ public class FilmBizServiceImpl implements FilmBizService {
 }
                   </code>
                 </pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_015.png" alt="" />
+                </div>
+                <p>打印信息如下。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_016.png" alt="" />
+                </div>
 
-                <p>(13)接下来我们配置下MVC，我们都知道HttpServletRequest类提供的获取请求参数方法getParameter()返回类型为java.lang.String，对于restful接口的断言不够方便，我们在这里提取HttpServletRequest的参数，封装成JSON形式的参数类，提供方便的获取请求参数的接口。<br>
+                <p>(13)接下来我们配置下MVC，我们都知道HttpServletRequest类提供的获取请求参数方法getParameter()返回类型为java.lang.String，对于restful接口的断言不够方便，我们在这里提取HttpServletRequest的参数，封装成JSON形式的参数类，以提供获取参数的快捷接口。
                 首先添加fastjson的依赖
                 </p>
                 <pre>
@@ -275,24 +291,191 @@ public class FilmBizServiceImpl implements FilmBizService {
                   </code>
                 </pre>
                 <p>定义参数类</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_017.png" alt="" />
-                </div>
+                <pre>
+                  <code>
+/**
+ * 描述: 入口参数类
+ *
+ * @author linfengda
+ * @create 2018-08-19 22:46
+ */
+public class RequestParam extends JSONObject {
+
+    public List&lt;Long&gt; getArrayLong(String key) {
+        JSONArray jsonArray = getJSONArray(key);
+        if (jsonArray==null){
+            return null;
+        }
+        List&lt;Long&gt; ls = new ArrayList&lt;&gt;(jsonArray.size());
+        for (Object ob:jsonArray) {
+            if(ob instanceof String){
+                String v = (String)ob;
+                if (StringUtils.isNotEmpty(v)){
+                    ls.add(Long.valueOf(v));
+                }
+                continue;
+            } else if (ob instanceof Long){
+                ls.add((Long)ob);
+                continue;
+            } else if (ob instanceof Integer){
+                Integer ov = (Integer)ob;
+                ls.add(Long.valueOf(ov.toString()));
+                continue;
+            }else{
+                throw new ParamParesException(&quot;参数类型不对&quot;);
+            }
+        }
+
+        return  ls;
+    }
+......
+                  </code>
+                </pre>
+                <p>使用ThreadLocal维持线程封闭</p>
+                <pre>
+                  <code>
+/**
+ * 描述: 请求参数上下文
+ *
+ * @author linfengda
+ * @create 2018-08-19 22:46
+ */
+public class RequestParamContext {
+    private final static ThreadLocal&lt;RequestParam&gt; REQUEST_PARAM_THREAD_LOCAL = new ThreadLocal();
+
+    public static void setParam(RequestParam requestParam){
+        REQUEST_PARAM_THREAD_LOCAL.set(requestParam);
+    }
+
+    public static RequestParam getParams(){
+        return REQUEST_PARAM_THREAD_LOCAL.get();
+    }
+
+    public static void remove(){
+        REQUEST_PARAM_THREAD_LOCAL.remove();
+    }
+}
+                  </code>
+                </pre>
+                <p>使用aop拦截请求，拦截请求之后可以做很多事情，这里我们仅仅封装下参数。</p>
+                <pre>
+                  <code>
+package com.linfengda.sb.support.api.aop;
+
+import com.linfengda.sb.support.api.context.RequestParamContext;
+import com.linfengda.sb.support.api.entity.RequestParam;
+import com.linfengda.sb.support.api.util.HttpServletUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.stereotype.Component;
+
+/**
+ * 描述: HTTP请求AOP
+ *
+ * @author linfengda
+ * @create 2018-08-19 23:10
+ */
+@Aspect
+@Component
+@Slf4j
+public class ApiAspect extends ApplicationObjectSupport {
+
+    @Pointcut(&quot;execution(public * com.linfengda.sb.chapter1..api..*(..))&quot;)
+    public void authPoint() {
+
+    }
+
+    @Around(&quot;authPoint()&quot;)
+    public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+
+        RequestParam requestParam = null;
+        Object result = null;
+        try {
+            requestParam = HttpServletUtil.getParams();
+            RequestParamContext.setParam(requestParam);
+
+            Object[] args = proceedingJoinPoint.getArgs();
+            result = proceedingJoinPoint.proceed(args);
+            return result;
+        } finally {
+            releaseSource();
+        }
+    }
+
+    /**
+     * 释放资源
+     */
+    private void releaseSource() {
+        RequestParamContext.remove();
+    }
+
+}
+                  </code>
+                </pre>
                 <p>统一controller层参数处理</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_018.png" alt="" />
-                </div>
-                <p>添加restful api，可以直接使用postma测试请求</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_019.png" alt="" />
-                </div>
+                <pre>
+                  <code>
+/**
+ * 描述: 基本control控制类
+ *
+ * @author linfengda
+ * @create 2018-08-19 22:51
+ */
+public class BaseController {
 
+    /** 默认成功的result **/
+    public static final Result SUCCESS_RESULT = new Result();
 
-                
+    /**
+     * 获取传入参数
+     * @return
+     * @throws Exception
+     */
+    protected RequestParam getParams(){
+        return RequestParamContext.getParams();
+    }
+
+}
+                  </code>
+                </pre>
+                <p>添加restful api，可以直接使用postman测试请求</p>
+                <pre>
+                  <code>
+/**
+ * 描述: 测试MVC
+ *
+ * @author linfengda
+ * @create 2018-08-16 10:29
+ */
+@RestController
+public class FilmBizController extends BaseController {
+
+    @Resource
+    private FilmBizService filmBizService;
+
+    @PostMapping(&quot;/film/queryDeliveryFilmList&quot;)
+    public Result queryDeliveryList() throws Exception {
+
+        // 从context中获取封装的请求参数
+        RequestParam params = getParams();
+        // 使用spring提供的断言
+        Assert.isNull(params.getInteger(&quot;pageNo&quot;), &quot;分页页码必须为数字且不能为空&quot;);
+        Assert.isNull(params.getInteger(&quot;pageSize&quot;), &quot;分页大小必须为数字且不能为空&quot;);
+
+        Page&lt;FilmPlacardInfo&gt; filmPlacardInfoPage = filmBizService.queryFilmPlacardInfo(params);
+        return new Result(filmPlacardInfoPage);
+    }
+}
+                  </code>
+                </pre>
 
                 <p>(13)接下来我们为MVC配置下视图解析器，同样的使用fastjson。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_013.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_020.png" alt="" />
                 </div>
 
                 <p>(14)这里我们需要将json解析方式和视图解析器解耦。</p>
@@ -310,13 +493,6 @@ public class FilmBizServiceImpl implements FilmBizService {
 
 
 
-                <blockquote>
-                <p>
-                Executor (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)<br>
-                ParameterHandler (getParameterObject, setParameters)<br>
-                ResultSetHandler (handleResultSets, handleOutputParameters)<br>
-                StatementHandler (prepare, parameterize, batch, update, query)</p>
-                </blockquote>
 
                 <pre>
                   <code>
