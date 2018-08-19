@@ -231,46 +231,15 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_014.png" alt="" />
                 </div>
                 <p>使用pagehelper进行自动分页。</p>
-                <pre>
-                  <code>
-package com.linfengda.sb.chapter1.module1.service.impl;
-
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.linfengda.sb.chapter1.module1.dao.FilmBizDao;
-import com.linfengda.sb.chapter1.module1.entity.vo.FilmPlacardInfo;
-import com.linfengda.sb.chapter1.module1.service.FilmBizService;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-
-/**
- * 描述: 电影信息业务相关
- *
- * @author linfengda
- * @create 2018-08-14 15:59
- */
-@Service
-public class FilmBizServiceImpl implements FilmBizService {
-    @Resource
-    private FilmBizDao filmBizDao;
-
-    @Override
-    public Page&lt;FilmPlacardInfo&gt; queryFilmPlacardInfo(String actorName, String category, String language) {
-
-        PageHelper.startPage(1, 20);
-        Page&lt;FilmPlacardInfo&gt; page = (Page) filmBizDao.queryFilmPlacardInfo(actorName, category, language);
-        return page;
-    }
-}
-                  </code>
-                </pre>
-                <div class="full-div">
+				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_015.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_016.png" alt="" />
                 </div>
                 <p>打印信息如下。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_016.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_017.png" alt="" />
                 </div>
 
                 <p>(13)接下来我们配置下MVC，我们都知道HttpServletRequest类提供的获取请求参数方法getParameter()返回类型为java.lang.String，对于restful接口的断言不够方便，我们在这里提取HttpServletRequest的参数，封装成JSON形式的参数类，以提供获取参数的快捷接口。
@@ -442,7 +411,7 @@ public class BaseController {
 }
                   </code>
                 </pre>
-                <p>添加restful api，可以直接使用postman测试请求</p>
+                <p>添加restful api，然后直接使用postman测试请求。</p>
                 <pre>
                   <code>
 /**
