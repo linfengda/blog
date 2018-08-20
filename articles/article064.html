@@ -226,7 +226,7 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_013.png" alt="" />
                 </div>
-                <p>直接使用spring boot的测试类Chapter1ApplicationTests。</p>
+                <p>首先配置spring boot2.0默认连接池HikariDataSource。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_014.png" alt="" />
                 </div>
@@ -234,6 +234,7 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_015.png" alt="" />
                 </div>
+                <p>直接使用spring boot的测试类Chapter1ApplicationTests。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_016.png" alt="" />
                 </div>
@@ -353,7 +354,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ApiAspect extends ApplicationObjectSupport {
 
-    @Pointcut(&quot;execution(public * com.linfengda.sb.chapter1..api..*(..))&quot;)
+    @Pointcut(&quot;execution(public * com.linfengda.sb..api..*(..))&quot;)
     public void authPoint() {
 
     }
@@ -442,15 +443,18 @@ public class FilmBizController extends BaseController {
                   </code>
                 </pre>
                 <p>返回信息如下。</p>
-
-                <p>(13)如果你没有声明HttpMessageConverter，spring boot2.0默认的json格式解析器为MappingJackson2HttpMessageConverter，我们这里不搞骚操作，因为Jackson目前是最快的json处理方式了。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_018.png" alt="" />
                 </div>
+
+                <p>(14)如果你没有声明HttpMessageConverter，spring boot2.0默认的json格式解析器为MappingJackson2HttpMessageConverter，我们这里不搞骚操作，因为Jackson目前是最快的json处理方式了。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_019.png" alt="" />
                 </div>
-                <p>(14)到这里一个准生产spring boot框架已经搭建起来了，快去试试给它添加缓存（redis）或者集群通信机制（zookeeper）吧。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_020.png" alt="" />
+                </div>
+                <p>(15)到这里一个准生产spring boot框架已经搭建起来了，快去试试给它添加缓存（redis）或者集群通信机制（zookeeper）吧。</p>
 
 
 
