@@ -49,12 +49,19 @@ spring boot chapter2: How to build a efficient spring boot project.
                 <p>
 一个响应快速的系统，必然要在请求资源服务接口中避免所有能避免的DB操作，这时候redis是一个相当不错的选择。它稳定，高效，简便，还支持分布式扩展。
                 </p>
-                <p>(1)先在application.yml中配置本地单机redis，这里有一个坑，就是在Spring Boot 1.2及更高的版本中,spring.redis.pool.max-active等属性已经过期，只能使用spring.redis.jedis.pool.max-active来代替。</p>
+                <p>(1)先在application.yml中配置本地单机redis，这里有一个坑，就是在Spring Boot 1.2及更高的版本中,spring.redis.pool.max-active等属性已经过期，只能使用spring.redis.jedis.pool.max-active来代替。关于spring redis的默认配置，可以参考org.springframework.boot.autoconfigure.data.redisRedisProperties类。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_001.png" alt="" />
                 </div>
-                <p>(2)然后我们指定下redisTemplate类的序列化方式，如果不指定默认使用JdkSerializationRedisSerializer。</p>
+                <p>(2)然后我们指定下redisTemplate类的序列化方式为Jackson2JsonRedisSerializer，如果不指定默认使用JdkSerializationRedisSerializer。这里说下，spring data提供了2种json序列化器，GenericJackson2JsonRedisSerializer和Jackson2JsonRedisSerializer，它们的序列化方式一样（调用的代码一样），即在序列化时将java类型和javaBean的json格式一起写入byte数组。然后在反序列化时，根据java类型将字节数组反序列化为javaBean。</p>
                 <pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_002.png" alt="" />
+                </div>
+                <p>不同之处在于：GenericJackson2JsonRedisSerializer在反序列化时多了个参数java类型，可以根据传入的java类型反序列化。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_003.png" alt="" />
+                </div>
                   <code>
 /**
  * 描述: Redis配置
@@ -93,16 +100,16 @@ public class RedisConfig {
 }
                   </code>
                 </pre>
-                <p>(3)使用Chapter1ApplicationTestslei类测试下redisTemplate的使用，这里我们需要先把/main/resources目录下的配置文件复制到/test/resources,否则会报找不到配置文件错误。</p>
+                <p>(3)使用Chapter1ApplicationTestslei类测试下redisTemplate的使用，这里我们需要先把/main/resources目录下的配置文件复制到/test/resources，否则会报找不到配置文件错误。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_004.png" alt="" />
                 </div>
                 <p>(4)Redis Desktop Manager查看信息如下。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_005.png" alt="" />
                 </div>
-                <p>(5)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。</p>
-                
+                <p>(5)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。如果需要做封装，可以使用继承的方式处理。</p>
+
 
                 
 
