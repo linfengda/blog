@@ -81,14 +81,14 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_006.png" alt="" />
                 </div>
-                <p>(7)查看spring-boot-starter-parent的pom文件，发现项目结构是myApp---->spring-boot-starter-parent---->spring-boot-dependencies，我们在spring-boot-dependencies的pom文件中看到了dependencyManagement标签，dependencyManagement标签一般声明在父POM中，用来声明依赖项的默认版本号,保证所有的子项目都是一个版本号。该依赖不会引入，因此子项目需要显示声明所需要引入的依赖。</p>
+                <p>(7)查看spring-boot-starter-parent的pom文件，发现项目结构是chapter1---->spring-boot-starter-parent---->spring-boot-dependencies，我们在spring-boot-dependencies的pom文件中看到了dependencyManagement标签，dependencyManagement标签一般声明在父POM中，用来声明依赖项的默认版本号,保证所有的子项目都是一个版本号。该依赖不会引入，因此子项目需要显示声明所需要引入的依赖。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_007.png" alt="" />
                 </div>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_008.png" alt="" />
                 </div>
-                <p>(8)我们不直接依赖spring-boot-starter-parent父项目，而是import项目spring-boot-dependencies。</p>
+                <p>(8)我们不直接依赖spring-boot-starter-parent父项目，而是maven import项目spring-boot-dependencies。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article064_009.png" alt="" />
                 </div>
@@ -427,8 +427,8 @@ public class FilmBizController extends BaseController {
     @Resource
     private FilmBizService filmBizService;
 
-    @PostMapping(&quot;/film/queryDeliveryFilmList&quot;)
-    public Result queryDeliveryList() throws Exception {
+    @PostMapping(&quot;/film/queryFilmList&quot;)
+    public Result queryFilmList() throws Exception {
 
         // 从context中获取封装的请求参数
         RequestParam params = getParams();

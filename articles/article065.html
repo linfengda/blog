@@ -49,24 +49,86 @@ spring boot chapter2: How to build a efficient spring boot project.
                 <p>
 一个响应快速的系统，必然要在请求资源服务接口中避免所有能避免的DB操作，这时候redis是一个相当不错的选择。它稳定，高效，简便，还支持分布式扩展。
                 </p>
+                <p>(1)先在application.yml中配置本地单机redis，这里有一个坑，就是在Spring Boot 1.2及更高的版本中,spring.redis.pool.max-active等属性已经过期，只能使用spring.redis.jedis.pool.max-active来代替。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_001.png" alt="" />
+                </div>
+                <p>(2)然后我们指定下redisTemplate类的序列化方式，如果不指定默认使用JdkSerializationRedisSerializer。</p>
+                <pre>
+                  <code>
+/**
+ * 描述: Redis配置
+ *
+ * @author linfengda
+ * @create 2018-09-10 17:00
+ */
+@SpringBootConfiguration
+public class RedisConfig {
+
+    /**
+     * 如果不配置这个bean，会默认初始化一个使用JdkSerializationRedisSerializer的redisTemplate实例。
+     * @param connectionFactory
+     * @return
+     */
+    @Bean
+    public RedisTemplate&lt;Object, Object&gt; redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate&lt;Object, Object&gt; template = new RedisTemplate&lt;&gt;();
+        template.setConnectionFactory(connectionFactory);
+
+        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
+
+        // 配置序列化和反序列化方式
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(jackson2JsonRedisSerializer);
+        template.setHashValueSerializer(jackson2JsonRedisSerializer);
+        template.afterPropertiesSet();
+        return template;
+    }
+
+}
+                  </code>
+                </pre>
+                <p>(3)使用Chapter1ApplicationTestslei类测试下redisTemplate的使用，这里我们需要先把/main/resources目录下的配置文件复制到/test/resources,否则会报找不到配置文件错误。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_002.png" alt="" />
+                </div>
+                <p>(4)Redis Desktop Manager查看信息如下。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_003.png" alt="" />
+                </div>
+
+                
+
+
+
+
 
                 <h3>2. 怎样选择一个高效的redis序列化方式？</h3>
-                <p>(1)intel idea创建new project</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_001.png" alt="" />
-                </div>
-                <p>(2)选择Spring Initializr</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_002.png" alt="" />
-                </div>
-                <p>(3)填写项目信息</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_003.png" alt="" />
-                </div>
-                <p>(4)选择项目默认依赖web</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_004.png" alt="" />
-                </div>
+                <p>(1)常用的序列化方式</p>
+                <blockquote>
+                <p>
+                Jackson：Java程序里用的最多的JSON解析器；<br>
+                DSL-JSON：世界上最快的Java JSON实现；<br>
+                Protobuf：在 RPC （远程方法调用）里非常流行的二进制编解码格式；
+                </p>
+                </blockquote>
+
+
+
+
+
+
+
+
+
+
+                
+
 
 
 
