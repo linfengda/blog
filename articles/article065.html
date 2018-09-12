@@ -53,8 +53,7 @@ spring boot chapter2: How to build a efficient spring boot project.
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_001.png" alt="" />
                 </div>
-                <p>(2)然后我们指定下redisTemplate类的序列化方式为Jackson2JsonRedisSerializer，如果不指定默认使用JdkSerializationRedisSerializer。这里说下，spring data提供了2种json序列化器，GenericJackson2JsonRedisSerializer和Jackson2JsonRedisSerializer，它们的序列化方式一样（调用的代码一样），即在序列化时将java类型和javaBean的json格式一起写入byte数组。然后在反序列化时，根据java类型将字节数组反序列化为javaBean。</p>
-                <pre>
+                <p>(2)然后我们指定下redisTemplate类的序列化方式为Jackson2JsonRedisSerializer，如果不指定默认使用JdkSerializationRedisSerializer。这里说下，spring data提供了2种json序列化器，GenericJackson2JsonRedisSerializer和Jackson2JsonRedisSerializer，它们的序列化方式一样（调用的代码一样），即在序列化时将java类型和javaBean的json格式一起写入byte数组。然后在反序列化时，根据java类型将字节数组反序列化为对应类型的javaBean。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_002.png" alt="" />
                 </div>
@@ -62,6 +61,7 @@ spring boot chapter2: How to build a efficient spring boot project.
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_003.png" alt="" />
                 </div>
+                <pre>
                   <code>
 /**
  * 描述: Redis配置
@@ -108,7 +108,66 @@ public class RedisConfig {
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_005.png" alt="" />
                 </div>
-                <p>(5)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。如果需要做封装，可以使用继承的方式处理。</p>
+                <p>(5)Jackson2JsonRedisSerializer对java类型的兼容性测试，测试它对每种java类型的序列化和反序列化是否会有问题。</p>
+                <pre>
+                  <code>
+/**
+ * 描述: 序列化的类型测试
+ *
+ * @author linfengda
+ * @create 2018-09-12 15:54
+ */
+@Data
+public class MySon extends YourPapa {
+
+    private int f1;
+    private long f2;
+    private float f3;
+    private double f4;
+    private char f5;
+    private boolean f6;
+    private String f7;
+    private Timestamp f8;
+    private int[] f9;
+    private long[] f10;
+    private float[] f11;
+    private double[] f12;
+    private char[] f13;
+    private boolean[] f14;
+    private String[] f15;
+    private Pig pig;
+    private List&lt;Pig&gt; childPigs;
+    private Map&lt;String, Pig&gt; kindPigs;
+
+}
+                  </code>
+                </pre>
+                <pre>
+                  <code>
+/**
+ * 描述: 这是一只猪
+ *
+ * @author linfengda
+ * @create 2018-09-12 16:08
+ */
+@Data
+public class Pig {
+
+    private long id;
+    private String code;
+    private String master;
+    private double weight;
+    private int growDays;
+}
+                  </code>
+                </pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_006.png" alt="" />
+                </div>
+                <p>可以看到我们使用了几乎所有常用的数据类型，包括列表，哈希表，继承，自定义类型，都能序列化和反序列化成功，并且没有信息丢失（这在Protobuff中做不到）。但是有一点，Protobuff对整形的处理速度是Jackson的3倍，对浮点型的处理速度是Jackson的13倍。</p>
+
+                <p>(6)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。如果需要做封装，可以使用继承的方式处理。</p>
+                
 
 
                 
@@ -123,7 +182,7 @@ public class RedisConfig {
                 <p>
                 Jackson：Java程序里用的最多的JSON解析器；<br>
                 DSL-JSON：世界上最快的Java JSON实现；<br>
-                Protobuf：在 RPC （远程方法调用）里非常流行的二进制编解码格式；
+                Protobuff：在 RPC （远程方法调用）里非常流行的二进制编解码格式；
                 </p>
                 </blockquote>
 
