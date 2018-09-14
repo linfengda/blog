@@ -61,6 +61,7 @@ spring boot chapter2: How to build a efficient spring boot project.
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_003.png" alt="" />
                 </div>
+                <p>我们配置下redis的序列化方式，然后测试下Jackson2JsonRedisSerializer能序列化的java类型。</p>
                 <pre>
                   <code>
 /**
@@ -100,15 +101,7 @@ public class RedisConfig {
 }
                   </code>
                 </pre>
-                <p>(3)使用Chapter1ApplicationTestslei类测试下redisTemplate的使用，这里我们需要先把/main/resources目录下的配置文件复制到/test/resources，否则会报找不到配置文件错误。</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_004.png" alt="" />
-                </div>
-                <p>(4)Redis Desktop Manager查看信息如下。</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_005.png" alt="" />
-                </div>
-                <p>(5)Jackson2JsonRedisSerializer对java类型的兼容性测试，测试它对每种java类型的序列化和反序列化是否会有问题。</p>
+                <p>(3)Jackson2JsonRedisSerializer对java类型的兼容性测试，测试它对每种java类型的序列化和反序列化是否会有问题。</p>
                 <pre>
                   <code>
 /**
@@ -161,9 +154,15 @@ public class Pig {
 }
                   </code>
                 </pre>
+                <p>(4)使用Chapter1ApplicationTestslei类测试下redisTemplate的使用，这里我们需要先把/main/resources目录下的配置文件复制到/test/resources，否则会报找不到配置文件错误。然后我们使用上面的java类进行测试。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_006.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_004.png" alt="" />
                 </div>
+                <p>(4)Redis Desktop Manager查看信息如下，可以看到头部带有java类型信息。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_005.png" alt="" />
+                </div>
+            
                 <p>可以看到我们使用了几乎所有常用的数据类型，包括列表，哈希表，继承，自定义类型，都能序列化和反序列化成功，并且没有信息丢失（这在Protobuff中做不到）。但是有一点，Protobuff对整形的处理速度是Jackson的3倍，对浮点型的处理速度是Jackson的13倍。</p>
 
                 <p>(6)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。如果需要做封装，可以使用继承的方式处理。在com.linfengda.sb.support.middleware.redis包下实现SimpleRedisTemplate类，继承RedisTemplate类，既可以保证对RedisTemplate任意方法调用，又可以在我们需要的地方统一处理。</p>
@@ -174,12 +173,16 @@ public class Pig {
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_008.png" alt="" />
                 </div>
-                <p>(8)接下来我们使用Protobuff实现序列化，Protocol Buffers在谷歌被广泛用于各种结构化信息存储和交换。</p>
+                <p>(8)接下来我们使用Protobuff实现序列化，ProtocolBuffers在谷歌被广泛用于各种结构化信息存储和交换。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_009.png" alt="" />
                 </div>
+                <p>这里有个问题，就是ProtocolBuffer序列化时没有类型信息，因此在反序列化时需要传入java类型，然后通过反射的方式反序列化。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_010.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_011.png" alt="" />
                 </div>
 
 
