@@ -165,24 +165,23 @@ public class Pig {
             
                 <p>可以看到我们使用了几乎所有常用的数据类型，包括列表，哈希表，继承，自定义类型，都能序列化和反序列化成功，并且没有信息丢失（这在Protobuff中做不到）。但是有一点，Protobuff对整形的处理速度是Jackson的3倍，对浮点型的处理速度是Jackson的13倍。</p>
 
-                <p>(6)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。如果需要做封装，可以使用继承的方式处理。在com.linfengda.sb.support.middleware.redis包下实现SimpleRedisTemplate类，继承RedisTemplate类，既可以保证对RedisTemplate任意方法调用，又可以在我们需要的地方统一处理。</p>
+                <p>(6)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。如果需要做封装，可以使用继承的方式处理。在com.linfengda.sb.support.middleware.redis包下实现SimpleRedisTemplate类，继承RedisTemplate类，既可以保证对RedisTemplate任意方法的调用，又可以在我们需要统一的地方统一处理。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_007.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_006.png" alt="" />
                 </div>
-				<p>(7)使用redis实现一个分布式锁</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_008.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_007.png" alt="" />
                 </div>
                 <p>(8)接下来我们使用Protobuff实现序列化，ProtocolBuffers在谷歌被广泛用于各种结构化信息存储和交换。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_009.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_008.png" alt="" />
                 </div>
                 <p>这里有个问题，就是ProtocolBuffer序列化时没有类型信息，因此在反序列化时需要传入java类型，然后通过反射的方式反序列化。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_010.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_009.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_011.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_010.png" alt="" />
                 </div>
 
 
