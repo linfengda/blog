@@ -219,6 +219,14 @@ public class RedisConfig {
      */
     public enum Serializer {
         protoStuff, jackson;
+        public static Serializer getType(String serializer) {
+            for (Serializer s : values()) {
+                if (s.name().equals(serializer)) {
+                    return s;
+                }
+            }
+            return null;
+        }
     }
     @Value(&quot;${spring.redis.serializer}&quot;)
     private String serializer;
@@ -231,32 +239,36 @@ public class RedisConfig {
      */
     @Bean
     public SimpleRedisTemplate simpleRedisTemplate(RedisConnectionFactory connectionFactory) {
-        System.out.println(serializer);
         SimpleRedisTemplate simpleRedisTemplate = new SimpleRedisTemplate();
         simpleRedisTemplate.setConnectionFactory(connectionFactory);
 
         // 配置序列化和反序列化方式
         simpleRedisTemplate.setKeySerializer(new StringRedisSerializer());
         simpleRedisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        if (Serializer.protoStuff.name().equals(serializer)) {
-
-            ProtoStuffSerializer protoStuffSerializer = new ProtoStuffSerializer();
-            simpleRedisTemplate.setValueSerializer(protoStuffSerializer);
-            simpleRedisTemplate.setHashValueSerializer(protoStuffSerializer);
-        } else {
-
-            Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
-            ObjectMapper om = new ObjectMapper();
-            om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-            om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-            jackson2JsonRedisSerializer.setObjectMapper(om);
-            simpleRedisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
-            simpleRedisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
-        }
+        simpleRedisTemplate.setValueSerializer(getRedisSerializer());
+        simpleRedisTemplate.setHashValueSerializer(getRedisSerializer());
         simpleRedisTemplate.afterPropertiesSet();
         return simpleRedisTemplate;
     }
-......
+
+    private RedisSerializer getRedisSerializer() {
+        Serializer serializer = Serializer.getType(this.serializer);
+        switch (serializer) {
+            case protoStuff:
+                ProtoStuffSerializer protoStuffSerializer = new ProtoStuffSerializer();
+                return protoStuffSerializer;
+            case jackson:
+                Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+                ObjectMapper om = new ObjectMapper();
+                om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+                om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+                jackson2JsonRedisSerializer.setObjectMapper(om);
+                return jackson2JsonRedisSerializer;
+            default:
+                ProtoStuffSerializer defaultSerializer = new ProtoStuffSerializer();
+                return defaultSerializer;
+        }
+    }
                   </code>
                 </pre>
                 <p>这样就可以通过参数直接指定redis序列化方式，做到解耦。</p>
