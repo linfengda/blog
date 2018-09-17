@@ -163,7 +163,7 @@ public class Pig {
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_005.png" alt="" />
                 </div>
 
-                <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffers在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有类型信息，因此在反序列化时需要传入java类型，然后通过反射的方式反序列化。所以在deserialize()方法里不做任何处理，返回到com.linfengda.sb.support.middleware.redis.SimpleRedisTemplate处理。</p>
+                <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffers在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有类型信息，因此在反序列化时需要传入java类型，然后通过反射的方式反序列化。所以在ProtoStuffSerializer序列化器的deserialize()方法里我们不做任何处理，返回到com.linfengda.sb.support.middleware.redis.SimpleRedisTemplate处理。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_006.png" alt="" />
                 </div>
@@ -260,7 +260,71 @@ public class RedisConfig {
                   </code>
                 </pre>
                 <p>这样就可以通过参数直接指定redis序列化方式，做到解耦。</p>
-                <p>(8)接下来我们测试下这2种序列化器对redis List, Set, Zset的支持。</p>
+                <p>(8)接下来我们测试下这2种序列化器对redis数据类型： List, Set, Zset的支持。</p>
+
+                <h3>List列表类型操作</h3>
+                <pre>
+                  <code>
+private void ListSerializeTest() {
+        Pig peggy = new Pig();
+        peggy.setId(1);
+        peggy.setCode(&quot;peggy&quot;);
+        peggy.setMaster(&quot;Jack&quot;);
+        peggy.setWeight(100);
+        peggy.setGrowDays(100);
+
+        Pig george = new Pig();
+        george.setId(2);
+        george.setCode(&quot;george&quot;);
+        george.setMaster(&quot;Jack&quot;);
+        george.setWeight(150);
+        george.setGrowDays(150);
+
+        Pig tom = new Pig();
+        tom.setId(2);
+        tom.setCode(&quot;tom&quot;);
+        tom.setMaster(&quot;Jack&quot;);
+        tom.setWeight(120);
+        tom.setGrowDays(120);
+
+        Pig wilson = new Pig();
+        wilson.setId(2);
+        wilson.setCode(&quot;wilson&quot;);
+        wilson.setMaster(&quot;Jack&quot;);
+        wilson.setWeight(110);
+        wilson.setGrowDays(110);
+
+        List&lt;Pig&gt; pigList = new ArrayList&lt;&gt;();
+        pigList.add(tom);
+        pigList.add(wilson);
+
+        log.info(&quot;===================================redis list序列化&quot;);
+        ListOperations&lt;String, Object&gt; listOperations = simpleRedisTemplate.opsForList();
+        listOperations.rightPushAll(&quot;pigList&quot;, peggy, george);
+        listOperations.rightPushAll(&quot;pigList&quot;, pigList.toArray());
+        // 由于org.springframework.data.redis.core.ListOperations的2个重载方法破坏了里氏替换原则，
+        // 对rightPushAll(K key, Collection&lt;V&gt; values)方法的调用会变成对rightPushAll(K key, V... values)方法的调用
+        //listOperations.rightPushAll(&quot;pigList&quot;, pigList);
+
+        log.info(&quot;===================================redis list反序列化&quot;);
+
+        // 左边元素出队列（出队列后该值在列表中将不存在）
+        log.info(listOperations.leftPop(&quot;pigList&quot;).toString());
+        log.info(listOperations.leftPop(&quot;pigList&quot;).toString());
+
+        // 返回列表中指定位置的元素（不会移除列表中元素）
+        List pigs = listOperations.range(&quot;pigList&quot;, 0, -1);
+        for (Object pig : pigs) {
+            log.info(pig.toString());
+        }
+    }
+                  </code>
+                </pre>
+                <p>输出的反序列化信息如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_007.png" alt="" />
+                </div>
+
 
 
 
@@ -268,7 +332,7 @@ public class RedisConfig {
 
 
                 <h3>2. 比较Jackson和Protobuff哪个更加高效？</h3>
-                <p>(1)我们分别用10^指数倍次序列化来测试Jackson和Protobuff这2中序列化方式的耗时。在下方的图表中，蓝色柱表示Jackson，红色柱表示Protobuff，横坐标表示被序列化的bean数量，纵坐标表示序列化耗时。</p>
+                <p>(1)我们分别用10^n次序列化来测试Jackson和Protobuff这2中序列化方式的耗时。在下方的图表中，蓝色柱表示Jackson，红色柱表示Protobuff，横坐标表示被序列化的bean数量，纵坐标表示序列化耗时。</p>
 
 
 

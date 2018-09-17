@@ -236,7 +236,6 @@ public Object invoke(Object proxy, Method method, Object[] args) throws Throwabl
                   <code>
 ......
 
-
 @Intercepts({@Signature(type = Executor.class, method = &quot;query&quot;, args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
         @Signature(type = Executor.class, method = &quot;query&quot;, args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}
 )})
@@ -247,7 +246,6 @@ public class PermissionInterceptor implements Interceptor {
     public Object intercept(Invocation invocation) throws Throwable {
         Object result = null;
         try {
-
             PermissionSql permissionSql = PermissionHelper.getPermissionSql();
             if (!SessionContext.isSuperAdmin() &amp;&amp; null != permissionSql) {
                 Executor executor = (Executor)invocation.getTarget();
@@ -265,7 +263,6 @@ public class PermissionInterceptor implements Interceptor {
                     cacheKey = (CacheKey)args[4];
                     boundSql = (BoundSql)args[5];
                 }
-                Configuration configuration = ms.getConfiguration();
 
                 //添加权限条件
                 String sql = boundSql.getSql().replaceAll(&quot;where&quot;, &quot;WHERE&quot;);
@@ -294,15 +291,19 @@ public class PermissionInterceptor implements Interceptor {
                 } else {
                     sql += &quot;\nWHERE&quot; + permissionCondition;
                 }
-                BoundSql permissionBoundSql = new BoundSql(configuration, sql, boundSql.getParameterMappings(), parameter);
+
+                //通过反射覆盖sql
+                Field sqlField = boundSql.getClass().getDeclaredField(&quot;sql&quot;);
+                sqlField.setAccessible(true);
+                sqlField.set(boundSql, sql);
 
                 //执行查询
-                result = executor.query(ms, parameter, rowBounds, resultHandler, cacheKey, permissionBoundSql);
+                result = executor.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
             }else {
                 result = invocation.proceed();
             }
         } finally {
-            PermissionHelper.clearPermissionfield();
+            PermissionHelper.clearPermissionSql();
         }
         return result;
     }
