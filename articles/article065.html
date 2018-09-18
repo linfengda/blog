@@ -203,7 +203,7 @@ public class SimpleRedisTemplate extends RedisTemplate&lt;Object, Object&gt; {
 ......
                   </code>
                 </pre>
-                <p>我们使用配置参数spring.redis.serializer来配置序列化方式，现在在application.yml里参数${spring.redis.serializer}是protoStuff，即使用protoStuff序列化器。</p>
+                <p>我们使用配置参数spring.redis.serializer来配置序列化方式，现在在application.yml里参数${spring.redis.serializer}是protoStuff，即使用protoStuff序列化器，这样就可以通过参数直接指定redis序列化方式，做到解耦。</p>
                 <pre>
                   <code>
 /**
@@ -214,6 +214,9 @@ public class SimpleRedisTemplate extends RedisTemplate&lt;Object, Object&gt; {
  */
 @SpringBootConfiguration
 public class RedisConfig {
+    @Value(&quot;${spring.redis.serializer}&quot;)
+    private String serializer;
+
     /**
      * 序列化类型
      */
@@ -228,8 +231,6 @@ public class RedisConfig {
             return null;
         }
     }
-    @Value(&quot;${spring.redis.serializer}&quot;)
-    private String serializer;
 
 
     /**
@@ -271,10 +272,10 @@ public class RedisConfig {
     }
                   </code>
                 </pre>
-                <p>这样就可以通过参数直接指定redis序列化方式，做到解耦。</p>
                 <p>(8)接下来我们测试下这2种序列化器对redis数据类型： List, Set, Zset的支持。</p>
 
-                <h3>List列表类型操作</h3>
+                <h3>List类型操作</h3>
+                <p>redis list是使用双向链表实现的，对list的操作更像对队列的操作，除了LINDEX，LSET，LINSERT命令外，其它命令的时间复杂度都为O(1)。</p>
                 <pre>
                   <code>
 private void ListSerializeTest() {
@@ -335,6 +336,120 @@ private void ListSerializeTest() {
                 <p>输出的反序列化信息如下：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_007.png" alt="" />
+                </div>
+
+                <h3>Set类型操作</h3>
+                <p>redis set是使用整数集合或hashtable实现的，对于元素都是整形的集合，使用整数集合编码，对于字符串的集合。使用hashtable，
+                除了SMEMBERS，SUNION/SUNIONSTORE，SINTER/SINTERSTORE，SDIFF/SDIFFSTORE命令外，其它命令的时间复杂度都为O(1)。</p>
+                <pre>
+                  <code>
+    private void SetSerializeTest() {
+        Pig peggy = new Pig();
+        peggy.setId(1);
+        peggy.setCode(&quot;peggy&quot;);
+        peggy.setMaster(&quot;Jack&quot;);
+        peggy.setWeight(100);
+        peggy.setGrowDays(100);
+
+        Pig george = new Pig();
+        george.setId(2);
+        george.setCode(&quot;george&quot;);
+        george.setMaster(&quot;Jack&quot;);
+        george.setWeight(150);
+        george.setGrowDays(150);
+
+        Pig tom = new Pig();
+        tom.setId(3);
+        tom.setCode(&quot;tom&quot;);
+        tom.setMaster(&quot;Jack&quot;);
+        tom.setWeight(120);
+        tom.setGrowDays(120);
+
+        Pig wilson = new Pig();
+        wilson.setId(4);
+        wilson.setCode(&quot;wilson&quot;);
+        wilson.setMaster(&quot;Jack&quot;);
+        wilson.setWeight(110);
+        wilson.setGrowDays(110);
+
+        log.info(&quot;===================================redis list序列化&quot;);
+        SetOperations&lt;String, Object&gt; setOperations = simpleRedisTemplate.opsForSet();
+        // 向集合中添加元素
+        setOperations.add(&quot;pigFamily&quot;, peggy, george, tom, wilson);
+        // 移除集合中一个或多个元素
+        setOperations.remove(&quot;pigFamily&quot;, wilson);
+        // 判断元素peggy是否是集的成员
+        log.info(&quot;peggy is one of pigFamily: &quot; + setOperations.isMember(&quot;pigFamily&quot;, peggy));
+
+        log.info(&quot;===================================redis list反序列化&quot;);
+        // 返回集合中的所有元素
+        Set pigs = setOperations.members(&quot;pigFamily&quot;);
+        for (Object pig : pigs) {
+            log.info(pig.toString());
+        }
+    }
+                  </code>
+                </pre>
+                <p>输出的反序列化信息如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_008.png" alt="" />
+                </div>
+
+                <h3>Hash类型操作</h3>
+                <p>redis hash是使用hashtable实现的，除了HGETALL，HKEYS/HVALS命令外，其它命令的时间复杂度都为O(1)。</p>
+                <pre>
+                  <code>
+private void HashSerializeTest() {
+        Pig peggy = new Pig();
+        peggy.setId(1);
+        peggy.setCode(&quot;peggy&quot;);
+        peggy.setMaster(&quot;Jack&quot;);
+        peggy.setWeight(100);
+        peggy.setGrowDays(100);
+
+        Pig george = new Pig();
+        george.setId(2);
+        george.setCode(&quot;george&quot;);
+        george.setMaster(&quot;Jack&quot;);
+        george.setWeight(150);
+        george.setGrowDays(150);
+
+        Pig tom = new Pig();
+        tom.setId(3);
+        tom.setCode(&quot;tom&quot;);
+        tom.setMaster(&quot;Jack&quot;);
+        tom.setWeight(120);
+        tom.setGrowDays(120);
+
+        Pig wilson = new Pig();
+        wilson.setId(4);
+        wilson.setCode(&quot;wilson&quot;);
+        wilson.setMaster(&quot;Jack&quot;);
+        wilson.setWeight(110);
+        wilson.setGrowDays(110);
+
+        log.info(&quot;===================================redis list序列化&quot;);
+        HashOperations&lt;String, String, Object&gt; hashOperations = simpleRedisTemplate.opsForHash();
+        // 向哈希表中添加元素
+        hashOperations.put(&quot;pigFamily&quot;, &quot;peggy&quot;, peggy);
+        hashOperations.put(&quot;pigFamily&quot;, &quot;george&quot;, george);
+        hashOperations.put(&quot;pigFamily&quot;, &quot;tom&quot;, tom);
+        hashOperations.put(&quot;pigFamily&quot;, &quot;wilson&quot;, wilson);
+        // 移除哈希表中一个或多个元素
+        hashOperations.delete(&quot;pigFamily&quot;, &quot;wilson&quot;);
+
+        log.info(&quot;===================================redis list反序列化&quot;);
+        // 获取哈希表中的元素
+        Pig peggyPig = (Pig) hashOperations.get(&quot;pigFamily&quot;, &quot;peggy&quot;);
+        log.info(peggyPig.toString());
+        // 判断哈希表中是否存在元素peggy
+        log.info(&quot;peggy is one of pigFamily: &quot; + hashOperations.hasKey(&quot;pigFamily&quot;, &quot;peggy&quot;));
+    }
+                  </code>
+                </pre>
+                <p>输出的反序列化信息如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_009.png" alt="" />
                 </div>
 
 
