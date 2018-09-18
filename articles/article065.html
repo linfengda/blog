@@ -452,7 +452,7 @@ private void HashSerializeTest() {
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_009.png" alt="" />
                 </div>
 
-                <p>(9)然后我们最终的目的是实现通过参数配置redis序列化器，且序列化方式对SimpleRedisTemplate方法的调用透明。由于com.linfengda.sb.support.middleware.redis.serializer.ProtoStuffSerializer返回的是byte数组，因此需要我们额外处理一下，以保持和org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer的行为一致：返回具体的java类型。</p>
+                <p>(9)然后我们最终的目的是实现通过参数配置redis序列化器，且序列化方式对SimpleRedisTemplate方法的调用者透明。由于com.linfengda.sb.support.middleware.redis.serializer.ProtoStuffSerializer返回的是byte数组，因此需要我们额外处理一下，以保持和org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer的行为一致：返回具体的java类型。</p>
                 <pre>
                   <code>
 /**
@@ -520,7 +520,7 @@ public class DeserializeTypeHelper {
 }
                   </code>
                 </pre>
-                <p>这种实现方式保证了适用性，但是很丑，我也想不出其他的实现方式了。新的SimpleRedisTemplate类代码如下：</p>
+                <p>这种实现方式保证了适用性，但是个人觉得实现的很丑，我也想不出其他的实现方式了。新的SimpleRedisTemplate类代码如下：</p>
                 <pre>
                   <code>
 /**
@@ -609,7 +609,7 @@ public class SimpleRedisTemplate extends RedisTemplate&lt;String, Object&gt; {
 }
                   </code>
                 </pre>
-                <p>代码设计到这里，已经实现了SimpleRedisTemplate类对redis各种类型的操作，同时与序列化方式解耦。</p>
+                <p>代码设计到这里，SimpleRedisTemplate类已经实现了对redis各种类型的操作，同时与序列化方式解耦。</p>
 
 
 
