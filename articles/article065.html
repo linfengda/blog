@@ -272,7 +272,7 @@ public class RedisConfig {
     }
                   </code>
                 </pre>
-                <p>(8)接下来我们测试下这2种序列化器对redis数据类型： List, Set, Zset的支持。</p>
+                <p>(8)接下来我们测试下Jackson2JsonRedisSerializer序列化器对redis数据类型： List, Set, Zset的支持。</p>
 
                 <h3>List类型操作</h3>
                 <p>redis list是使用双向链表实现的，对list的操作更像对队列的操作，除了LINDEX，LSET，LINSERT命令外，其它命令的时间复杂度都为O(1)。</p>
@@ -451,6 +451,165 @@ private void HashSerializeTest() {
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_009.png" alt="" />
                 </div>
+
+                <p>(9)然后我们最终的目的是实现通过参数配置redis序列化器，且序列化方式对SimpleRedisTemplate方法的调用透明。由于com.linfengda.sb.support.middleware.redis.serializer.ProtoStuffSerializer返回的是byte数组，因此需要我们额外处理一下，以保持和org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer的行为一致：返回具体的java类型。</p>
+                <pre>
+                  <code>
+/**
+ * 描述: ProtoStuff序列化器
+ *
+ * @author linfengda
+ * @create 2018-09-13 17:46
+ */
+public class ProtoStuffSerializer implements RedisSerializer&lt;Object&gt; {
+
+    @Nullable
+    @Override
+    public byte[] serialize(@Nullable Object o) throws SerializationException {
+        if (o == null){
+            return null;
+        }
+        if (o instanceof String){
+            try {
+                return o.toString().getBytes(&quot;UTF-8&quot;);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }else {
+            return ProtoStuffUtil.serialize(o);
+        }
+    }
+
+    @Nullable
+    @Override
+    public Object deserialize(@Nullable byte[] bytes) throws SerializationException {
+        if (bytes == null) {
+            return null;
+        } else {
+            Class clazz = DeserializeTypeHelper.getType();
+            return ProtoStuffUtil.deserialize(bytes, clazz);
+        }
+    }
+}
+                  </code>
+                </pre>
+                <p>其中DeserializeTypeHelper使用ThreadLocal放置SimpleRedisTemplate方法调用时传入的类型信息。</p>
+                <pre>
+                  <code>
+/**
+ * 描述: 提供反序列化类型信息
+ *
+ * @author linfengda
+ * @create 2018-09-18 16:24
+ */
+public class DeserializeTypeHelper {
+    private static final ThreadLocal&lt;Class&gt; LOCAL_DESERIALIZE_TYPE = new ThreadLocal();
+
+    public static void setType(Class type) {
+        LOCAL_DESERIALIZE_TYPE.set(type);
+    }
+
+    public static Class getType() {
+        return LOCAL_DESERIALIZE_TYPE.get();
+    }
+
+    public static void clearType() {
+        LOCAL_DESERIALIZE_TYPE.remove();
+    }
+}
+                  </code>
+                </pre>
+                <p>这种实现方式保证了适用性，但是很丑，我也想不出其他的实现方式了。新的SimpleRedisTemplate类代码如下：</p>
+                <pre>
+                  <code>
+/**
+ * 描述: 对redis操作做统一处理：类型转换，业务默认超时时间等
+ *
+ * @author linfengda
+ * @create 2018-09-12 13:40
+ */
+@Slf4j
+public class SimpleRedisTemplate extends RedisTemplate&lt;String, Object&gt; {
+    @Value(&quot;${spring.redis.serializer}&quot;)
+    private String serializer;
+
+
+    public void setObject(String key, Object value) {
+        super.opsForValue().set(key, value);
+    }
+
+    public &lt;T&gt; T getObject(String key, Class&lt;T&gt; clazz) {
+        preProcessType(clazz);
+        T object = (T) super.opsForValue().get(key);
+        return object;
+    }
+
+    public Boolean deleteObject(String key) {
+        return super.delete(key);
+    }
+
+    public void listAdd(String key, Object... values) {
+        super.opsForList().rightPushAll(key, values);
+    }
+
+    public void listAddAll(String key, Collection values) {
+        for (Object value : values) {
+            super.opsForList().rightPushAll(key, value);
+        }
+    }
+
+    public List listGet(String key, Class clazz) {
+        preProcessType(clazz);
+        return super.opsForList().range(key, 0, -1);
+    }
+
+    public void setAdd(String key, Object... values) {
+        super.opsForSet().add(key, values);
+    }
+
+    public void setAddAll(String key, Collection values) {
+        for (Object value : values) {
+            super.opsForSet().add(key, value);
+        }
+    }
+
+    public Set setGet(String key, Class clazz) {
+        preProcessType(clazz);
+        return super.opsForSet().members(key);
+    }
+
+    public Long setDelete(String key, Object... values) {
+        return super.opsForSet().remove(key, values);
+    }
+
+    public void mapPut(String key, String hashKey, Object value) {
+        super.opsForHash().put(key, hashKey, value);
+    }
+
+    public Object mapGet(String key, String hashKey, Class clazz) {
+        preProcessType(clazz);
+        return super.opsForHash().get(key, hashKey);
+    }
+
+    public Long mapDelete(String key, String... hashKeys) {
+        return super.opsForHash().delete(key, hashKeys);
+    }
+
+
+
+
+
+    private &lt;T&gt; void preProcessType(Class&lt;T&gt; clazz) {
+        RedisConfig.Serializer serializer = RedisConfig.Serializer.getType(this.serializer);
+        if (RedisConfig.Serializer.protoStuff == serializer) {
+            DeserializeTypeHelper.setType(clazz);
+        }
+    }
+}
+                  </code>
+                </pre>
+                <p>代码设计到这里，已经实现了SimpleRedisTemplate类对redis各种类型的操作，同时与序列化方式解耦。</p>
 
 
 
