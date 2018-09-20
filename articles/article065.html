@@ -39,7 +39,7 @@
 									<span class="date">April 21, 2018</span>
 									<h1>spring boot chapter2</h1>
 									<p>
-spring boot chapter2: How to build a efficient spring boot project. 
+                                    How to build a efficient spring boot project. 
 								    </p>
 								</header>
 
@@ -275,7 +275,7 @@ public class RedisConfig {
                 <p>(8)接下来我们测试下Jackson2JsonRedisSerializer序列化器对redis数据类型： List, Set, Zset的支持。</p>
 
                 <h3>List类型操作</h3>
-                <p>redis list是使用双向链表实现的，对list的操作更像对队列的操作，除了LINDEX，LSET，LINSERT命令外，其它命令的时间复杂度都为O(1)。</p>
+                <p>redis list是使用双向链表实现的，对redis list的操作更像对队列的操作，除了LINDEX，LSET，LINSERT命令外，其它命令的时间复杂度都为O(1)。</p>
                 <pre>
                   <code>
 private void ListSerializeTest() {
@@ -339,7 +339,7 @@ private void ListSerializeTest() {
                 </div>
 
                 <h3>Set类型操作</h3>
-                <p>redis set是使用整数集合或hashtable实现的，对于元素都是整形的集合，使用整数集合编码，对于字符串的集合。使用hashtable，
+                <p>redis set是使用整数集合或hashtable实现的，对于元素都是整形的集合，使用整数集合编码，对于字符串的集合。使用hashtable编码，
                 除了SMEMBERS，SUNION/SUNIONSTORE，SINTER/SINTERSTORE，SDIFF/SDIFFSTORE命令外，其它命令的时间复杂度都为O(1)。</p>
                 <pre>
                   <code>
@@ -614,27 +614,7 @@ public class SimpleRedisTemplate extends RedisTemplate&lt;String, Object&gt; {
 
 
 
-
-
-
-                <h3>2. 比较Jackson和Protobuff哪个更加高效？</h3>
-                <p>(1)我们分别用10^n次序列化来测试Jackson和Protobuff这2中序列化方式的耗时。在下方的图表中，蓝色柱表示Jackson，红色柱表示Protobuff，横坐标表示被序列化的bean数量，纵坐标表示序列化耗时。</p>
-
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-                
+ 
 
 
 							</section>
