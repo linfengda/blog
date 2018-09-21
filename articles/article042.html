@@ -41,17 +41,65 @@
 								</header>
 
 
+                <h3>什么是执行计划？</h3>
+                <p>执行计划给出了sql在执行过程中的详细信息： 使用了那些索引，查询的顺序，数据扫描的范围等。通过执行计划，我们能够找出sql执行的痛点，从而针对性的优化sql。</p>
 
-                <h3></h3>
+                <h3>执行计划有哪些的字段？</h3>
+				<p>主要包括：id, select_type, type, possible_keys, key, ref, row, extra等。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_001.png" alt="" />
                 </div>
-                <p></p>
-                <pre>
-                  <code>
 
-                  </code>
-                </pre>
+				<h3>每个字段的解读？</h3>
+				<h4>id</h4>
+                <p>有一组数字组成。表示一个查询中各个子查询的执行顺序;</p>
+                <p>id相同执行顺序由上至下，id不同，id值越大优先级越高，越先被执行。</p>
+
+                <h4>id</h4>
+                <p>有一组数字组成。表示一个查询中各个子查询的执行顺序;</p>
+
+                <h4>select_type</h4>
+                <p>表示查询中每个select子句的类型;</p>
+                <blockquote>
+                <p>
+                1.SIMPLE：查询中不包含子查询或者UNION<br>
+			　　2.查询中若包含任何复杂的子部分，最外层查询则被标记为：PRIMARY<br>
+			　　3.在SELECT或WHERE列表中包含了子查询，该子查询被标记为：SUBQUERY<br>
+			　　4.在FROM列表中包含的子查询被标记为：DERIVED<br>
+			　　5.若第二个SELECT出现在UNION之后，则被标记为UNION；若UNION包含在 FROM子句的子查询中，外层SELECT将被标记为：DERIVED<br>
+			　　6.从UNION表获取结果的SELECT被标记为：UNION RESULT
+                </p>
+                </blockquote>
+
+                <h4>type</h4>
+                <p>表示mysql在表中查找结果集的方式;</p>
+                <blockquote>
+                <p>
+                1.all：Full Table Scan， MySQL将遍历全表以找到匹配的行<br>
+			　　2.index：Full Index Scan，index与ALL区别为index类型只遍历索引树<br>
+			　　3.range：索引范围扫描，对索引的扫描开始于某一点，结束于另一点<br>
+			　　4.eq_ref：唯一性索引扫描，对于每个索引键，表中只有一条记录与之匹配。 例如以主键或唯一索引为条件的查询<br>
+			　　5.ref：非唯一性索引扫描，返回匹配某个单独值的所有行。<br>
+			　　6.从UNION表获取结果的SELECT被标记为：UNION RESULT
+                </p>
+                </blockquote>
+
+                <h4>possible_keys, key, ref, row, extra</h4>
+                <p>
+    possible_keys：表示MySQL可能使用哪个索引在表中找到行<br>
+
+　　key：表示MySQL在查询中实际使用的索引，若没有使用索引，显示为NULL<br>
+
+　　ref：表示哪些列或常量被用于查找索引列上的值，例如ref列的值为dept_id，表示dept_id为employee表和department表的连接匹配条件和索引查找条件<br>
+
+　　rows：表示找到结果集所需要读取的行数（估算值）<br>
+
+　　Extra：包含不适合在其他列中显示但十分重要的额外信息 如using where，using index
+                </p>
+
+                <h4>怎么使用执行计划？</h4>
+                <p>查看row列，行数多的就需要优化，例如加上索引；查看Extra列，using filesort需要注意是不是使用了mysql函数使索引失效；查看type列，Full Table Scan给加上索引。</p>
+
 
 
                 
