@@ -158,122 +158,17 @@ public class Pig {
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_004.png" alt="" />
                 </div>
-                <p>(5)Redis Desktop Manager查看信息如下，可以看到头部带有java类型信息。可以看到我们使用了几乎所有常用的数据类型，包括列表，哈希表，继承，自定义类型，都能序列化和反序列化成功，并且没有信息丢失（这在Protobuff中做不到）。但是有一点，Protobuff对整形的处理速度是Jackson的3倍，对浮点型的处理速度是Jackson的13倍。</p>
+                <p>(5)Redis Desktop Manager查看信息如下，可以看到头部带有java类型信息。可以看到我们使用了几乎所有常用的数据类型，包括：
+                列表，</br>
+                哈希表，</br>
+                继承，</br>
+                自定义类型，</br>
+                都能序列化和反序列化成功，并且没有信息丢失。</br>
+                支持度比Protobuff好，Protobuff对某些类型字段，例如javas.ql.TimeStamp序列化和反序列化后，会变成格林威治时间，即1970-1-1 00:00:00,但是有一点，Protobuff对整形的处理速度是Jackson的3倍，对浮点型的处理速度是Jackson的13倍。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_005.png" alt="" />
                 </div>
-
-                <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffers在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有类型信息，因此在反序列化时需要传入java类型，然后通过反射的方式反序列化。所以在ProtoStuffSerializer序列化器的deserialize()方法里我们不做任何处理，返回到com.linfengda.sb.support.middleware.redis.SimpleRedisTemplate处理。</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_006.png" alt="" />
-                </div>
-                <p>(7)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。如果需要做封装，可以使用继承的方式处理。在com.linfengda.sb.support.middleware.redis包下实现SimpleRedisTemplate类，继承RedisTemplate类，既可以保证对RedisTemplate任意方法的调用，又可以在我们需要统一的地方统一处理。</p>
-                <pre>
-                  <code>
-/**
- * 描述: 对redis操作做统一处理：类型转换，业务默认超时时间等
- *
- * @author linfengda
- * @create 2018-09-12 13:40
- */
-@Slf4j
-public class SimpleRedisTemplate extends RedisTemplate&lt;Object, Object&gt; {
-    @Value(&quot;${spring.redis.serializer}&quot;)
-    private String serializer;
-
-
-    public void setObject(String key, Object value) {
-        super.opsForValue().set(key, value);
-    }
-
-    public &lt;T&gt; T getObject(String key, Class&lt;T&gt; clazz) {
-        if (RedisConfig.Serializer.protoStuff.name().equals(serializer)) {
-            // 当使用ProtoStuff序列化器时，需要这样做。
-            byte[] bytes = (byte[]) super.opsForValue().get(key);
-            if (bytes == null) {
-                return null;
-            } else {
-                return ProtoStuffUtil.deserialize(bytes, clazz);
-            }
-        } else {
-            T object = (T) super.opsForValue().get(key);
-            return object;
-        }
-    }
-......
-                  </code>
-                </pre>
-                <p>我们使用配置参数spring.redis.serializer来配置序列化方式，现在在application.yml里参数${spring.redis.serializer}是protoStuff，即使用protoStuff序列化器，这样就可以通过参数直接指定redis序列化方式，做到解耦。</p>
-                <pre>
-                  <code>
-/**
- * 描述: Redis配置
- *
- * @author linfengda
- * @create 2018-09-10 17:00
- */
-@SpringBootConfiguration
-public class RedisConfig {
-    @Value(&quot;${spring.redis.serializer}&quot;)
-    private String serializer;
-
-    /**
-     * 序列化类型
-     */
-    public enum Serializer {
-        protoStuff, jackson;
-        public static Serializer getType(String serializer) {
-            for (Serializer s : values()) {
-                if (s.name().equals(serializer)) {
-                    return s;
-                }
-            }
-            return null;
-        }
-    }
-
-
-    /**
-     * 如果不配置这个bean，会默认初始化一个使用JdkSerializationRedisSerializer的redisTemplate实例。
-     * @param connectionFactory
-     * @return
-     */
-    @Bean
-    public SimpleRedisTemplate simpleRedisTemplate(RedisConnectionFactory connectionFactory) {
-        SimpleRedisTemplate simpleRedisTemplate = new SimpleRedisTemplate();
-        simpleRedisTemplate.setConnectionFactory(connectionFactory);
-
-        // 配置序列化和反序列化方式
-        simpleRedisTemplate.setKeySerializer(new StringRedisSerializer());
-        simpleRedisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        simpleRedisTemplate.setValueSerializer(getRedisSerializer());
-        simpleRedisTemplate.setHashValueSerializer(getRedisSerializer());
-        simpleRedisTemplate.afterPropertiesSet();
-        return simpleRedisTemplate;
-    }
-
-    private RedisSerializer getRedisSerializer() {
-        Serializer serializer = Serializer.getType(this.serializer);
-        switch (serializer) {
-            case protoStuff:
-                ProtoStuffSerializer protoStuffSerializer = new ProtoStuffSerializer();
-                return protoStuffSerializer;
-            case jackson:
-                Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
-                ObjectMapper om = new ObjectMapper();
-                om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-                om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-                jackson2JsonRedisSerializer.setObjectMapper(om);
-                return jackson2JsonRedisSerializer;
-            default:
-                ProtoStuffSerializer defaultSerializer = new ProtoStuffSerializer();
-                return defaultSerializer;
-        }
-    }
-                  </code>
-                </pre>
-                <p>(8)接下来我们测试下Jackson2JsonRedisSerializer序列化器对redis数据类型： List, Set, Zset的支持。</p>
-
+                <p>(6)接下来我们测试下Jackson2JsonRedisSerializer序列化器对redis数据类型： List, Set, Zset的支持。</p>
                 <h3>List类型操作</h3>
                 <p>redis list是使用双向链表实现的，对redis list的操作更像对队列的操作，除了LINDEX，LSET，LINSERT命令外，其它命令的时间复杂度都为O(1)。</p>
                 <pre>
@@ -452,75 +347,21 @@ private void HashSerializeTest() {
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_009.png" alt="" />
                 </div>
 
-                <p>(9)然后我们最终的目的是实现通过参数配置redis序列化器，且序列化方式对SimpleRedisTemplate方法的调用者透明。由于com.linfengda.sb.support.middleware.redis.serializer.ProtoStuffSerializer返回的是byte数组，因此需要我们额外处理一下，以保持和org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer的行为一致：返回具体的java类型。</p>
-                <pre>
-                  <code>
-/**
- * 描述: ProtoStuff序列化器
- *
- * @author linfengda
- * @create 2018-09-13 17:46
- */
-public class ProtoStuffSerializer implements RedisSerializer&lt;Object&gt; {
 
-    @Nullable
-    @Override
-    public byte[] serialize(@Nullable Object o) throws SerializationException {
-        if (o == null){
-            return null;
-        }
-        if (o instanceof String){
-            try {
-                return o.toString().getBytes(&quot;UTF-8&quot;);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }else {
-            return ProtoStuffUtil.serialize(o);
-        }
-    }
 
-    @Nullable
-    @Override
-    public Object deserialize(@Nullable byte[] bytes) throws SerializationException {
-        if (bytes == null) {
-            return null;
-        } else {
-            Class clazz = DeserializeTypeHelper.getType();
-            return ProtoStuffUtil.deserialize(bytes, clazz);
-        }
-    }
-}
-                  </code>
-                </pre>
-                <p>其中DeserializeTypeHelper使用ThreadLocal放置SimpleRedisTemplate方法调用时传入的类型信息。</p>
-                <pre>
-                  <code>
-/**
- * 描述: 提供反序列化类型信息
- *
- * @author linfengda
- * @create 2018-09-18 16:24
- */
-public class DeserializeTypeHelper {
-    private static final ThreadLocal&lt;Class&gt; LOCAL_DESERIALIZE_TYPE = new ThreadLocal();
 
-    public static void setType(Class type) {
-        LOCAL_DESERIALIZE_TYPE.set(type);
-    }
 
-    public static Class getType() {
-        return LOCAL_DESERIALIZE_TYPE.get();
-    }
 
-    public static void clearType() {
-        LOCAL_DESERIALIZE_TYPE.remove();
-    }
-}
-                  </code>
-                </pre>
-                <p>这种实现方式保证了适用性，但是个人觉得实现的很丑，我也想不出其他的实现方式了。新的SimpleRedisTemplate类代码如下：</p>
+
+				<h3>2. 尝试更加高效的序列化方式：protostuff</h3>
+
+
+
+                <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffers在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有类型信息，因此在反序列化时需要传入java类型，然后通过反射的方式反序列化。所以在ProtoStuffSerializer序列化器的deserialize()方法里我们不做任何处理，返回到com.linfengda.sb.support.middleware.redis.SimpleRedisTemplate处理。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_006.png" alt="" />
+                </div>
+                <p>(7)有些同学喜欢再封装下redisTemplate，我觉得完全没必要，直接使用就很好用。如果需要做封装，可以使用继承的方式处理。在com.linfengda.sb.support.middleware.redis包下实现SimpleRedisTemplate类，继承RedisTemplate类，既可以保证对RedisTemplate任意方法的调用，又可以在我们需要统一的地方统一处理。</p>
                 <pre>
                   <code>
 /**
@@ -530,7 +371,7 @@ public class DeserializeTypeHelper {
  * @create 2018-09-12 13:40
  */
 @Slf4j
-public class SimpleRedisTemplate extends RedisTemplate&lt;String, Object&gt; {
+public class SimpleRedisTemplate extends RedisTemplate&lt;Object, Object&gt; {
     @Value(&quot;${spring.redis.serializer}&quot;)
     private String serializer;
 
@@ -540,75 +381,127 @@ public class SimpleRedisTemplate extends RedisTemplate&lt;String, Object&gt; {
     }
 
     public &lt;T&gt; T getObject(String key, Class&lt;T&gt; clazz) {
-        preProcessType(clazz);
-        T object = (T) super.opsForValue().get(key);
-        return object;
-    }
-
-    public Boolean deleteObject(String key) {
-        return super.delete(key);
-    }
-
-    public void listAdd(String key, Object... values) {
-        super.opsForList().rightPushAll(key, values);
-    }
-
-    public void listAddAll(String key, Collection values) {
-        for (Object value : values) {
-            super.opsForList().rightPushAll(key, value);
+        if (RedisConfig.Serializer.protoStuff.name().equals(serializer)) {
+            // 当使用ProtoStuff序列化器时，需要这样做。
+            byte[] bytes = (byte[]) super.opsForValue().get(key);
+            if (bytes == null) {
+                return null;
+            } else {
+                return ProtoStuffUtil.deserialize(bytes, clazz);
+            }
+        } else {
+            T object = (T) super.opsForValue().get(key);
+            return object;
         }
     }
-
-    public List listGet(String key, Class clazz) {
-        preProcessType(clazz);
-        return super.opsForList().range(key, 0, -1);
-    }
-
-    public void setAdd(String key, Object... values) {
-        super.opsForSet().add(key, values);
-    }
-
-    public void setAddAll(String key, Collection values) {
-        for (Object value : values) {
-            super.opsForSet().add(key, value);
-        }
-    }
-
-    public Set setGet(String key, Class clazz) {
-        preProcessType(clazz);
-        return super.opsForSet().members(key);
-    }
-
-    public Long setDelete(String key, Object... values) {
-        return super.opsForSet().remove(key, values);
-    }
-
-    public void mapPut(String key, String hashKey, Object value) {
-        super.opsForHash().put(key, hashKey, value);
-    }
-
-    public Object mapGet(String key, String hashKey, Class clazz) {
-        preProcessType(clazz);
-        return super.opsForHash().get(key, hashKey);
-    }
-
-    public Long mapDelete(String key, String... hashKeys) {
-        return super.opsForHash().delete(key, hashKeys);
-    }
-
-
-
-
-
-    private &lt;T&gt; void preProcessType(Class&lt;T&gt; clazz) {
-        RedisConfig.Serializer serializer = RedisConfig.Serializer.getType(this.serializer);
-        if (RedisConfig.Serializer.protoStuff == serializer) {
-            DeserializeTypeHelper.setType(clazz);
-        }
-    }
-}
+......
                   </code>
                 </pre>
+
+                <h3>3. protostuff的坑</h3>
+                <p>(1)不能反序列化java.sql.TimeStamp，如Myson.class的f8字段：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_010.png" alt="" />
+                </div>
+                <p>反序列化之后变成了格林威治时间+x：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_011.png" alt="" />
+                </div>
+
+				<p>(2)通过protostuff序列化一个对象时是按照可序列化字段顺序把值序列化到字节码中，反序列化时也是按照当前对象可序列化字段顺序赋值。所以如果序列化后修改了字段名称，反序列化时会将旧字段的值赋值到新字段。例如序列化一个Myson.class的实例，然后修改MySecondson.class的f7字段为f77，反序列化之后f77被赋值为f7的值：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_012.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_013.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_014.png" alt="" />
+                </div>
+
+				<p>(3)序列化后不能修改对应顺序字段的类型，否则会出现反序列失败报错。然后修改MySecondson.class的f7字段类型由String修改为Object</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_015.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_016.png" alt="" />
+                </div>
+				<p>为了避免以上问题，在使用protostuff序列化时，对已有的实体中添加字段放到最后去就可以了。</p>
+				
+
+                <h3>4. 模块化编程和解耦</h3>
+                <p>我们在application.yml配置文件中，增加参数spring.redis.serializer来配置序列化方式，spring.redis.serializer:protoStuff，即使用protoStuff序列化器，这样就可以通过参数直接指定redis序列化方式，做到解耦。</p>
+                <pre>
+                  <code>
+/**
+ * 描述: Redis配置
+ *
+ * @author linfengda
+ * @create 2018-09-10 17:00
+ */
+@SpringBootConfiguration
+public class RedisConfig {
+    @Value(&quot;${spring.redis.serializer}&quot;)
+    private String serializer;
+
+    /**
+     * 序列化类型
+     */
+    public enum Serializer {
+        protoStuff, jackson;
+        public static Serializer getType(String serializer) {
+            for (Serializer s : values()) {
+                if (s.name().equals(serializer)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+    }
+
+
+    /**
+     * 如果不配置这个bean，会默认初始化一个使用JdkSerializationRedisSerializer的redisTemplate实例。
+     * @param connectionFactory
+     * @return
+     */
+    @Bean
+    public SimpleRedisTemplate simpleRedisTemplate(RedisConnectionFactory connectionFactory) {
+        SimpleRedisTemplate simpleRedisTemplate = new SimpleRedisTemplate();
+        simpleRedisTemplate.setConnectionFactory(connectionFactory);
+
+        // 配置序列化和反序列化方式
+        simpleRedisTemplate.setKeySerializer(new StringRedisSerializer());
+        simpleRedisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        simpleRedisTemplate.setValueSerializer(getRedisSerializer());
+        simpleRedisTemplate.setHashValueSerializer(getRedisSerializer());
+        simpleRedisTemplate.afterPropertiesSet();
+        return simpleRedisTemplate;
+    }
+
+    private RedisSerializer getRedisSerializer() {
+        Serializer serializer = Serializer.getType(this.serializer);
+        switch (serializer) {
+            case protoStuff:
+                ProtoStuffSerializer protoStuffSerializer = new ProtoStuffSerializer();
+                return protoStuffSerializer;
+            case jackson:
+                Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+                ObjectMapper om = new ObjectMapper();
+                om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+                om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+                jackson2JsonRedisSerializer.setObjectMapper(om);
+                return jackson2JsonRedisSerializer;
+            default:
+                ProtoStuffSerializer defaultSerializer = new ProtoStuffSerializer();
+                return defaultSerializer;
+        }
+    }
+                  </code>
+                </pre>
+
+                <p>(9)然后我们最终的目的是实现通过参数配置redis序列化器，且序列化方式对SimpleRedisTemplate方法的调用者透明。各模块间的关系设计如下：</p>
+
                 <p>代码设计到这里，SimpleRedisTemplate类已经实现了对redis各种类型的操作，同时与序列化方式解耦。</p>
 
 
