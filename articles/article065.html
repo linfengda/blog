@@ -165,7 +165,7 @@ public class Pig {
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_005.png" alt="" />
                 </div>
-                <p>(6)接下来我们测试下Jackson2JsonRedisSerializer序列化器对redis数据类型： List, Set, Zset的支持。</p>
+                <p>(6)接下来我们测试下Jackson2JsonRedisSerializer序列化器对redis数据类型： List, Set, Hash的支持。</p>
                 <h3>List类型操作</h3>
                 <p>redis list是使用双向链表实现的，对redis list的操作更像对队列的操作，除了LINDEX，LSET，LINSERT命令外，其它命令的时间复杂度都为O(1)。</p>
                 <pre>
@@ -352,9 +352,7 @@ private void HashSerializeTest() {
 
 				<h3>2. 尝试更加高效的序列化方式：protostuff</h3>
 
-
-
-                <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffers在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有类型信息，因此在反序列化时需要传入java类型，然后通过反射的方式反序列化。所以在ProtoStuffSerializer序列化器的deserialize()方法里我们不做任何处理，返回到com.linfengda.sb.support.middleware.redis.SimpleRedisTemplate处理。</p>
+                <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffers在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有保存类型信息，因此在反序列化时需要传入java类型，然后通过反射的方式反序列化。在org.springframework.data.redis.serializer.RedisSerializer.deserialize()接口无法传入类型信息，只有一个参数。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_006.png" alt="" />
                 </div>
@@ -405,7 +403,7 @@ public class SimpleRedisTemplate extends RedisTemplate&lt;Object, Object&gt; {
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_011.png" alt="" />
                 </div>
 
-				<p>(2)protostuff序列化一个对象时是按照可序列化字段顺序把值序列化到字节码中，反序列化时也是按照字段顺序赋值。所以如果序列化后修改了字段名称，反序列化时会将旧字段的值赋值到新字段。例如序列化一个Myson.class的实例，然后修改MySecondson.class的字段名f7为f77，反序列化之后f77被赋值为f7的值：</p>
+				<p>(2)protostuff序列化一个对象时是按字段顺序把值序列化到字节码中，反序列化时也是按字段顺序赋值。如果序列化后修改了字段名称，反序列化时会将旧字段的值赋值到新字段。例如序列化一个Myson.class的实例，然后修改MySecondson.class的字段名f7为f77，反序列化之后f77被赋值为f7的值：</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_012.png" alt="" />
                 </div>
@@ -416,14 +414,14 @@ public class SimpleRedisTemplate extends RedisTemplate&lt;Object, Object&gt; {
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_014.png" alt="" />
                 </div>
 
-				<p>(3)序列化后不能修改对应顺序字段的类型，否则会出现反序列失败报错。例如修改MySecondson.class的f7字段类型由String修改为Object</p>
+				<p>(3)序列化后不能修改对应顺序字段的类型，否则会出现反序列失败报错。例如MySecondson.class中，将f7字段类型由String修改为Object</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_015.png" alt="" />
                 </div>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_016.png" alt="" />
                 </div>
-				<p>为了避免以上问题，在使用protostuff序列化时，对已有的实体中添加字段放到最后去就可以了。</p>
+				<p>为了避免以上问题，在使用protostuff序列化时，如果需要修改已有的实体，添加字段放到最后去就可以了。</p>
 				
 
                 <h3>4. 模块化编程和解耦</h3>
