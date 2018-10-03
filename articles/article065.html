@@ -347,12 +347,12 @@ private void HashSerializeTest() {
                 
 				<h3>2. 尝试更加高效的序列化方式：protostuff</h3>
 
-                <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffer在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有保存类型信息，因此在反序列化时需要传入java类型，这与org.springframework.data.redis.serializer.RedisSerializer.deserialize()接口不兼容。deserialize(@Nullable byte[] bytes)接口被设计为只处理字节数组，无法传入类型信息。</p>
+                <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffer在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有保存类型信息，因此在反序列化时需要传入java类型，这与org.springframework.data.redis.serializer.RedisSerializer.deserialize(@Nullable byte[] bytes)接口不兼容。该接口被设计为只处理字节数组，无法传入类型信息。</p>
                 <p>要解决这个问题，我们需要先搞清楚springframework.data.redis的api操作层的代码设计：</p> 
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_010.png" alt="" />
                 </div>
-                <p>从上面的类结构设计图中可以看出，springframework.data.redis为了设计只考虑了代码职责单一性，完全没有考虑代码的可用性和扩展性，简直就是一大败笔。redis操作模板-RedisTemplate&lt;K, V&gt;与它使用的各个操作类之间是聚合关系，DefaultValueOperations,DefaultListOperations,DefaultSetOperations,DefaultHashOperations都是RedisTemplate&lt;K, V&gt;类的全局变量。而且，反序列化代码部分是直接写死在AbstractOperations父类中的，它与各个操作类之间是继承关系，这部分代码按道理是要解耦出来，让开发人员可以扩展。综上所述，如果我们要在springframework.data.redis中完美集成ProtocolBuffer这种反序列化时需要类型信息的序列化方式，需要重构整个springframework.data.redis的api操作层的代码，这简直太恐怖了。这就是老程序员们为什么一直强调代码设计要可扩展的原因，总有一些中二的程序员，他们的工作导致了别人需要花费数倍的工作来完成后续功能，这样的程序员我们称之为负产出程序员。</p> 
+                <p>从上面的类结构设计图中可以看出，springframework.data.redis的设计只考虑了代码职责单一性，完全没有考虑代码的可用性和扩展性，简直就是一大败笔。RedisTemplate&lt;K, V&gt;类与它使用的各个操作类之间是聚合关系，DefaultValueOperations,DefaultListOperations,DefaultSetOperations,DefaultHashOperations都是RedisTemplate&lt;K, V&gt;类的全局变量。而且，反序列化代码部分是直接写死在AbstractOperations父类中的，它与各个操作类之间是继承关系，这部分代码按道理是要解耦出来，让开发人员可以扩展。综上所述，如果我们要在springframework.data.redis中完美集成ProtocolBuffer这种反序列化时需要类型信息的序列化方式，需要重构整个springframework.data.redis的api操作层的代码，这简直太恐怖了。这就是老程序员们为什么一直强调代码设计要可扩展的原因，总有一些中二的程序员，他们的工作导致了别人需要花费数倍的工作来完成后续功能，这样的程序员我们称之为负产出程序员。</p> 
                 <p>所以我们退而求其次，在ProtoStuffSerializer类的deserialize(@Nullable byte[] bytes)方法中直接返回字节数组，然后在SimpleRedisTemplate4PS模板中处理。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article065_011.png" alt="" />
