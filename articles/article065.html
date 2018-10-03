@@ -597,10 +597,7 @@ public class SimpleRedisTemplate4JS extends SimpleRedisTemplate {
                   <code>
 package com.linfengda.sb.support.middleware.redis;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 描述: 当使用ProtoStuffSerializer时，需要使用这个模板。
@@ -676,15 +673,15 @@ public class SimpleRedisTemplate4PS extends SimpleRedisTemplate {
         if (set == null) {
             return null;
         } else {
+            Set set2 = new HashSet(set.size());
             Iterator it = set.iterator();
             while (it.hasNext()) {
                 byte[] bytes = (byte[]) it.next();
                 if (bytes != null) {
-                    it.remove();
-                    set.add(ProtoStuffUtil.deserialize(bytes, clazz));
+                    set2.add(ProtoStuffUtil.deserialize(bytes, clazz));
                 }
             }
-            return (Set&lt;T&gt;) set;
+            return (Set&lt;T&gt;) set2;
         }
     }
 
