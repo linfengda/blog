@@ -280,8 +280,9 @@
 		    var height0 = c.height;
 		    var dom = c.chart.getDom();
 			var option = c.chart.getOption();
-		    if(document.body.clientWidth-50 < width0){
-				var width = $(window).width()-80;
+			var winWidth = Math.min(document.body.clientWidth, window.innerHeight);
+		    if(winWidth-50 < width0){
+				var width = winWidth-50;
 				var height = width*(width0/height0);
 				$(dom).width(width);
 				$(dom).height(height);
