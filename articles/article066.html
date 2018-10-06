@@ -119,30 +119,35 @@ public class DoubleClazz {
                   </code>
                 </pre>
 
-				<p>(3)序列化测试场景为：相同实例+相同字段类型+相同数量下，不同序列化方式序列化耗时。</p>
+				<p>(3)序列化测试场景为：一定数量的拥有相同字段类型的相同实例，使用不同方式序列化的耗时。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article066_002.png" alt="" />
                 </div>
 
-				<p>(4)反序列化测试场景为：相同实例+相同字段类型+相同数量下，不同序列化方式序列化耗时。</p>
+				<p>(4)反序列化测试场景为：一定数量的拥有相同字段类型的相同实例，使用不同方式反序列化的耗时。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article066_003.png" alt="" />
                 </div>
 
-                
+                <p>(5)对于一种测试类型，我们的不变性条件为实例类型+测试次数，唯一变量为序列化方式，其中测试入口如下：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_004.png" alt="" />
+                </div>
 
-                <p>(1)我们分别用10^n次序列化来测试Jackson和Protobuff这2中序列化方式的耗时。在下方的图表中，蓝色柱表示Jackson，红色柱表示Protobuff，横坐标表示被序列化数量，纵坐标表示序列化耗时。</p>
+                <p>(6)一次测试的序列化次数为10^3,10^4,10^5,10^6：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_005.png" alt="" />
+                </div>
+
+                <p>(7)我们分别测试了整形/长整形/单精度浮点型/双精度浮点型的序列化和反序列化耗时，并将测试结果整理成下图的echart柱状图。其中图表的横坐标为序列化次数（10^n次），纵坐标为Protobuff或Jackson的序列化耗时。/p>
+                <div id="echart_div_0" style="width:"></div>
                 
 
 
 
              
                 <p></p>
-                <pre>
-                  <code>
 
-                  </code>
-                </pre>
 
 
                 
@@ -170,6 +175,98 @@ public class DoubleClazz {
 			<script src="../assets/js/skel.min.js"></script>
 			<script src="../assets/js/util.js"></script>
 			<script src="../assets/js/main.js"></script>
+			<script src="../assets/js/echarts.min.js"></script>
+			<script type="text/javascript">
+	jQuery(function($) {
+		draw();
+	});
+
+	
+	var optionArray = new Array();//测试结果列表
+	var chartArray = new Array();//echart列表
+	//渲染echart函数
+	function draw(){
+
+		//填充测试结果
+		optionArray.push(
+		{
+		    title : {
+		        text: '某地区蒸发量和降水量'
+		    },
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:['Protobuff','Jackson']
+		    },
+		    xAxis : [
+		        {
+		            type : 'category',
+		            data : ['1000','10000','100000','1000000']
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'Protobuff',
+		            type:'bar',
+		            data:[20, 20, 20, 20]
+		        },
+		        {
+		            name:'Jackson',
+		            type:'bar',
+		            data:[20, 20, 20, 20]
+		        }
+		    ]
+		});
+
+
+
+
+
+
+
+		//遍历测试结果列表渲染
+		for (var i = 0; i < optionArray.length; i++) {
+			var charDiv = $("#echart_div" + i).getDom();
+			var chartOption = optionArray[i];
+			var chart = echarts.init(charDiv);
+			chart.setOption(chartOption);
+ 
+			var c = {chart: currChart, width: $(charDiv).width(), height: $(charDiv).height()};
+			chartArray.push(c);
+			window.onresize = resize;
+		}
+	}
+	
+	//移动端自适应
+	function resize(){
+		for (var i = 0; i < chartArray.length; i++) {
+			var c = chartArray[i];
+		    var width0 = c.width;
+		    var height0 = c.height;
+		    var dom = c.chart.getDom();
+			var option = c.chart.getOption();
+		    if($(window).width()-50 < width0){
+				var width = $(window).width()-50;
+				var height = width*(width0/height0);
+				$(dom).width(width);
+				$(dom).height(height);
+				echarts.init(dom).setOption(option);
+		    }else{
+				$(dom).width(width0);
+				$(dom).height(height0);
+				echarts.init(dom).setOption(option);
+		    }
+		}
+		window.onresize = resize;
+	}
+	
+</script>
 
 	</body>
 </html>
