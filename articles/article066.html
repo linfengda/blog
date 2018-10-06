@@ -283,7 +283,7 @@
 			var winWidth = Math.min(document.body.clientWidth, window.innerHeight);
 		    if(winWidth-50 < width0){
 				var width = winWidth-80;
-				var height = width*(width0/height0);
+				var height = width*(height0/width0);
 				$(dom).width(width);
 				$(dom).height(height);
 				echarts.init(dom).setOption(option);
