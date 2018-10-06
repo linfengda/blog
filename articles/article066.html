@@ -12,160 +12,7 @@
 		<link rel="stylesheet" href="../assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-	<body class="is-loading">
-
-		<!-- Wrapper -->
-			<div id="wrapper">
-
-				<!-- Header -->
-					<header id="header">
-						<a href="../index.html" class="logo">Massively</a>
-					</header>
-
-				<!-- Nav -->
-					<nav id="nav">
-						<ul class="links">
-							<li><a href="../index.html">Massively</a></li>
-							<li class="active"><a href="../generic.html">Page guide</a></li>
-						</ul>
-					</nav>
-
-				<!-- Main -->
-					<div id="main">
-
-						<!-- Post -->
-							<section class="post">
-								<header class="major">
-									<span class="date">April 21, 2018</span>
-									<h1>spring boot chapter3</h1>
-									<p>
-spring boot chapter3: Performance testing between Jackson and Protobuff. 
-								    </p>
-								</header>
-
-
-
-                <h3>1. Jackson和Protobuff哪个更加高效？</h3>
-                <p>(1)我们直接使用现有的ProtoStuffSerializer类和Jackson2JsonRedisSerializer来测试Jackson和Protobuff的序列化效率，这2个类并没有做任何多余动作，不会影响测试的不变条件。这里ProtoStuffSerializer类需要额外扩展一个反序列化方法。</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_001.png" alt="" />
-                </div>
-
-				<p>(2)序列化测试的4种类型如下。</p>
-				<pre>
-                  <code>
-/**
- * 描述: 测试int类型
- *
- * @author linfengda
- * @create 2018-10-04 12:30
- */
-@Data
-public class IntClazz {
-    private int target;
-
-    public IntClazz() {
-        this.target = 123456789;
-    }
-}
-......
-
-/**
- * 描述: 测试double类型
- *
- * @author linfengda
- * @create 2018-10-04 12:29
- */
-@Data
-public class DoubleClazz {
-    private double target;
-
-    public DoubleClazz() {
-        this.target = 123456789.123456789;
-    }
-}
-......
-
-/**
- * 描述: 测试String类型
- *
- * @author linfengda
- * @create 2018-10-06 22:25
- */
-public class StringClazz {
-    private String target;
-
-    public StringClazz() {
-        this.target = &quot;123456789.123456789&quot;;
-    }
-}
-                  </code>
-                </pre>
-
-				<p>(3)序列化测试场景为：一定数量的拥有相同字段类型的相同实例，使用不同方式序列化的耗时。</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_002.png" alt="" />
-                </div>
-
-				<p>(4)反序列化测试场景为：一定数量的拥有相同字段类型的相同实例，使用不同方式反序列化的耗时。</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_003.png" alt="" />
-                </div>
-
-                <p>(5)对于一种测试类型，我们的不变性条件为实例类型+测试次数，唯一变量为序列化方式，其中测试入口如下：</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_004.png" alt="" />
-                </div>
-
-                <p>(6)序列化测试：其中第一次的10^2次代码运行为了排除jvm优化和代码优化生效的影响，真正的测试次数为10^3,10^4,10^5,10^6：</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_005.png" alt="" />
-                </div>
-
-                <p>(7)我们分别测试了整形/双精度浮点型/字符串类型的序列化和反序列化耗时，并将测试结果整理成下图的echart柱状图。其中图表的横坐标为序列化次数（10^n次），纵坐标为Protobuff或Jackson的序列化耗时。</p>
-                <h4>1. 整形</h4>
-                <div id="echart_div_0" style="width: 800px;height:600px;"></div>
-                <div id="echart_div_1" style="width: 800px;height:600px;"></div>
-                <h4>2. 双精度浮点型</h4>
-                <div id="echart_div_2" style="width: 800px;height:600px;"></div>
-                <div id="echart_div_3" style="width: 800px;height:600px;"></div>
-                <h4>3. 字符串类型</h4>
-                <div id="echart_div_4" style="width: 800px;height:600px;"></div>
-                <div id="echart_div_5" style="width: 800px;height:600px;"></div>
-                
-
-
-                <p>实验结论简单粗暴，我直接告诉你：Protobuff的序列化速度比Jackson快，Jackson的反序列化速度比Protobuff快。</p>
-
-
-
-                
-
-
-                
-
-
-							</section>
-					</div>
-
-
-
-				<!-- Copyright -->
-					<div id="copyright">
-						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
-					</div>
-
-			</div>
-
-		<!-- Scripts -->
-			<script src="../assets/js/jquery.min.js"></script>
-			<script src="../assets/js/jquery.scrollex.min.js"></script>
-			<script src="../assets/js/jquery.scrolly.min.js"></script>
-			<script src="../assets/js/skel.min.js"></script>
-			<script src="../assets/js/util.js"></script>
-			<script src="../assets/js/main.js"></script>
-			<script src="../assets/js/echarts.min.js"></script>
-			<script type="text/javascript">
+	<script type="text/javascript">
 	jQuery(function($) {
 		draw();
 	});
@@ -437,7 +284,162 @@ public class StringClazz {
 		window.onresize = resize;
 	}
 	
-</script>
+	</script>
+
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 21, 2018</span>
+									<h1>spring boot chapter3</h1>
+									<p>
+spring boot chapter3: Performance testing between Jackson and Protobuff. 
+								    </p>
+								</header>
+
+
+
+                <h3>1. Jackson和Protobuff哪个更加高效？</h3>
+                <p>(1)我们直接使用现有的ProtoStuffSerializer类和Jackson2JsonRedisSerializer来测试Jackson和Protobuff的序列化效率，这2个类并没有做任何多余动作，不会影响测试的不变条件。这里ProtoStuffSerializer类需要额外扩展一个反序列化方法。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_001.png" alt="" />
+                </div>
+
+				<p>(2)序列化测试的4种类型如下。</p>
+				<pre>
+                  <code>
+/**
+ * 描述: 测试int类型
+ *
+ * @author linfengda
+ * @create 2018-10-04 12:30
+ */
+@Data
+public class IntClazz {
+    private int target;
+
+    public IntClazz() {
+        this.target = 123456789;
+    }
+}
+......
+
+/**
+ * 描述: 测试double类型
+ *
+ * @author linfengda
+ * @create 2018-10-04 12:29
+ */
+@Data
+public class DoubleClazz {
+    private double target;
+
+    public DoubleClazz() {
+        this.target = 123456789.123456789;
+    }
+}
+......
+
+/**
+ * 描述: 测试String类型
+ *
+ * @author linfengda
+ * @create 2018-10-06 22:25
+ */
+public class StringClazz {
+    private String target;
+
+    public StringClazz() {
+        this.target = &quot;123456789.123456789&quot;;
+    }
+}
+                  </code>
+                </pre>
+
+				<p>(3)序列化测试场景为：一定数量的拥有相同字段类型的相同实例，使用不同方式序列化的耗时。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_002.png" alt="" />
+                </div>
+
+				<p>(4)反序列化测试场景为：一定数量的拥有相同字段类型的相同实例，使用不同方式反序列化的耗时。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_003.png" alt="" />
+                </div>
+
+                <p>(5)对于一种测试类型，我们的不变性条件为实例类型+测试次数，唯一变量为序列化方式，其中测试入口如下：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_004.png" alt="" />
+                </div>
+
+                <p>(6)序列化测试：其中第一次的10^2次代码运行为了排除jvm优化和代码优化生效的影响，真正的测试次数为10^3,10^4,10^5,10^6：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_005.png" alt="" />
+                </div>
+
+                <p>(7)我们分别测试了整形/双精度浮点型/字符串类型的序列化和反序列化耗时，并将测试结果整理成下图的echart柱状图。其中图表的横坐标为序列化次数（10^n次），纵坐标为Protobuff或Jackson的序列化耗时。</p>
+                <h4>1. 整形</h4>
+                <div id="echart_div_0" style="width: 800px;height:600px;"></div>
+                <div id="echart_div_1" style="width: 800px;height:600px;"></div>
+                <h4>2. 双精度浮点型</h4>
+                <div id="echart_div_2" style="width: 800px;height:600px;"></div>
+                <div id="echart_div_3" style="width: 800px;height:600px;"></div>
+                <h4>3. 字符串类型</h4>
+                <div id="echart_div_4" style="width: 800px;height:600px;"></div>
+                <div id="echart_div_5" style="width: 800px;height:600px;"></div>
+                
+
+
+                <p>实验结论简单粗暴，我直接告诉你：Protobuff的序列化速度比Jackson快，Jackson的反序列化速度比Protobuff快。</p>
+
+
+
+                
+
+
+                
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+			<script src="../assets/js/echarts.min.js"></script>
+
 
 	</body>
 </html>
