@@ -247,13 +247,16 @@ public class DoubleClazz {
 	
 	//移动端自适应
 	function resize(){
+		console.log(document.documentElement.clientWidth);
+		console.log(window.innerHeight);
+		console.log(document.body.clientWidth);
 		for (var i = 0; i < chartArray.length; i++) {
 			var c = chartArray[i];
 		    var width0 = c.width;
 		    var height0 = c.height;
 		    var dom = c.chart.getDom();
 			var option = c.chart.getOption();
-		    if($(window).width()-50 < width0){
+		    if(document.documentElement.clientWidth-50 < width0){
 		    	console.log($(window).width());
 				var width = $(window).width()-50;
 				var height = width*(width0/height0);
