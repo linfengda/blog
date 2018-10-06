@@ -46,13 +46,97 @@ spring boot chapter3: Performance testing between Jackson and Protobuff.
 
 
                 <h3>1. Jackson和Protobuff哪个更加高效？</h3>
-                <p>(1)我们分别用10^n次序列化来测试Jackson和Protobuff这2中序列化方式的耗时。在下方的图表中，蓝色柱表示Jackson，红色柱表示Protobuff，横坐标表示被序列化的bean数量，纵坐标表示序列化耗时。</p>
-
-
-
+                <p>(1)我们直接使用现有的ProtoStuffSerializer类和Jackson2JsonRedisSerializer来测试Jackson和Protobuff的序列化效率，这2个类并没有做任何多余动作，不会影响测试的不变条件。这里ProtoStuffSerializer类需要额外扩展一个反序列化方法。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article066_001.png" alt="" />
                 </div>
+
+				<p>(2)序列化测试的4种类型如下。</p>
+				<pre>
+                  <code>
+/**
+ * 描述: 测试int类型
+ *
+ * @author linfengda
+ * @create 2018-10-04 12:30
+ */
+@Data
+public class IntClazz {
+    private int target;
+
+    public IntClazz() {
+        this.target = 123456789;
+    }
+}
+......
+
+/**
+ * 描述: 测试long类型
+ *
+ * @author linfengda
+ * @create 2018-10-04 12:31
+ */
+@Data
+public class LongClazz {
+    private long target;
+
+    public LongClazz() {
+        this.target = 123456789l;
+    }
+}
+......
+
+/**
+ * 描述: 测试float类型
+ *
+ * @author linfengda
+ * @create 2018-10-04 12:30
+ */
+@Data
+public class FloatClazz {
+    private float target;
+
+    public FloatClazz() {
+        this.target = 123456789.123456789f;
+    }
+}
+......
+
+/**
+ * 描述: 测试double类型
+ *
+ * @author linfengda
+ * @create 2018-10-04 12:29
+ */
+@Data
+public class DoubleClazz {
+    private double target;
+
+    public DoubleClazz() {
+        this.target = 123456789.123456789;
+    }
+}
+                  </code>
+                </pre>
+
+				<p>(3)序列化测试场景为：相同实例+相同字段类型+相同数量下，不同序列化方式序列化耗时。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_002.png" alt="" />
+                </div>
+
+				<p>(4)反序列化测试场景为：相同实例+相同字段类型+相同数量下，不同序列化方式序列化耗时。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_003.png" alt="" />
+                </div>
+
+                
+
+                <p>(1)我们分别用10^n次序列化来测试Jackson和Protobuff这2中序列化方式的耗时。在下方的图表中，蓝色柱表示Jackson，红色柱表示Protobuff，横坐标表示被序列化数量，纵坐标表示序列化耗时。</p>
+                
+
+
+
+             
                 <p></p>
                 <pre>
                   <code>
