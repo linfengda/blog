@@ -191,7 +191,7 @@ public class DoubleClazz {
 		optionArray.push(
 		{
 		    title : {
-		        text: '某地区蒸发量和降水量'
+		        text: '整形序列化测试'
 		    },
 		    tooltip : {
 		        trigger: 'axis'
@@ -234,10 +234,10 @@ public class DoubleClazz {
 		for (var i = 0; i < optionArray.length; i++) {
 			var charDiv = document.getElementById('echart_div_'+i);
 			var chartOption = optionArray[i];
-			var chart = echarts.init(charDiv);
-			chart.setOption(chartOption);
+			var echart = echarts.init(charDiv);
+			echart.setOption(chartOption);
  
-			var c = {chart: currChart, width: charDiv.style.width, height: charDiv.style.height};
+			var c = {chart: echart, width: charDiv.style.width, height: charDiv.style.height};
 			chartArray.push(c);
 			window.onresize = resize;
 		}
