@@ -239,7 +239,7 @@ public class DoubleClazz {
 			var echart = echarts.init(charDiv);
 			echart.setOption(chartOption);
  
-			var c = {chart: echart, width: charDiv.style.width, height: charDiv.style.height};
+			var c = {chart: echart, width: $(charDiv).width(), height: $(charDiv).height()};
 			chartArray.push(c);
 			window.onresize = resize;
 		}
