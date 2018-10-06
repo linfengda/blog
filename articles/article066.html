@@ -71,38 +71,6 @@ public class IntClazz {
 ......
 
 /**
- * 描述: 测试long类型
- *
- * @author linfengda
- * @create 2018-10-04 12:31
- */
-@Data
-public class LongClazz {
-    private long target;
-
-    public LongClazz() {
-        this.target = 123456789l;
-    }
-}
-......
-
-/**
- * 描述: 测试float类型
- *
- * @author linfengda
- * @create 2018-10-04 12:30
- */
-@Data
-public class FloatClazz {
-    private float target;
-
-    public FloatClazz() {
-        this.target = 123456789.123456789f;
-    }
-}
-......
-
-/**
  * 描述: 测试double类型
  *
  * @author linfengda
@@ -114,6 +82,21 @@ public class DoubleClazz {
 
     public DoubleClazz() {
         this.target = 123456789.123456789;
+    }
+}
+......
+
+/**
+ * 描述: 测试String类型
+ *
+ * @author linfengda
+ * @create 2018-10-06 22:25
+ */
+public class StringClazz {
+    private String target;
+
+    public StringClazz() {
+        this.target = &quot;123456789.123456789&quot;;
     }
 }
                   </code>
@@ -141,6 +124,7 @@ public class DoubleClazz {
 
                 <p>(7)我们分别测试了整形/长整形/单精度浮点型/双精度浮点型的序列化和反序列化耗时，并将测试结果整理成下图的echart柱状图。其中图表的横坐标为序列化次数（10^n次），纵坐标为Protobuff或Jackson的序列化耗时。</p>
                 <div id="echart_div_0" style="width: 800px;height:600px;"></div>
+                <div id="echart_div_1" style="width: 800px;height:600px;"></div>
                 
 
 
@@ -225,6 +209,43 @@ public class DoubleClazz {
 		        }
 		    ]
 		});
+		optionArray.push(
+		{
+		    title : {
+		        text: '整形反序列化测试'
+		    },
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:['Protobuff','Jackson']
+		    },
+		    xAxis : [
+		        {
+		        	name : '10^n',
+		            type : 'category',
+		            data : ['1000','10000','100000','1000000']
+		        }
+		    ],
+		    yAxis : [
+		        {
+		        	name : 'ms',
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'Protobuff',
+		            type:'bar',
+		            data:[172, 1578, 7662, 79749]
+		        },
+		        {
+		            name:'Jackson',
+		            type:'bar',
+		            data:[15, 40, 54, 442]
+		        }
+		    ]
+		});
 
 
 
@@ -254,7 +275,7 @@ public class DoubleClazz {
 		    var dom = c.chart.getDom();
 			var option = c.chart.getOption();
 		    if(document.body.clientWidth-50 < width0){
-				var width = $(window).width()-50;
+				var width = $(window).width()-80;
 				var height = width*(width0/height0);
 				$(dom).width(width);
 				$(dom).height(height);
