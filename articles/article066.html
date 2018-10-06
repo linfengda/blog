@@ -122,15 +122,20 @@ public class StringClazz {
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article066_005.png" alt="" />
                 </div>
 
-                <p>(7)我们分别测试了整形/长整形/单精度浮点型/双精度浮点型的序列化和反序列化耗时，并将测试结果整理成下图的echart柱状图。其中图表的横坐标为序列化次数（10^n次），纵坐标为Protobuff或Jackson的序列化耗时。</p>
+                <p>(7)我们分别测试了整形/双精度浮点型/字符串类型的序列化和反序列化耗时，并将测试结果整理成下图的echart柱状图。其中图表的横坐标为序列化次数（10^n次），纵坐标为Protobuff或Jackson的序列化耗时。</p>
+                <h4>1. 整形</h4>
                 <div id="echart_div_0" style="width: 800px;height:600px;"></div>
                 <div id="echart_div_1" style="width: 800px;height:600px;"></div>
+                <h4>2. 双精度浮点型</h4>
+                <div id="echart_div_2" style="width: 800px;height:600px;"></div>
+                <div id="echart_div_3" style="width: 800px;height:600px;"></div>
+                <h4>3. 字符串类型</h4>
+                <div id="echart_div_4" style="width: 800px;height:600px;"></div>
+                <div id="echart_div_5" style="width: 800px;height:600px;"></div>
                 
 
 
-
-             
-                <p></p>
+                <p>得出实验结论：</p>
 
 
 
@@ -247,8 +252,155 @@ public class StringClazz {
 		    ]
 		});
 
+		optionArray.push(
+		{
+		    title : {
+		        text: '双精度浮点型序列化测试'
+		    },
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:['Protobuff','Jackson']
+		    },
+		    xAxis : [
+		        {
+		        	name : '10^n',
+		            type : 'category',
+		            data : ['1000','10000','100000','1000000']
+		        }
+		    ],
+		    yAxis : [
+		        {
+		        	name : 'ms',
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'Protobuff',
+		            type:'bar',
+		            data:[0, 15, 94, 328]
+		        },
+		        {
+		            name:'Jackson',
+		            type:'bar',
+		            data:[47, 63, 156, 609]
+		        }
+		    ]
+		});
+		optionArray.push(
+		{
+		    title : {
+		        text: '双精度浮点型反序列化测试'
+		    },
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:['Protobuff','Jackson']
+		    },
+		    xAxis : [
+		        {
+		        	name : '10^n',
+		            type : 'category',
+		            data : ['1000','10000','100000','1000000']
+		        }
+		    ],
+		    yAxis : [
+		        {
+		        	name : 'ms',
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'Protobuff',
+		            type:'bar',
+		            data:[312, 2483, 12949, 75936]
+		        },
+		        {
+		            name:'Jackson',
+		            type:'bar',
+		            data:[63, 47, 359, 687]
+		        }
+		    ]
+		});
 
-
+		optionArray.push(
+		{
+		    title : {
+		        text: '字符串类型序列化测试'
+		    },
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:['Protobuff','Jackson']
+		    },
+		    xAxis : [
+		        {
+		        	name : '10^n',
+		            type : 'category',
+		            data : ['1000','10000','100000','1000000']
+		        }
+		    ],
+		    yAxis : [
+		        {
+		        	name : 'ms',
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'Protobuff',
+		            type:'bar',
+		            data:[0, 0, 31, 250]
+		        },
+		        {
+		            name:'Jackson',
+		            type:'bar',
+		            data:[16, 31, 94, 390]
+		        }
+		    ]
+		});
+		optionArray.push(
+		{
+		    title : {
+		        text: '字符串类型反序列化测试'
+		    },
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:['Protobuff','Jackson']
+		    },
+		    xAxis : [
+		        {
+		        	name : '10^n',
+		            type : 'category',
+		            data : ['1000','10000','100000','1000000']
+		        }
+		    ],
+		    yAxis : [
+		        {
+		        	name : 'ms',
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'Protobuff',
+		            type:'bar',
+		            data:[343, 1156, 7264, 62111]
+		        },
+		        {
+		            name:'Jackson',
+		            type:'bar',
+		            data:[16, 32, 47, 250]
+		        }
+		    ]
+		});
 
 
 
