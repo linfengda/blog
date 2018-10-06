@@ -232,12 +232,12 @@ public class DoubleClazz {
 
 		//遍历测试结果列表渲染
 		for (var i = 0; i < optionArray.length; i++) {
-			var charDiv = $("#echart_div" + i).getDom();
+			var charDiv = document.getElementById('echart_div'+i);
 			var chartOption = optionArray[i];
 			var chart = echarts.init(charDiv);
 			chart.setOption(chartOption);
  
-			var c = {chart: currChart, width: $(charDiv).width(), height: $(charDiv).height()};
+			var c = {chart: currChart, width: charDiv.style.width, height: charDiv.style.height};
 			chartArray.push(c);
 			window.onresize = resize;
 		}
