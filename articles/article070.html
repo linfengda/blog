@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 21, 2018</span>
+									<h1>git chapter1</h1>
+									<p>
+                                    git版本控制---基础篇
+								    </p>
+								</header>
+
+
+                <h3>1. 什么是git？</h3>
+                <p>目前世界上最先进的分布式版本控制系统。</p>
+
+                <h3>2. 如何创建版本库？</h3>
+                <p>1.在git上新建Create a new repository，复制新仓库地址https://github.com/linfengda/springbootChapter1.git。</p>
+                <p>2.在本地文件夹分别执行git init，git remote add origin https://github.com/linfengda/springbootChapter1.git，git add .，git commit -m 'first commit'，git push -u origin master，作用分别初始化git仓库，本地仓库关联远程仓库，添加所有文件，提交文件，提交文件到新建仓库。/p>
+                <p>然后可以看到本地项目被成功提交的远程仓库。/p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_001.png" alt="" />
+                </div>
+                <p>将项目导入intellij idea，可以看到版本控制信息。/p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_002.png" alt="" />
+                </div>
+
+				<h3>3. git工作区、暂存区、版本库之间的关系？</h3>
+				<p>在初始化git版本库之后会生成一个隐藏的文件.git ，可以将该文件理解为git的版本库，而我们自己建立的项目文件夹即工作区，在.git文件夹里面还有很多文件，其中有一个index文件就是暂存区，如下图：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_003.png" alt="" />
+                </div>
+                <blockquote>
+                <p>
+1、git add<br>
+当我们使用git add指令时，就是将对应修改的文件添加到暂存区中，这时，暂存区中的目录树被更新<br>
+2、git commit<br>
+紧接着，我们使用git commit指令，便会将暂存区中做出的修改提交到版本库中，这时master指向的分支被更新<br>
+3、git reset HEAD<br>
+当使用git reset HEAD指令时，暂存区的内容会被版本库的内容覆盖<br>
+4、git checkout --file<br>
+使用暂存区中的对应文件内容直接替换工作区中的该文件（消除所有工作区进行的改动）<br>
+5、git checkout HEAD --file<br>
+使用版本库中的对应文件内容直接替换工作区和暂存区中的该文件<br>
+                </p>
+                </blockquote>
+
+                <p>通过三个命令理解</p>
+                <blockquote>
+                <p>
+git diff 比较的是工作区和暂存区的差别<br>
+git diff --cached 比较的是暂存区和版本库的差别<br>
+git diff HEAD 可以查看工作区和版本库的差别<br>
+                </p>
+                </blockquote>
+                <p>实例讲解</p>
+                <p>我们com.linfengda.sb.chapter1.git.Test1.java文件，并新建com.linfengda.sb.chapter1.git.Test2.java文件。分别执行这3条命令结果如下：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_004.png" alt="" />
+                </div>
+                <p>从图中可以看出，工作区与暂存区、工作区与版本库都有变化，而版本库与暂存区并没有变化。而且，我们发现已经提交到暂存区的文件修改的时候才可以看出明显区别，如果只是在工作区新建一个文件，那么输入这三个命令都没有结果为空白。进一步执行git add .</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_005.png" alt="" />
+                </div>
+                <p>从图中可以看出，工作区与暂存区已经同步，暂存区与版本库、工作区与版本库没有同步。最后一步执行git commit。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_006.png" alt="" />
+                </div>
+                <p>当执行完git commit后，三个命令都没有输出结果，表明我们修改的文件已经被同步的版本库，已经被版本库管理起来了。</p>
+
+
+
+				<h3>4. 什么是HEAD指针？</h3>
+                <p>HEAD指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭，使用命令git reset --hard commit_id。穿梭前，用git log可以查看提交历史，以便确定要回退到哪个版本。</p>
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
+
+
+
+ 
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
