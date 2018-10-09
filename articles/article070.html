@@ -59,21 +59,22 @@ git commit -m 'first commit'
 git push -u origin master
                   </code>
                 </pre>
-                <p>作用分别初始化git仓库，本地仓库关联远程仓库，添加所有文件，提交文件，提交文件到新建仓库，然后可以看到本地项目被成功提交的远程仓库。</p>
+                <p>作用分别初始化git仓库，本地仓库关联远程仓库，添加所有文件，提交文件，提交文件到新建仓库，然后可以看到本地项目被成功提交到远程仓库。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_001.png" alt="" />
                 </div>
-                <p>将项目导入intellij idea，可以看到版本控制信息。/p>
+                <p>将项目导入intellij idea，可以看到版本控制信息。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_002.png" alt="" />
                 </div>
 
 				<h3>3. git工作区、暂存区、版本库之间的关系？</h3>
-				<p>在初始化git版本库之后会生成一个隐藏的文件.git ，可以将该文件理解为git的版本库，而我们自己建立的项目文件夹即工作区，在.git文件夹里面还有很多文件，其中有一个index文件就是暂存区，如下图：</p>
+				<p>我们自己建立的项目文件夹即工作区，在初始化git版本库之后会生成一个隐藏的文件.git，可以将该文件理解为git的版本库，而在.git文件夹里面还有很多文件，其中有一个index文件就是暂存区，如下图：</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_003.png" alt="" />
                 </div>
                 <blockquote>
+                <p>上图命令解释：</p>
                 <p>
 1、git add<br>
 当我们使用git add指令时，就是将对应修改的文件添加到暂存区中，这时，暂存区中的目录树被更新<br>
@@ -97,7 +98,7 @@ git diff HEAD 可以查看工作区和版本库的差别<br>
                 </p>
                 </blockquote>
                 <p>实例讲解</p>
-                <p>我们com.linfengda.sb.chapter1.git.Test1.java文件，并新建com.linfengda.sb.chapter1.git.Test2.java文件。分别执行这3条命令结果如下：</p>
+                <p>我们修改com.linfengda.sb.chapter1.git.Test1.java文件，并新建com.linfengda.sb.chapter1.git.Test2.java文件。分别执行这3条命令结果如下：</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_004.png" alt="" />
                 </div>
@@ -111,10 +112,77 @@ git diff HEAD 可以查看工作区和版本库的差别<br>
                 </div>
                 <p>当执行完git commit后，三个命令都没有输出结果，表明我们修改的文件已经被同步的版本库，已经被版本库管理起来了。</p>
 
-
-
 				<h3>4. 什么是HEAD指针？</h3>
-                <p>HEAD指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭，使用命令git reset --hard commit_id。穿梭前，用git log可以查看提交历史，以便确定要回退到哪个版本。</p>
+                <p>HEAD指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭，使用命令git reset --hard commit_id。</p>
+
+                <h3>5. 什么是git分支？</h3>
+                <p>项目代码并行开发的分支，一个项目有一个master分支，多个子分支，分支代码互不影响。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/0013849087937492135fbf4bbd24dfcbc18349a8a59d36d000/0" alt="" />
+                </div>
+                <p>这是只有一个master分支的情况，HEAD指针指向的分支就是当前分支，现在它指向master。</p>
+                <p>我们创建一个新的分支dev时，切换到dev分支并修改dev分支的某个文件，HEAD指针就指向dev分支，而master指针不变：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/0013849088235627813efe7649b4f008900e5365bb72323000/0" alt="" />
+                </div>
+                <p>如果我们又切换到master分支并修改master分支的某个文件，master分支和dev分支各自都分别有新的提交，变成了这样：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/001384909115478645b93e2b5ae4dc78da049a0d1704a41000/0" alt="" />
+                </div>
+                <p>这时候我们合并完dev分支到master，就会出现冲突，需要我们合并：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/00138490913052149c4b2cd9702422aa387ac024943921b000/0" alt="" />
+                </div>
+                <p>合并后，甚至可以删除dev分支。删除dev分支就是把dev指针给删掉，删掉后，我们就剩下了一条master分支：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/001384908867187c83ca970bf0f46efa19badad99c40235000/0" alt="" />
+                </div>
+                
+                <p>实战教程：</p>
+                <p>首先，我们创建dev分支，然后切换到dev分支：</p>
+                <pre>
+                  <code>
+$ git checkout -b dev
+Switched to a new branch 'dev'
+                  </code>
+                </pre>
+                <p>git checkout命令加上-b参数表示创建并切换，相当于以下两条命令：</p>
+                <pre>
+                  <code>
+$ git branch dev
+$ git checkout dev
+Switched to branch 'dev'
+                  </code>
+                </pre>
+                <p>然后，用git branch命令查看当前分支：</p>
+                <pre>
+                  <code>
+$ git branch
+* dev
+  master
+                  </code>
+                </pre>
+                <p>然后，我们在dev分支上修改com.linfengda.sb.chapter1.git.Test1.java文件，添加一个新字段age：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_00.png" alt="" />
+                </div>
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
+                <p>然后提交代码：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_00.png" alt="" />
+                </div>
+
+
+                
+
+
+
+
+
                 <pre>
                   <code>
 
