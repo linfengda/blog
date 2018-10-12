@@ -133,7 +133,7 @@ FULLTEXT(全文索引)      ALTER TABLE `table_name` ADD FULLTEXT ( `col` )
 
                 <h3>多表关联时使用索引：</h3>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article041_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article041_004.png" alt="" />
                 </div>
                 <p>上图可以看出,如果连接字段不加索引，会进行全表扫描;也就是6_6_6,共遍历查询了216次;如果连接字段加索引，那么除第一张表示全表索引(必须的,要以此关联其他表),其余的为range(索引区间获得),也就是6+1+1+1,共遍历查询9次即可;</p>
                 <p>所以我们建议在多表join的时候尽量少join几张表,另外,我们还建议尽量使用left join,以少关联多.因为使用join 的话,第一张表是必须的全扫描的,以少关联多就可以减少这个扫描次数。</p>
