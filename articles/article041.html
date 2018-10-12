@@ -85,9 +85,9 @@ mysql> ALTER TABLE article ADD INDEX index_article_title ON title(200);
 
                 <h3>mysql索引分类：</h3>
                 <p>
-                	普通索引：最基本的索引，没有任何限制。<br>
+                	主键索引：它 是一种特殊的唯一索引，不允许有空值。<br>
 					唯一索引：与"普通索引"类似，不同的就是：索引列的值必须唯一，但允许有空值。<br>
-					主键索引：它 是一种特殊的唯一索引，不允许有空值。<br>
+					普通索引：最基本的索引，没有任何限制。<br>
 					全文索引：仅可用于 MyISAM 表，针对较大的数据，生成全文索引很耗时好空间。<br>
 					组合索引：为了更多的提高mysql效率可建立组合索引，遵循”最左前缀“原则。创建复合索引时应该将最常用（频率）作限制条件的列放在最左边，依次递减。组合索引最左字段用in是可以用到索引的，最好explain一下select。<br>
                 </p>
@@ -121,7 +121,6 @@ FULLTEXT(全文索引)      ALTER TABLE `table_name` ADD FULLTEXT ( `col` )
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article041_003.png" alt="" />
                 </div>
                 
-
 				<h3>mysql聚簇索引和非聚簇索引：</h3>
                 <p>叶子节点的数据域存放的并不是实际的数据记录，而是数据记录的地址。索引文件与数据文件分离，这样的索引称为“非聚簇索引”</p>
                 <div class="full-div">
@@ -132,6 +131,16 @@ FULLTEXT(全文索引)      ALTER TABLE `table_name` ADD FULLTEXT ( `col` )
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article041_002.png" alt="" />
                 </div>
 
+                <h3>多表关联时使用索引：</h3>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article041_003.png" alt="" />
+                </div>
+                <p>上图可以看出,如果连接字段不加索引，会进行全表扫描;也就是6_6_6,共遍历查询了216次;如果连接字段加索引，那么除第一张表示全表索引(必须的,要以此关联其他表),其余的为range(索引区间获得),也就是6+1+1+1,共遍历查询9次即可;</p>
+                <p>所以我们建议在多表join的时候尽量少join几张表,另外,我们还建议尽量使用left join,以少关联多.因为使用join 的话,第一张表是必须的全扫描的,以少关联多就可以减少这个扫描次数。</p>
+
+                <h3>索引的弊端：</h3>
+                <p>不要盲目的创建索引,创建索引会降低增加、删除、更新操作的速度,因为执行这些操作的同时会对索引文件进行重新排序或更新;</p>
+                
 
 				
                 
