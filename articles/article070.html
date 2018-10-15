@@ -128,22 +128,22 @@ git diff HEAD 可以查看工作区和版本库的差别<br>
                 </div>
                 <p>我们创建一个新的分支dev，切换到dev分支，并修改该分支的Test1.java，HEAD指针就指向dev分支，而master指针不变：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/0013849088235627813efe7649b4f008900e5365bb72323000/0" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_008.png" alt="" />
                 </div>
                 <p>如果我们又切换到master分支，并修改该分支的Test1.java，master分支和dev分支各自都分别有新的提交，变成了这样：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/001384909115478645b93e2b5ae4dc78da049a0d1704a41000/0" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_009.png" alt="" />
                 </div>
-                <p>这时候我们合并完dev分支到master，就会出现冲突，需要我们合并：</p>
+                <p>这时候如果我们合并dev分支到master，就会出现冲突，需要合并冲突：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/00138490913052149c4b2cd9702422aa387ac024943921b000/0" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_010.png" alt="" />
                 </div>
                 <p>合并后，甚至可以删除dev分支。删除dev分支就是把dev指针给删掉，删掉后，我们就剩下了一条master分支：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="https://cdn.liaoxuefeng.com/cdn/files/attachments/001384908867187c83ca970bf0f46efa19badad99c40235000/0" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_011.png" alt="" />
                 </div>
                 
-                <p>实战教程：</p>
+                <p>实例教程：</p>
                 <p>首先，我们创建dev分支，然后切换到dev分支：</p>
                 <pre>
                   <code>
