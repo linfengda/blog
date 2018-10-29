@@ -54,7 +54,7 @@
 				<h3>每个字段的解读？</h3>
 				<h4>id</h4>
                 <p>有一组数字组成。表示一个查询中各个子查询的执行顺序;</p>
-                <p>id相同执行顺序由上至下，id不同，id值越大优先级越高，越先被执行。</p>
+                <p>id相同执行顺序由上至下，id值越大越优先被执行。</p>
 
                 <h4>select_type</h4>
                 <p>表示查询中每个select子句的类型;</p>
@@ -73,8 +73,8 @@
                 <p>表示mysql在表中查找结果集的方式;</p>
                 <blockquote>
                 <p>
-1.all：Full Table Scan， MySQL将遍历全表以找到匹配的行<br>
-2.index：Full Index Scan，index与ALL区别为index类型只遍历索引树<br>
+1.all：Full Table Scan， 遍历全表以找到匹配的行<br>
+2.index：Full Index Scan，i遍历索引树以找到匹配的行<br>
 3.range：索引范围扫描，对索引的扫描开始于某一点，结束于另一点<br>
 4.eq_ref：唯一性索引扫描，对于每个索引键，表中只有一条记录与之匹配。 例如以主键或唯一索引为条件的查询<br>
 5.ref：非唯一性索引扫描，返回匹配某个单独值的所有行。<br>
