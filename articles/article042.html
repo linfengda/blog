@@ -61,10 +61,10 @@
                 <blockquote>
                 <p>
 1.SIMPLE：查询中不包含子查询或者UNION<br>
-2.查询中若包含任何复杂的子部分，最外层查询则被标记为：PRIMARY<br>
-3.在SELECT或WHERE列表中包含了子查询，该子查询被标记为：SUBQUERY<br>
-4.在FROM列表中包含的子查询被标记为：DERIVED<br>
-5.若第二个SELECT出现在UNION之后，则被标记为UNION；若UNION包含在 FROM子句的子查询中，外层SELECT将被标记为：DERIVED<br>
+2.PRIMARY：包含子查询的查询中，最外层查询<br>
+3.SUBQUERY：SELECT/WHERE列表中的子查询<br>
+4.DERIVED：FROM列表中的子查询<br>
+5.DERIVED：若第二个SELECT出现在UNION之后，则被标记为UNION；若UNION包含在FROM子句的子查询中，外层SELECT将被标记为DERIVED<br>
 6.从UNION表获取结果的SELECT被标记为：UNION RESULT
                 </p>
                 </blockquote>
