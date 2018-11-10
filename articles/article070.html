@@ -184,14 +184,14 @@ $ git branch
 
 				<h3>6. 标准的多人协作开发模式</h3>
 				<p>在git分支管理策略中，通常有2种套路</p>
-				<h4>1. 标准套路 (master + develop) + (feature + release + fixbug)</h4>
+				<h4>1. 标准套路 (master + develop) + (feature + fixbug)</h4>
 
-				<h5>首先，仅有一个主分支。所有提供给用户使用的正式版本，都在这个主分支上发布，发布完成后打标签</h5>
+				<h5>master分支，所有提供给用户使用的正式版本，都在这个主分支上发布，发布完成后打标签</h5>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_015.png" alt="" />
                 </div>
 
-                <h5>一个日常开发的分支Develop，开发测试完成后，就在Master分支上，对Develop分支进行merge</h5>
+                <h5>Develop分支，用于日常开发，开发测试完成后，就在Master分支上，对Develop分支进行merge</h5>
                 <pre>
                   <code>
 # 创建develop分支
@@ -249,7 +249,7 @@ it merge --no-ff fixbug-x
                   </code>
                 </pre>
 
-				<h4>2. 精致套路 master +（V1.1 + V1.1.2 + V1.1.3 + ...V1.1.n)</h4>
+				<h4>2. 精致套路 master +（V1.1 + V1.2 + V1.3 + ...V1.n)</h4>
 				<p>从公式可以看出，该套路追求极简风格，仅有一个master主分支，剩下的就是多个并行开发的版本分支，每个分支都从Master分支上面分出来的，开发完成后，再并入master分支，发布完成后，再合并进剩下的每个分支。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_019.png" alt="" />
