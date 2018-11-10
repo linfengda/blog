@@ -181,9 +181,89 @@ $ git branch
                 </div>
                 <p>点击红色x箭头可以忽略冲突，也可以直接将需要的代码复制到中间的result窗口，完成冲突合并。</p>
 
-				<h3>6. 标准的多人协作开发模式</h3>
 
-                
+				<h3>6. 标准的多人协作开发模式</h3>
+				<p>在git分支管理策略中，通常有2种套路</p>
+				<h4>1. 标准套路 (master + develop) + (feature + release + fixbug)</h4>
+
+				<h5>首先，仅有一个主分支。所有提供给用户使用的正式版本，都在这个主分支上发布，发布完成后打标签</h5>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_015.png" alt="" />
+                </div>
+
+                <h5>一个日常开发的分支Develop，开发测试完成后，就在Master分支上，对Develop分支进行merge</h5>
+                <pre>
+                  <code>
+# 创建develop分支
+git checkout -b develop master
+
+# 切换到master分支
+git checkout master	
+
+# 对develop分支进行合并
+it merge --no-ff develop
+                  </code>
+                </pre>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_016.png" alt="" />
+                </div>
+
+                <h5>feature分支</h5>
+                <p>Master和Develop。前者用于正式发布，后者用于日常开发。在生产开发中，产品会创建很多需求和若干个版本，然后把需求分到不同的版本。比如：产品规划了2个版本，1.1版本和1.2版本，1.1版本新增C模块，需要在10号上线，1.2版本升级A模块，需要在15号上线，但是它们需要同时进行开发。这时候我们就需要从Develop分支上面分出feature-1.1分支和feature-1.2分支，进行同时开发。开发完成后，要再并入Develop。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_017.png" alt="" />
+                </div>
+                <pre>
+                  <code>
+# 创建feature分支
+git checkout -b feature-x develop
+
+# 切换到develop分支
+git checkout develop	
+
+# 对feature分支进行合并
+it merge --no-ff feature-x
+
+# 删除feature分支
+git branch -d feature-x
+                  </code>
+                </pre>
+
+                <h5>fixBug分支</h5>
+                <p>软件正式发布以后，如果出现bug。这时就需要创建一个分支，进行bug修补。修补bug分支是从Master分支上面分出来的。修补结束以后，再合并进Master和Develop分支。它的命名，可以采用fixbug-*的形式。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_018.png" alt="" />
+                </div>
+                <pre>
+                  <code>
+# 创建fixbug分支
+git checkout -b fixbug-x develop
+
+# 修补结束后，合并到master分支：
+git checkout master	
+it merge --no-ff fixbug-x
+
+# 修补结束后，合并到develop分支：
+git checkout develop	
+it merge --no-ff fixbug-x
+                  </code>
+                </pre>
+
+				<h4>2. 精致套路 master +（V1.1 + V1.1.2 + V1.1.3 + ...V1.1.n)</h4>
+				<p>从公式可以看出，该套路追求极简风格，仅有一个master主分支，剩下的就是多个并行开发的版本分支，每个分支都从Master分支上面分出来的，开发完成后，再并入master分支，发布完成后，再合并进剩下的每个分支。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_019.png" alt="" />
+                </div>
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
+
+
+
+
+
 
 
 
