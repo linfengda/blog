@@ -194,14 +194,14 @@ $ git merge develop
 
 				<h3>6. 标准的多人协作开发模式</h3>
 				<p>在git分支管理策略中，通常有2种套路</p>
-				<h4>1. 标准套路 (master + develop) + (feature + fixbug)</h4>
+				<h4>1. git-flow套路 (master + develop) + (feature + fixbug)</h4>
 
 				<h5>master分支，所有提供给用户使用的正式版本，都在这个主分支上发布，发布完成后打标签</h5>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_015.png" alt="" />
                 </div>
 
-                <h5>develop分支，用于上线前的测试，测试完成后，就在master分支上，对develop分支进行合并，合并后进行发布。</h5>
+                <h5>develop分支，develop分支中包含的是下个版本需要发布的内容。从某种意义上来说，develop 是一个进行代码集成的分支。当 develop 分支集成了足够的新功能和 bug 修复代码之后，通过一个发布流程来完成新版本的发布。发布完成之后，develop 分支的代码会被合并到 master 分支中。</h5>
                 <pre>
                   <code>
 # 创建develop分支
@@ -219,7 +219,7 @@ git merge --no-ff develop
                 </div>
 
                 <h5>feature分支</h5>
-                <p>master和develop。前者用于正式发布，后者用于日常开发。在生产开发中，产品会创建很多需求和若干个版本，然后把需求分到不同的版本。比如：产品规划了2个版本，1.1版本和1.2版本，1.1版本新增C模块，需要在10号上线，1.2版本升级A模块，需要在15号上线，但是它们需要同时进行开发。这时候我们就需要从develop分支上面分出feature-1.1分支和feature-1.2分支，同时进行开发。开发完成后，要再并入develop。</p>
+                <p>master和develop。前者用于正式发布，后者用于版本测试。在生产开发中，产品会创建很多需求和若干个版本，然后把需求分到不同的版本。比如：产品规划了2个版本，1.1版本和1.2版本，1.1版本新增C模块，需要在10号上线，1.2版本升级A模块，需要在15号上线，但是它们需要同时进行开发。这时候我们就需要从develop分支上面分出feature-1.1分支和feature-1.2分支，同时进行开发。开发完成后，要再并入develop。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_017.png" alt="" />
                 </div>
@@ -259,24 +259,14 @@ git merge --no-ff fixbug-x
                   </code>
                 </pre>
 
-				<h4>2. 精致套路 master +（V1.1 + V1.2 + V1.3 + ...V1.n)</h4>
-				<p>从公式可以看出，该套路追求极简风格，仅有一个master主分支，剩下的就是多个并行开发的版本分支，每个分支都从Master分支上面分出来的，开发完成后，再并入master分支，发布完成后，再合并进剩下的每个分支。</p>
+				<h4>2. GitHub flow套路 master +（V1.1 + V1.2 + V1.3 + ...V1.n)</h4>
+				<p>从公式可以看出，该套路追求极简风格。和简单实用。<br></p>
+				<p>master分支中包含稳定的代码，该分支已经或即将被部署到生产环境。master 分支的作用是提供一个稳定可靠的代码基础。任何开发人员都不允许把未测试或未审查的代码直接提交到 master 分支。<br></p>
+				<p>对代码的任何修改，包括 bug 修复、hotfix、新功能开发等都在单独的分支中进行。不管是一行代码的小改动，还是需要几个星期开发的新功能，都采用同样的方式来管理。当需要进行修改时，从 master 分支创建一个新的分支。新分支的名称应该简单清晰地描述该分支的作用。所有相关的代码修改都在新分支中进行。开发人员可以自由地提交代码和 push 到远程仓库。<br></p>
+				<p>当新分支中的代码全部完成之后，团队中的其他人员会对代码进行审查，提出相关的修改意见。然后在测试环境进行测试。当代码通过代码审查和测试之后，该分支的代码被合并到master分支。再从master分支部署到生产环境。<br></p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_019.png" alt="" />
                 </div>
-                <pre>
-                  <code>
-
-                  </code>
-                </pre>
-
-
-
-
-
-
-
-
 
 
                 <pre>
@@ -284,6 +274,16 @@ git merge --no-ff fixbug-x
 
                   </code>
                 </pre>
+
+
+
+
+
+
+
+				<p>参考文章：https://www.ibm.com/developerworks/cn/java/j-lo-git-mange/index.html</p>
+
+
 
 
 
@@ -292,6 +292,8 @@ git merge --no-ff fixbug-x
 
 							</section>
 					</div>
+
+
 
 
 
