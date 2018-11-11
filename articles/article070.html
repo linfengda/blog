@@ -78,19 +78,21 @@ git push -u origin master
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_003.png" alt="" />
                 </div>
-                <blockquote>
                 <p>上图命令解释：</p>
+                <blockquote>
                 <p>
 1、git add<br>
-当我们使用git add指令时，就是将对应修改的文件添加到暂存区中，这时，暂存区中的目录树被更新<br>
+将本地文件修改同步到暂存区<br>
 2、git commit<br>
-紧接着，我们使用git commit指令，便会将暂存区中做出的修改提交到版本库中，这时master指向的分支被更新<br>
+将暂存区的修改同步到版本库，这时候你代码所属的本地分支被更新。<br>
+2、git push<br>
+将本地分支同步到远程分支，这时候你代码所属的远程分支被更新。<br>
 3、git reset HEAD<br>
-当使用git reset HEAD指令时，暂存区的内容会被版本库的内容覆盖<br>
+使用版本库还原暂存区中的文件<br>
 4、git checkout --file<br>
-使用暂存区中的对应文件内容直接替换工作区中的该文件（消除所有工作区进行的改动）<br>
+使用暂存区还原工作区中的文件<br>
 5、git checkout HEAD --file<br>
-使用版本库中的对应文件内容直接替换工作区和暂存区中的该文件<br>
+使用版本库还原工作区和暂存区中的文件<br>
                 </p>
                 </blockquote>
 
@@ -144,29 +146,37 @@ git diff HEAD 可以查看工作区和版本库的差别<br>
                 </div>
                 
                 <p>实例教程：</p>
-                <p>首先，我们创建dev分支，然后切换到dev分支：</p>
+                <p>首先，我们创建develop分支，然后切换到develop分支：</p>
                 <pre>
                   <code>
-$ git checkout -b dev
-Switched to a new branch 'dev'
+$ git checkout -b develop
+Switched to a new branch 'develop'
                   </code>
                 </pre>
                 <p>git checkout命令加上-b参数表示创建并切换，相当于以下两条命令：</p>
                 <pre>
                   <code>
-$ git branch dev
-$ git checkout dev
-Switched to branch 'dev'
+$ git branch develop
+$ git checkout develop
+Switched to branch 'develop'
                   </code>
                 </pre>
                 <p>然后，用git branch命令查看当前分支：</p>
                 <pre>
                   <code>
 $ git branch
-* dev
+* develop
   master
                   </code>
                 </pre>
+                <p>最后，如果我们在master和develop分支上都有了新的提交，则需要在master分支上合并develop分支：</p>
+                <pre>
+                  <code>
+$ git checkout master
+$ git merge develop
+                  </code>
+                </pre>
+
                 <p>然后，我们在dev分支上修改com.linfengda.sb.chapter1.git.Test1.java文件，添加一个新字段age，然后提交代码：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_012.png" alt="" />
