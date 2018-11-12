@@ -44,17 +44,89 @@ How to separate your configure file by different enviroment
 								</header>
 
 
-                <h3>1. 怎样在不同的部署环境启用不同的配置文件？</h3>
-                <p></p>
+                <h3>1. 关于maven build标签？</h3>
+                <p>Profile Build和Project Build共用的基本build元素</p>
+                <pre>
+                  <code>
+&lt;build&gt;
+  &lt;defaultGoal&gt;package&lt;/defaultGoal&gt;
+  &lt;directory&gt;${basedir}/target&lt;/directory&gt;
+  &lt;finalName&gt;${artifactId}-${version}&lt;/finalName&gt;
+  ...
+&lt;/build&gt;
+                  </code>
+                </pre>
+                <blockquote>
+                <p>
+defaultGoal，默认构建行为，如package,install等<br>
+directory，构建结果所在的路径，默认为${basedir}/target目录<br>
+finalName，构建结果的名字
+                </p>
+                </blockquote>
+                <p>如下图所示，默认构建行为： </p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article071_001.png" alt="" />
+                </div>
+                <p>构建结果所在的路径和名称： </p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article071_002.png" alt="" />
+                </div>
+                <p>resources标签引入资源文件，资源文件如properties或XML配置文件，无需编译，构建过程中会将资源文件从源路径复制到指定的目标路径。</p>
+                <pre>
+                  <code>
+&lt;!-- resources标签：声明资源文件 --&gt;
+&lt;resources&gt;
+    &lt;resource&gt;
+        &lt;!-- 构建过程中是否对资源进行过滤 --&gt;
+        &lt;filtering&gt;true&lt;/filtering&gt;
+        &lt;!-- 资源文件的路径 --&gt;
+        &lt;directory&gt;${basedir}/src/main/resources&lt;/directory&gt;
+        &lt;!-- 资源文件的目标路径 --&gt;
+        &lt;targetPath&gt;META-INF/aaa&lt;/targetPath&gt;
+        &lt;!-- 包含哪些文件 --&gt;
+        &lt;includes&gt;
+            &lt;include&gt;**/application*.yml&lt;/include&gt;
+            &lt;include&gt;**/application*.yaml&lt;/include&gt;
+            &lt;include&gt;**/application*.properties&lt;/include&gt;
 
-                <h3>2. 如何创建版本库？</h3>
-                <p>1.在github代码托管平台上Create a new repository，复制新仓库地址https://github.com/linfengda/springbootChapter1.git。</p>
+            &lt;include&gt;**/application-${activatedProperties}.yml&lt;/include&gt;
+            &lt;include&gt;**/application-${activatedProperties}.yaml&lt;/include&gt;
+            &lt;include&gt;**/application-${activatedProperties}.properties&lt;/include&gt;
+        &lt;/includes&gt;
+        &lt;!-- 不包含哪些文件 --&gt;
+        &lt;excludes&gt;
+            &lt;exclude&gt;**/aaa*.properties&lt;/exclude&gt;
+        &lt;/excludes&gt;
+    &lt;/resource&gt;
+&lt;/resources&gt;
+                  </code>
+                </pre>
+                <p>如下图所示，资源文件的目标路径： </p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article071_003.png" alt="" />
+                </div>
+                <p>不包含下列文件： </p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article071_004.png" alt="" />
+                </div>
+
+
+                <p>resources资源文件，如properties或XML配置文件，无需编译，构建过程中会将资源文件从源路径复制到指定的目标路径。</p>
+
+
+
+                <h3>3. 怎样在不同的部署环境启用不同的配置文件？</h3>
+                <p>资源文件，如properties或XML配置文件，无需编译，构建过程中会将资源文件从源路径复制到指定的目标路径。</p>
+
+                
 
 
                 <blockquote>
                 <p>
-git diff 比较工作区和暂存区的差别<br>
+aaa<br>
+bbb<br>
                 </p>
+                </blockquote>
 
                 <pre>
                   <code>
