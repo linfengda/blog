@@ -112,7 +112,81 @@ finalName，构建结果的名字
 
 
                 <h3>2. 怎样在不同的部署环境启用不同的配置文件？</h3>
-                <p>使用maven profile标签，</p>
+                <p>通过maven profile标签，什么是profile？&lt;profile&gt;就像&lt;dependencies&gt;一样是pom文件里的一个xml元素，在profile里几乎可以定义所有在pom里的定义的内容（&lt;dependencies&gt;，&lt;properties&gt;，插件配置等等，不过不能再定义他自己了）。当一个profile被激活时，它定义的&lt;dependencies&gt;，&lt;properties&gt;等就会覆盖掉原pom里定义的相同内容，从而可以通过激活不同的profile来使用不同的配置。</p>
+                <pre>
+                  <code>
+&lt;!-- profile 的感性认识 --&gt;
+&lt;project&gt;
+    ...
+    &lt;profiles&gt;
+      &lt;profile&gt;
+        &lt;id&gt;dev&lt;/id&gt;
+        &lt;properties&gt;
+            &lt;active.profile&gt;dev&lt;/active.profile&gt;
+            &lt;pom.jdbc.url&gt;jdbc:mysql://127.0.0.1:3306/dev&lt;/pom.jdbc.url&gt;
+        &lt;/properties&gt;
+        &lt;activation&gt;
+            &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+        &lt;/activation&gt;
+        &lt;dependencies&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+                &lt;version&gt;3.2.4.RELEASE&lt;/version&gt;
+            &lt;/dependency&gt;
+        &lt;dependencies&gt;
+      &lt;/profile&gt;
+    &lt;/profiles&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;log4j&lt;/groupId&gt;
+            &lt;artifactId&gt;log4j&lt;/artifactId&gt;
+            &lt;version&gt;1.2.14&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+    ...
+&lt;/project&gt;
+                  </code>
+                </pre>
+                <p>例如我的项目分离了3种开发环境的配置文件，并在 &lt;profile&gt; 的 &lt;activation&gt; 元素下配置隐式激活了本地开发环境的配置。</p>
+                <pre>
+                  <code>
+&lt;!-- maven打包时指定配置文件，使用mvn -U clean package -Plocal来显式激活对应的配置文件 --&gt;
+&lt;profiles&gt;
+    &lt;profile&gt;
+        &lt;!-- 本地开发环境 --&gt;
+        &lt;id&gt;dev&lt;/id&gt;
+        &lt;properties&gt;
+            &lt;profiles.active&gt;local&lt;/profiles.active&gt;
+        &lt;/properties&gt;
+        &lt;activation&gt;
+            &lt;!-- 开启本地开发环境 --&gt;
+            &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+        &lt;/activation&gt;
+    &lt;/profile&gt;
+    &lt;profile&gt;
+        &lt;!-- 测试环境 --&gt;
+        &lt;id&gt;test&lt;/id&gt;
+        &lt;properties&gt;
+            &lt;profiles.active&gt;test&lt;/profiles.active&gt;
+        &lt;/properties&gt;
+    &lt;/profile&gt;
+    &lt;profile&gt;
+        &lt;!-- 生产环境 --&gt;
+        &lt;id&gt;pro&lt;/id&gt;
+        &lt;properties&gt;
+            &lt;profiles.active&gt;pro&lt;/profiles.active&gt;
+        &lt;/properties&gt;
+    &lt;/profile&gt;
+&lt;/profiles&gt;
+                  </code>
+                </pre>
+                <p>然后在项目中新建3个环境的配置文件，通用的配置项还是放在application.yml中，不同的配置项（例如连接信息）抽离到各自的配置文件中。</p>
+                <pre>
+                  <code>
+
+                  </code>
+                </pre>
 
 
                 <h3>3. 怎样在不同的部署环境启用不同的外部配置文件？</h3>
