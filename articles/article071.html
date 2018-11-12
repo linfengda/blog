@@ -148,45 +148,76 @@ finalName，构建结果的名字
 &lt;/project&gt;
                   </code>
                 </pre>
-                <p>例如我的项目分离了3种开发环境的配置文件，并在 &lt;profile&gt; 的 &lt;activation&gt; 元素下配置隐式激活了本地开发环境的配置。</p>
+                <p>例如我的项目分离了3种开发环境的配置文件。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article067_005.png" alt="" />
+                </div>
+                <p>然后配置3个profile标签，分别为：local，test和prod，不同profile变量activatedProperties的值不同，假如local profile被激活，那么activatedProperties的值就是'local'，并在 &lt;profile&gt; 的 &lt;activation&gt; 元素下隐式激活了本地开发环境的配置。</p>
                 <pre>
                   <code>
 &lt;!-- maven打包时指定配置文件，使用mvn -U clean package -Plocal来显式激活对应的配置文件 --&gt;
 &lt;profiles&gt;
+    &lt;!-- 本地开发环境 --&gt;
     &lt;profile&gt;
-        &lt;!-- 本地开发环境 --&gt;
         &lt;id&gt;dev&lt;/id&gt;
         &lt;properties&gt;
-            &lt;profiles.active&gt;local&lt;/profiles.active&gt;
+            &lt;activatedProperties&gt;local&lt;/activatedProperties&gt;
         &lt;/properties&gt;
         &lt;activation&gt;
-            &lt;!-- 开启本地开发环境 --&gt;
+            &lt;!-- 默认开启本地开发环境 --&gt;
             &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
         &lt;/activation&gt;
     &lt;/profile&gt;
+    &lt;!-- 测试环境 --&gt;
     &lt;profile&gt;
-        &lt;!-- 测试环境 --&gt;
         &lt;id&gt;test&lt;/id&gt;
         &lt;properties&gt;
-            &lt;profiles.active&gt;test&lt;/profiles.active&gt;
+            &lt;activatedProperties&gt;test&lt;/activatedProperties&gt;
         &lt;/properties&gt;
     &lt;/profile&gt;
+    &lt;!-- 生产环境 --&gt;
     &lt;profile&gt;
-        &lt;!-- 生产环境 --&gt;
         &lt;id&gt;pro&lt;/id&gt;
         &lt;properties&gt;
-            &lt;profiles.active&gt;pro&lt;/profiles.active&gt;
+            &lt;activatedProperties&gt;prod&lt;/activatedProperties&gt;
         &lt;/properties&gt;
     &lt;/profile&gt;
 &lt;/profiles&gt;
                   </code>
                 </pre>
-                <p>然后在项目中新建3个环境的配置文件，通用的配置项还是放在application.yml中，不同的配置项（例如连接信息）抽离到各自的配置文件中。</p>
+                <p>通过activatedProperties变量加载不同环境配置文件</p>
                 <pre>
                   <code>
+&lt;!-- resources标签：声明资源文件 --&gt;
+&lt;resources&gt;
+    &lt;resource&gt;
+        &lt;!-- 构建过程中是否对资源进行过滤 --&gt;
+        &lt;filtering&gt;true&lt;/filtering&gt;
+        &lt;!-- 资源文件的路径 --&gt;
+        &lt;directory&gt;${basedir}/src/main/resources&lt;/directory&gt;
+        &lt;!-- 包含哪些文件 --&gt;
+        &lt;includes&gt;
+            &lt;include&gt;**/mapper/**/*.xml&lt;/include&gt;
+            &lt;include&gt;**/application.yml&lt;/include&gt;
+            &lt;include&gt;**/application.yaml&lt;/include&gt;
+            &lt;include&gt;**/application.properties&lt;/include&gt;
 
+            &lt;include&gt;**/application-${activatedProperties}.yml&lt;/include&gt;
+            &lt;include&gt;**/application-${activatedProperties}.yaml&lt;/include&gt;
+            &lt;include&gt;**/application-${activatedProperties}.properties&lt;/include&gt;
+        &lt;/includes&gt;
+        &lt;!-- 不包含哪些文件 --&gt;
+        &lt;excludes&gt;
+            &lt;exclude&gt;**/fileUnWanted.properties&lt;/exclude&gt;
+        &lt;/excludes&gt;
+    &lt;/resource&gt;
+&lt;/resources&gt;
                   </code>
                 </pre>
+                <p>现在默认激活的profile时local，打包后的配置文件如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article067_006.png" alt="" />
+                </div>
 
 
                 <h3>3. 怎样在不同的部署环境启用不同的外部配置文件？</h3>
