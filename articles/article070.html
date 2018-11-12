@@ -86,14 +86,7 @@ git push -u origin master
 2、git commit<br>
 将暂存区的修改同步到版本库，这时候你代码所属的本地分支被更新。<br>
 2、git push<br>
-将本地分支同步到远程分支，这时候你代码所属的远程分支被更新。<br>
-3、git reset HEAD<br>
-使用版本库还原暂存区中的文件<br>
-4、git checkout --file<br>
-使用暂存区还原工作区中的文件<br>
-5、git checkout HEAD --file<br>
-使用版本库还原工作区和暂存区中的文件<br>
-                </p>
+将本地分支同步到远程分支，这时候你代码所属的远程分支被更新。</p>
                 </blockquote>
 
                 <p>通过三个命令理解</p>
@@ -268,19 +261,60 @@ git merge --no-ff fixbug-x
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article070_019.png" alt="" />
                 </div>
 
-
+				<h3>7. 特殊情况下你可能需要用到的骚操作</h3>
+				<p>从任意commit hash中新建分支</p>
                 <pre>
                   <code>
-
+# 从commit hash新建分支：
+$ git checkout -b branch_name a7666fa
+# push到远程分支：
+$ git push -u branch_name
                   </code>
                 </pre>
-
-
-
-
-
-
-
+                <p>从标签tag中check out</p>
+                <pre>
+                  <code>
+# 从tag_name新建分支：
+$ git checkout -b branch_name tag_name
+# push到远程分支：
+$ git push -u branch_name
+                  </code>
+                </pre>
+                <p>使用版本库还原暂存区中的文件</p>
+                <pre>
+                  <code>
+$ git reset HEAD
+                  </code>
+                </pre>
+                <p>使用暂存区还原工作区中的文件</p>
+                <pre>
+                  <code>
+$ git checkout --file
+                  </code>
+                </pre>
+                <p>使用版本库还原工作区和暂存区中的文件</p>
+                <pre>
+                  <code>
+$ git checkout HEAD --file
+                  </code>
+                </pre>
+                <p>删除一个分支</p>
+                <pre>
+                  <code>
+$ git branch -d branch_name
+$ git branch -D branch_name
+                  </code>
+                </pre>
+                <p>如果需要切换到另一个分支进行开发，但是当前分支的代码才写到一半，不能提交时，将当前分支的代码放到暂存区</p>
+                <pre>
+                  <code>
+# 保存当前工作进度到暂存区：         
+$ git stash
+# 恢复最新的进度到工作区：    
+$ git stash pop
+                  </code>
+                </pre>
+                
 				<p>参考文章：https://www.ibm.com/developerworks/cn/java/j-lo-git-mange/index.html</p>
 
 
