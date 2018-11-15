@@ -153,7 +153,8 @@ finalName，构建结果的名字
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article067_005.png" alt="" />
                 </div>
-                <p>然后配置3个profile标签，分别为：local，test，prod环境，并在 &lt;profile&gt; 的 &lt;activation&gt; 元素下隐式激活了本地开发环境的profile。当然，如果你是通过命令手动打包，可以使用mvn -U clean package -Plocal来显式激活对应的profile。</p>
+                
+                <p>然后配置3个profile标签，分别为：local，test和prod，不同profile变量activatedProperties的值不同，假如local profile被激活，那么activatedProperties的值就是'local'，并在 &lt;profile&gt; 的 &lt;activation&gt; 元素下隐式激活了本地开发环境的配置。</p>
                 <pre>
                   <code>
 &lt;!-- maven打包时指定配置文件 --&gt;
@@ -162,7 +163,7 @@ finalName，构建结果的名字
     &lt;profile&gt;
         &lt;id&gt;dev&lt;/id&gt;
         &lt;properties&gt;
-            &lt;myActivateFile&gt;local&lt;/myActivateFile&gt;
+            &lt;activatedProperties&gt;local&lt;/activatedProperties&gt;
         &lt;/properties&gt;
         &lt;activation&gt;
             &lt;!-- 默认开启本地开发环境 --&gt;
@@ -173,20 +174,20 @@ finalName，构建结果的名字
     &lt;profile&gt;
         &lt;id&gt;test&lt;/id&gt;
         &lt;properties&gt;
-            &lt;myActivateFile&gt;test&lt;/myActivateFile&gt;
+            &lt;activatedProperties&gt;test&lt;/activatedProperties&gt;
         &lt;/properties&gt;
     &lt;/profile&gt;
     &lt;!-- 生产环境 --&gt;
     &lt;profile&gt;
         &lt;id&gt;pro&lt;/id&gt;
         &lt;properties&gt;
-            &lt;myActivateFile&gt;prod&lt;/myActivateFile&gt;
+            &lt;activatedProperties&gt;prod&lt;/activatedProperties&gt;
         &lt;/properties&gt;
     &lt;/profile&gt;
 &lt;/profiles&gt;
                   </code>
                 </pre>
-                <p>通过myActivateFile变量加载不同环境配置文件</p>
+                <p>通过activatedProperties变量加载不同环境配置文件</p>
                 <pre>
                   <code>
 &lt;!-- resources标签：声明资源文件 --&gt;
@@ -202,10 +203,9 @@ finalName，构建结果的名字
             &lt;include&gt;**/application.yml&lt;/include&gt;
             &lt;include&gt;**/application.yaml&lt;/include&gt;
             &lt;include&gt;**/application.properties&lt;/include&gt;
-
-            &lt;include&gt;**/application-${myActivateFile}.yml&lt;/include&gt;
-            &lt;include&gt;**/application-${myActivateFile}.yaml&lt;/include&gt;
-            &lt;include&gt;**/application-${myActivateFile}.properties&lt;/include&gt;
+            &lt;include&gt;**/application-${activatedProperties}.yml&lt;/include&gt;
+            &lt;include&gt;**/application-${activatedProperties}.yaml&lt;/include&gt;
+            &lt;include&gt;**/application-${activatedProperties}.properties&lt;/include&gt;
         &lt;/includes&gt;
         &lt;!-- 不包含哪些文件 --&gt;
         &lt;excludes&gt;
@@ -215,7 +215,7 @@ finalName，构建结果的名字
 &lt;/resources&gt;
                   </code>
                 </pre>
-                <p>现在默认激活的是local profile，打包后的配置文件如下：</p>
+                <p>现在默认激活的profile时local，打包后的配置文件如下：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article067_006.png" alt="" />
                 </div>
