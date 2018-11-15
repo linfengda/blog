@@ -45,7 +45,7 @@ How to separate your configure file by different enviroment
 
 
                 <h3>1. 关于maven build标签？</h3>
-                <p>Profile Build和Project Build共用的基本build元素</p>
+                <p>你可以在&lt;profile&gt;标签下声明&lt;/build&gt;标签，也可以直接在&lt;project&gt;标签下声明&lt;/build&gt;标签</p>
                 <pre>
                   <code>
 &lt;build&gt;
@@ -153,7 +153,7 @@ finalName，构建结果的名字
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article067_005.png" alt="" />
                 </div>
-                
+
                 <p>然后配置3个profile标签，分别为：local，test和prod，不同profile变量activatedProperties的值不同，假如local profile被激活，那么activatedProperties的值就是'local'，并在 &lt;profile&gt; 的 &lt;activation&gt; 元素下隐式激活了本地开发环境的配置。</p>
                 <pre>
                   <code>
