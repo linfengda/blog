@@ -187,7 +187,7 @@ finalName，构建结果的名字
 &lt;/profiles&gt;
                   </code>
                 </pre>
-                <p>通过activatedProperties变量加载不同环境配置文件</p>
+                <p>通过myActivateFile变量加载不同环境配置文件</p>
                 <pre>
                   <code>
 &lt;!-- resources标签：声明资源文件 --&gt;
@@ -215,14 +215,14 @@ finalName，构建结果的名字
 &lt;/resources&gt;
                   </code>
                 </pre>
-                <p>现在默认激活的profile时local，打包后的配置文件如下：</p>
+                <p>现在默认激活的是local profile，打包后的配置文件如下：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article067_006.png" alt="" />
                 </div>
 
                 <h3>3. 怎样在不同的部署环境启用不同的外部配置文件？</h3>
                 <p>一些敏感的配置信息（例如连接信息），通常由运维人员配置管理，这就要求将这些信息从项目中分离出来，并在应用发布时加载。</p>
-                <p>分离连接信息后的application.yml配置如下</p>
+                <p>分离连接信息后的application.yml配置如下：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article067_007.png" alt="" />
                 </div>
@@ -231,26 +231,15 @@ finalName，构建结果的名字
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article067_008.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article067_008.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article067_009.png" alt="" />
                 </div>
                 <p>加入参数启动应用，加载外部配置文件。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article067_009.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article067_010.png" alt="" />
                 </div>
+                <p>启动成功即可。</p>
 
                 
-
-
-
-                <pre>
-                  <code>
-
-                  </code>
-                </pre>
-
-
-
-
 
 
 
