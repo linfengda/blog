@@ -414,6 +414,24 @@ redis:
                 <p>这样就可以通过参数直接指定redis序列化方式。</p>
                 <pre>
                   <code>
+package com.linfengda.sb.common.config;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linfengda.sb.support.middleware.redis.SimpleRedisTemplate;
+import com.linfengda.sb.support.middleware.redis.SimpleRedisTemplate4JS;
+import com.linfengda.sb.support.middleware.redis.SimpleRedisTemplate4PS;
+import com.linfengda.sb.support.middleware.redis.serializer.ProtoStuffSerializer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.util.Assert;
+
 /**
  * 描述: Redis配置
  *
@@ -424,9 +442,6 @@ redis:
 public class RedisConfig {
     @Value(&quot;${spring.redis.serializer}&quot;)
     private String serializer;
-
-    private SimpleRedisTemplate DEFAULT_REDIS_TEMPLATE = new SimpleRedisTemplate4PS();
-    private RedisSerializer DEFAULT_REDIS_SERIALIZER = new ProtoStuffSerializer();
 
     /**
      * 序列化类型
@@ -439,7 +454,7 @@ public class RedisConfig {
                     return s;
                 }
             }
-            return null;
+            return jackson;
         }
     }
 
@@ -454,13 +469,15 @@ public class RedisConfig {
     public SimpleRedisTemplate simpleRedisTemplate(RedisConnectionFactory connectionFactory) {
 
         Serializer serializer = Serializer.getType(this.serializer);
+        Assert.notNull(serializer, &quot;序列化方式不能为空！&quot;);
         SimpleRedisTemplate simpleRedisTemplate = getRedisTemplate(serializer);
+        RedisSerializer redisSerializer = getRedisSerializer(serializer);
         simpleRedisTemplate.setConnectionFactory(connectionFactory);
         // 配置序列化和反序列化方式
         simpleRedisTemplate.setKeySerializer(new StringRedisSerializer());
         simpleRedisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        simpleRedisTemplate.setValueSerializer(getRedisSerializer(serializer));
-        simpleRedisTemplate.setHashValueSerializer(getRedisSerializer(serializer));
+        simpleRedisTemplate.setValueSerializer(redisSerializer);
+        simpleRedisTemplate.setHashValueSerializer(redisSerializer);
         simpleRedisTemplate.afterPropertiesSet();
         return simpleRedisTemplate;
     }
@@ -472,7 +489,7 @@ public class RedisConfig {
             case jackson:
                 return new SimpleRedisTemplate4JS();
             default:
-                return DEFAULT_REDIS_TEMPLATE;
+                return null;
         }
     }
 
@@ -489,7 +506,7 @@ public class RedisConfig {
                 jackson2JsonRedisSerializer.setObjectMapper(om);
                 return jackson2JsonRedisSerializer;
             default:
-                return DEFAULT_REDIS_SERIALIZER;
+                return null;
         }
     }
 }
