@@ -37,7 +37,7 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>RDBMS: mysql innodb engines</h1>
+									<h1>mysql innodb engines</h1>
 									<p>
 这是关于《 MySQL技术内幕：InnoDB存储引擎》吐槽的一篇文章，通览全书，发现以下特点：1.知识零散，毫无关联；2.只讲源码，脱离生产；3.毫无目的，为了装逼而装逼
 									</p>
@@ -56,44 +56,29 @@
                 </div>
                 <p>如上图所示，主要缓存数据页和索引页</p>
                 <p>1. 数据页：使用LRU算法缓存一部分热点数据</p>
-                <p>2. 索引页：缓存索引页，当插入辅助索引（非唯一索引）时，先插入到insert buff中，如果索引页在索引缓存中，直接插入，如果不在，构架一颗BTree再插入，然后再刷新回磁盘。</p>
+                <p>2. 索引页：缓存索引页，当插入二级索引时，先插入到insert buff中，如果索引页在索引缓存中，直接插入，如果不在，构架一颗BTree再插入，然后再刷新回磁盘。</p>
                 <p>3. 自适应哈希索引：同一条件+同一数据+查询>100次后，innodb引擎会为这份数据建立自适应哈希索引。</p>
 
+				<h3>3. innodb引擎缓冲池有什么用？</h3>
+
+				<h4>redo log buff</h4>
+				<p>redo log在数据库更新上的优化大家都知道，下图描述了redo log在两阶段提交中的作用：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article043_002.png" alt="" />
+                </div>
+                <p>当发生数据更新时，只需要写完redo log，这条记录就算写完了，直接返回给执行器成功。redo log再异步回刷脏页到磁盘，做到了将随机写变成顺序写磁盘，以提高效率。</p>
+
+                <h4>data page</h4>
+                <p>inndb读取数据都是整页读取的，每一页的数据大小是16k，这也是唯一索引和普通索引的查询效率几乎毫无差别的原因：当普通索引找到符合条件的第一条记录时，需要多做一次查找和判断下一条记录，这条记录已经在当前页中了。data page缓存的数据页会定期异步刷新，因此如果要查询的数据页在data page中，查询速度会很快。</p>
+
+                <h4>index page</h4>
+                <p>索引页缓存，当使用索引进行查询时，如果索引页在内存中，可以直接走索引查找，具体速度可以参考B+树查找时间复杂度，对于一个整形的主键索引来说，B+树的每一层有上千个key，当表数据量不大时，这个搜索很快就可以结束。</p>
+
+                <h4>insert buff</h4>
+                <p>现在这个buff改成了change buff，change buffer是MySQL5.5加入的新特性，change buffer是insert buffer的加强，insert buffer只针对insert有效，change buffer对insert、delete、update、purge都有效。当修改一个二级索引的数据时，如果要更新的目标页在内存中，不用考虑直接插，如果不在，则将更新记录在change buffer，语句执行就结束了。 下次读取该数据页的时候，会和change buffer中修改信息merge，再回刷磁盘。change buff通过减少磁盘回刷的次数和将随机写变成顺序写磁盘，以提高效率。</p>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <p></p>
-                <blockquote>
-                <p>
-git diff 比较工作区和暂存区的差别<br>
-                </p>
-                </blockquote>
-
-                <pre>
-                  <code>
-
-                  </code>
-                </pre>
-               
-
-
-
-
-
- 
 
 
 							</section>
