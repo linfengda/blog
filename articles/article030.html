@@ -37,26 +37,28 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>redis cluster demo</h1>
-									<p>一次拥有3个节点的redis集群案例分享</p>
+									<h1>redis memory optimization</h1>
+									<p>redis内存优化技巧</p>
 								</header>
 
 
-                <h3>1. 为什么需要redis集群？</h3>
-                <p></p>
-
-                <h3>2. 怎样构建一个稳定可用的redis集群？</h3>
-                <p></p>
-
-                <h3>3. 使用redis集群解决大流量用户场景？</h3>
-                <p></p>
-
-
-
-
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article043_001.png" alt="" />
+                <h3>1. 内存消耗在哪里？</h3>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article030_001.png" alt="" />
                 </div>
+                <p>这里我们需要注意的是缓冲内存，缓冲内存包括redis server的输入输出缓冲，所以需要避免对大键值对的查询，以免坑了自己，这跟数据库要分页查询的道理是一样的。一般我们都会设置redis server的maxmemory参数，内存终将用尽，OOM终将发生，有信仰的我们是不会用删除键这种内存溢出策略的，所以如果你的热点数据很多，可以参考我的下一篇博文：<a href="../articles/article031.html">redis cluster test</a></p>
+
+                <h3>2. 怎样利用现用的内存？</h3>
+                <p>虽然内存是有限的，但对付日常的场景，这几个G还是很好用的。下面是我的一些使用总结：</p>
+                <h4>1. 尽量使用更小的key和value</h4>
+                <h4>2. 使用命名空间前缀，规范key的业务范围</h4>
+                <h4>3. 如果你要存储对象，请遵循规范：使用专门的VO来存储，不要使用本来有其他用途的Bean</h4>
+                <h4>4. 使用正确的redis数据结构缓存数据</h4>
+                <h4>5. 根据的业务特点来设置缓存失效时间</h4>
+                <h4>6. 当存储字符串时，将字符串的长度限制在39字节内</h4>
+                <h4>7. 使用更加高效的序列化反序列化方式，甚至在必要的场景下，压缩数据</h4>
+                <h4>8. 使用内存分组策略：将你要缓存的数据按照业务区分，将redis的内存比作一个圆，每一部分数据就是一个扇形，例如档案缓存/登录缓存/权限缓存，每个加工厂的档案缓存/移动端登录缓存/PC端登录缓存/每个用户的权限缓存，数据量越大，越需要将数据分组。以方便缓存管理和集群扩展。</h4>
+
 
 							</section>
 					</div>
