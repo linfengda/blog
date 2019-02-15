@@ -112,7 +112,7 @@ redis-sentinel redis-cluster/26381/sentinel.conf
 				表示该sentinel监控的master节点，其中quorum表示主观下线的票数，实际上Sentinel节点会对所有节点进行监控，但是在Sentinel节点的配置中没有看到有关从节点和其余Sentinel节点的配置，那是因为Sentinel节点会从主节点中获取有关从节点以及其余Sentinel节点的相关信息</p>
                 <p>部署完成后效果如下所示：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_001.png" alt="" />
                 </div>
                 <p>server节点的配置文件如下：</p>
                 <pre>
@@ -151,7 +151,7 @@ sentinel parallel-syncs master_3 1
 				<h3>3. redis client测试：jedis/lettuce哪个好？</h3>
 				<p>redis jedis和lettuce客户端均支持单机和集群命令集，代码结构如下所示：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_002.png" alt="" />
                 </div>
                 <p>RedisTemplate模板类提供了封装后的redis所有api操作接口，这些操作根据数据类型被解耦为ValueOperations/ListOperations/SetOperations/HashOperations/...等操作类，每个操作类封装了对应数据类型的操作，例如DefaultValueOperations封装了value的get，set操作，即RedisStringCommands的底层命令。</p>
 
