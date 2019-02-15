@@ -37,26 +37,163 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>redis cluster test</h1>
-									<p>测试2个节点redis集群性能表现</p>
+									<h1>spring boot chapter6</h1>
+									<p>
+Redis cluster performance test
+								    </p>
 								</header>
 
 
-                <h3>1. 为什么需要redis集群？</h3>
-                <p>热点数据太大了</p>
+                <h3>1. 关于redis cluster？</h3>
+                <p>redis cluster是解决redis可用性和可水平扩展的方案，它主要提供数据分片和主从备份。</p>
+                <h3>2. 怎样在linux机器上部署redis cluster？</h3>
+                <p>在6台机器上部署redis cluster架构的步骤如下：</p>
+                <pre>
+                  <code>
+一：Redis安装
 
-                <h3>2. 怎样构建一个单纯架构上稳定的redis集群？</h3>
-                <p></p>
+1.下载，解压，安装，编译：
+cd /usr/local
+wget http://download.redis.io/releases/redis-5.0.3.tar.gz
+tar xvzf redis-5.0.3.tar.gz
+cd redis-5.0.3
+make && make install      # 编译后产生bin的目录，包含redis可执行文件
 
-                <h3>3. 面对我们的业务场景，这个redis集群的性能和稳定性如何？</h3>
-                <p></p>
+
+2.6个节点的redis-cluster目录如下：
+├── redis-cluster
+│   ├── 7001/redis.conf
+│   ├── 7002/redis.conf
+│   ├── 7003/redis.conf
+│   ├── 7004/redis.conf
+│   ├── 7005/redis.conf
+│   └── 7006/redis.conf
 
 
+3. 启动所有节点：
+redis-server redis-cluster/7001/redis.conf
+redis-server redis-cluster/7002/redis.conf
+redis-server redis-cluster/7003/redis.conf
+redis-server redis-cluster/7004/redis.conf
+redis-server redis-cluster/7005/redis.conf
+redis-server redis-cluster/7006/redis.conf 
 
+4. 关闭所有节点：
+redis-cli -p 7001 shutdown
+redis-cli -p 7002 shutdown
+redis-cli -p 7003 shutdown
+redis-cli -p 7004 shutdown
+redis-cli -p 7005 shutdown
+redis-cli -p 7006 shutdown
 
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article043_001.png" alt="" />
+5. 连接所有节点：
+redis-cli -h 119.23.181.11 -c -p 7001
+redis-cli -h 119.23.181.12 -c -p 7002
+redis-cli -h 119.23.181.13 -c -p 7003
+redis-cli -h 119.23.181.14 -c -p 7004
+redis-cli -h 119.23.181.15 -c -p 7005
+redis-cli -h 119.23.181.16 -c -p 7006
+
+6.使用redis-cli进行集群握手并分配槽：
+redis-cli --cluster create 119.23.181.11:7001 119.23.181.12:7002 119.23.181.13:7003 119.23.181.14:7004 119.23.181.15:7005 119.23.181.16:7006 --cluster-replicas 1
+                  </code>
+                </pre>
+                <p>如果你不想在master节点down的时候手动指定新的master，就最好配置sentinel监控节点运行情况，以保证故障自动转移：</p>
+                <pre>
+                  <code>
+7.启动3个redis sentinel：
+redis-sentinel redis-cluster/26379/sentinel.conf
+redis-sentinel redis-cluster/26380/sentinel.conf
+redis-sentinel redis-cluster/26381/sentinel.conf
+                  </code>
+                </pre>
+                <p>redis sentinel节点的作用是：监控---&gt;通知---&gt;故障转移<br>
+				redis sentinel节点最重要的配置：sentinel monitor &lt;master-name&gt; &lt;ip&gt; &lt;port&gt; &lt;quorum&gt;<br>
+				表示该sentinel监控的master节点，其中quorum表示主观下线的票数，实际上Sentinel节点会对所有节点进行监控，但是在Sentinel节点的配置中没有看到有关从节点和其余Sentinel节点的配置，那是因为Sentinel节点会从主节点中获取有关从节点以及其余Sentinel节点的相关信息</p>
+                <p>部署完成后效果如下所示：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_001.png" alt="" />
                 </div>
+                <p>server节点的配置文件如下：</p>
+                <pre>
+                  <code>
+port 7001
+cluster-enabled yes
+cluster-config-file nodes-7001.conf
+cluster-node-timeout 5000
+daemonize yes
+                  </code>
+                </pre>
+                <p>sentinel节点的配置文件如下：</p>
+                <pre>
+                  <code>
+port 26379
+dir /tmp
+daemonize yes
+sentinel monitor master_1 47.106.79.8 7001 2
+sentinel down-after-milliseconds master_1 30000
+sentinel failover-timeout master_1 180000
+sentinel parallel-syncs master_1 1
+
+sentinel monitor master_2 47.106.79.8 7002 2
+sentinel down-after-milliseconds master_2 30000
+sentinel failover-timeout master_2 180000
+sentinel parallel-syncs master_2 1
+
+sentinel monitor master_3 47.106.79.8 7003 2
+sentinel down-after-milliseconds master_3 30000
+sentinel failover-timeout master_3 180000
+sentinel parallel-syncs master_3 1
+                  </code>
+                </pre>
+
+
+				<h3>3. redis client测试：jedis/lettuce哪个好？</h3>
+				<p>redis jedis和lettuce客户端均支持单机和集群命令集，代码结构如下所示：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_002.png" alt="" />
+                </div>
+                <p>RedisTemplate模板类提供了封装后的redis所有api操作接口，这些操作根据数据类型被解耦为ValueOperations/ListOperations/SetOperations/HashOperations/...等操作类，每个操作类封装了对应数据类型的操作，例如DefaultValueOperations封装了value的get，set操作，即RedisStringCommands的底层命令。</p>
+
+
+                <h3>4. redis qps测试：普配的redis服务器在高qps下的表现如何？</h3>
+                <h4>使用redis-benchmark进行基准测试：</h4>
+
+                <p>测试性能：100个并发连接数+100000个请求数</p>
+				redis-benchmark -h 127.0.0.1 -p 7004 -c 100 -n 100000
+
+				<p>测试性能：存取大小为100字节的数据包</p>
+				redis-benchmark -h 127.0.0.1 -p 7004 -d 100
+
+				<p>测试性能：set+lpush+100000个请求数</p>
+				redis-benchmark -h 127.0.0.1 -p 7004 -t set,lpush -n 100000
+
+				<p>测试性能：执行100000个请求数的特定脚本</p>
+				redis-benchmark script load "redis.call('set','foo','bar')" -n 100000
+
+				<p>测试性能：1万条随机key+100000个请求数</p>
+				redis-benchmark -h 127.0.0.1 -p 7004 -t set -r 10000 -n 1000000
+
+                <h3>5. redis big key测试：如何让一台普配的redis服务器负载更大的数据流量？</h3>
+                
+
+                
+
+
+
+
+
+
+
+
+
+                <p></p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article067_001.png" alt="" />
+                </div>
+                
+                
+
 
 							</section>
 					</div>
