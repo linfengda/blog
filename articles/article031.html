@@ -130,17 +130,17 @@ daemonize yes
 port 26379
 dir /tmp
 daemonize yes
-sentinel monitor master_1 47.106.79.8 7001 2
+sentinel monitor master_1 119.23.181.11 7001 2
 sentinel down-after-milliseconds master_1 30000
 sentinel failover-timeout master_1 180000
 sentinel parallel-syncs master_1 1
 
-sentinel monitor master_2 47.106.79.8 7002 2
+sentinel monitor master_2 119.23.181.12 7002 2
 sentinel down-after-milliseconds master_2 30000
 sentinel failover-timeout master_2 180000
 sentinel parallel-syncs master_2 1
 
-sentinel monitor master_3 47.106.79.8 7003 2
+sentinel monitor master_3 119.23.181.13 7003 2
 sentinel down-after-milliseconds master_3 30000
 sentinel failover-timeout master_3 180000
 sentinel parallel-syncs master_3 1
