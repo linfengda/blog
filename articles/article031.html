@@ -170,7 +170,7 @@ sentinel parallel-syncs master_3 1
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_006.png" alt="" />
                 </div>
-                <p>debug lettuce core包下的源码发现LettuceConnection在获取redis node列表的时候发生了错误，由于代码逻辑问题，取本地ip当做集群ip返回，并在尝试获取连接时直接报错：</p>
+                <p>于是调试lettuce-core包下的源码，发现LettuceConnection在获取redis node节点列表的时候发生了错误，仔细观察这里的代码逻辑有问题，取本地ip当做集群ip返回，然后尝试获取连接就会直接报错：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_007.png" alt="" />
                 </div>
@@ -184,18 +184,18 @@ sentinel parallel-syncs master_3 1
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_010.png" alt="" />
                 </div>
-                <p>spring-data-redis包下的代码，个人认为过度封装，而且从代码规范性来看，我怀疑部分功能代码根本没用测试过，所以这里我直接简单封装了lettuce-core包下的redis command命令集，以供lettuce客户端连接方式的测试使用：</p>
+                <p>spring-data-redis包下的代码，个人认为过度封装，而且从代码规范性来看，我怀疑部分功能代码根本没用测试过，所以这里我直接简单封装了lettuce-core包下的redis command命令集，以供lettuce客户端的测试使用：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_011.png" alt="" />
                 </div>
-                <p>再次测试，发现lettuce客户端的单线程的执行效率比jedis要高：</p>
+                <p>然后再次测试，发现lettuce客户端的单线程的执行效率与jedis基本相同，都在20ms以内：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_011.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_012.png" alt="" />
                 </div>
 
 
 
-                <h3>4. redis qps测试：普配的redis服务器在高qps下的表现如何？</h3>
+                <h3>4. redis qps测试：redis服务器在高qps下的表现如何？</h3>
                 <h4>使用redis-benchmark进行基准测试：</h4>
 
                 <p>测试性能：100个并发连接数+100000个请求数</p>
