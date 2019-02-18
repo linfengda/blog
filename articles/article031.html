@@ -153,7 +153,46 @@ sentinel parallel-syncs master_3 1
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_002.jpg" alt="" />
                 </div>
-                <p>RedisTemplate模板类提供了封装后的redis所有api操作接口，并根据数据类型被分为ValueOperations/ListOperations/SetOperations/HashOperations/...等操作类，例如DefaultValueOperations封装了value的get，set操作，即RedisStringCommands的底层命令。并根据RedisCallback函数接口实现了command执行前/执行后的资源获取/资源关闭操作。</p>
+                <p>RedisTemplate模板类提供了封装后的redis所有api操作接口，并根据数据类型被分为ValueOperations/ListOperations/SetOperations/HashOperations/...等操作类，例如DefaultValueOperations封装了字符串的get，set操作，并使用一个函数接口（RedisCallback）实现了command执行前/执行后的资源获取/资源关闭操作。执行顺序非常清晰：RedisTemplate--->ValueOperations--->RedisStringCommands。</p>
+
+                <p>我们分别将JedisConnectionFactory和LettuceConnectionFactory注入RedisTemplate来测试效率：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_003.png" alt="" />
+                </div>
+                <p>发现Jedis的平均处理时间基本在70ms以内：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_004.png" alt="" />
+                </div>
+                <p>但是LettuceConnectionFactory的代码在处理的时候直接报错：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_005.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_006.png" alt="" />
+                </div>
+                <p>debug lettuce core包下的源码发现LettuceConnection在获取redis node列表的时候发生了错误，由于代码逻辑问题，取本地ip当做集群ip返回，并在尝试获取连接时直接报错：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_007.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_008.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_009.png" alt="" />
+                </div>
+				<p>代码流程如下所示：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_010.png" alt="" />
+                </div>
+                <p>spring-data-redis包下的代码，个人认为过度封装，而且从代码规范性来看，我怀疑部分功能代码根本没用测试过，所以这里我直接简单封装了lettuce-core包下的redis command命令集，以供lettuce客户端连接方式的测试使用：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_011.png" alt="" />
+                </div>
+                <p>再次测试，发现lettuce客户端的单线程的执行效率比jedis要高：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_011.png" alt="" />
+                </div>
+
 
 
                 <h3>4. redis qps测试：普配的redis服务器在高qps下的表现如何？</h3>
