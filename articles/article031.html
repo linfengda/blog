@@ -193,25 +193,77 @@ sentinel parallel-syncs master_3 1
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_012.png" alt="" />
                 </div>
 
+                <p>Jedis是直连模式，在多个线程间共享一个jedis实例时是线程不安全的，如果想要在多线程环境下使用Jedis，需要使用连接池。lettuce使用netty进行连接管理，连接实例可以在多个线程间共享，理论上并发效率要比jedis高。<br>接下来我们通过java多线程来测试jedis和lettuce客户端的并发性能，测试条件如下：</p>
+                <blockquote>
+                <p>
+并发连接数：8<br>
+请求数：1000*8<br>
+慢查询阈值：30ms<br>
+最大连接数：jedis:8/lettuce：1<br>
+                </p>
+                </blockquote>
+                <p>测试出jedis慢查询比例为：8%，lettuce慢查询比例为：77%，理论上来说通过netty共享连接实例比起连接池技术消耗更少、并发效率更高，但是我们的测试结果却和理论相反，说明redis lettuce客户端的实现有待完善，也说明了理论好实现垃圾一样是垃圾，理论简单实现细腻一样跑的飞快。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_013.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_014.png" alt="" />
+                </div>
 
 
                 <h3>4. redis qps测试：redis服务器在高qps下的表现如何？</h3>
-                <h4>使用redis-benchmark进行基准测试：</h4>
+                <p>redis自带性能测试工具redis-benchmark，我们先使用redis-benchmark进行单机的基准测试：</p>
 
-                <p>测试性能：100个并发连接数+100000个请求数</p>
-				redis-benchmark -h 127.0.0.1 -p 7004 -c 100 -n 100000
+                <p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
+				redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 100
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_015.png" alt="" />
+                </div>
+				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
+				redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 10000
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_016.png" alt="" />
+                </div>
+				<p>3.测试性能：并发连接数=10，请求数=100000，数据包=10000字节</p>
+				redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 100000 -d 10000
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_017.png" alt="" />
+                </div>
+				<p>以上测试结果都是99%的请求耗时&lt;1ms</p>
 
-				<p>测试性能：存取大小为100字节的数据包</p>
-				redis-benchmark -h 127.0.0.1 -p 7004 -d 100
+				<p>接下来使用jedis客户端进行redis qps测试：</p>
+				<blockquote>
+                <p>
+并发连接数：10<br>
+请求数：1000*10<br>
+慢查询阈值：1ms/10ms/20ms<br>
+最大连接数：jedis:8/lettuce：1<br>
+                </p>
+                </blockquote>
+				<p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
+				<p>结果在测试过程中发现redis报错：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_018.png" alt="" />
+                </div>
+				<p>我设置的redis最大连接数是8，而并发连接数是10，当并发数&gt;最大连接数时，如果同一时间内所有线程都在查询，会导致连接数不够用。解决的方法很简单，设置最大连接数=200，得到以下测试结果：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_019.png" alt="" />
+                </div>
 
-				<p>测试性能：set+lpush+100000个请求数</p>
-				redis-benchmark -h 127.0.0.1 -p 7004 -t set,lpush -n 100000
+				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_020.png" alt="" />
+                </div>
 
-				<p>测试性能：执行100000个请求数的特定脚本</p>
-				redis-benchmark script load "redis.call('set','foo','bar')" -n 100000
+				<p>3.测试性能：并发连接数=10，请求数=100000，数据包=10000字节</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_021.png" alt="" />
+                </div>
 
-				<p>测试性能：1万条随机key+100000个请求数</p>
-				redis-benchmark -h 127.0.0.1 -p 7004 -t set -r 10000 -n 1000000
+
+
+
+
 
                 <h3>5. redis big key测试：如何让一台普配的redis服务器负载更大的数据流量？</h3>
                 
