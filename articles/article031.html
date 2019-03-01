@@ -226,7 +226,7 @@ sentinel parallel-syncs master_3 1
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_016.png" alt="" />
                 </div>
-				<p>3.测试性能：并发连接数=100，请求数=100000，数据包=10000字节</p>
+				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
 				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 100 -n 10000 -d 10000
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_017.png" alt="" />
@@ -255,17 +255,18 @@ sentinel parallel-syncs master_3 1
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_020.png" alt="" />
                 </div>
-                <p>测试结果显示99%的查询&lt;10ms，跟benchmark的测试结果对比，说明实际应用中网络RTT占redis处理耗时的绝大部分，同时说明redis在10*10000的qps下还算稳定。</p>
+                <p>测试结果显示99%的查询&lt;10ms，跟benchmark的测试结果对比说明实际应用中网络RTT占redis处理耗时的绝大部分，同时说明redis在10*10000的qps下还算稳定。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_021.png" alt="" />
                 </div>
-                <p>不过测试结果反映的是redis集群的qps，redis单机的qps我估计更低，随机检查2台机器的keys，截图如下：</p>
+                <p>不过测试结果反映的是redis集群的qps，这从redis server db的keys可以看出，随机检查2台机器的keys，截图如下：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_022.png" alt="" />
                 </div>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_023.png" alt="" />
                 </div>
+                <p>redis单机的qps我估计更低。</p>
 
 				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
 				<div class="full-div">
@@ -290,7 +291,7 @@ sentinel parallel-syncs master_3 1
 #在47.106.79.8机器上启动master
 redis-server redis-cluster/7001/redis.conf
 #在119.23.181.11机器上启动slaver
-redis-server redis-cluster/7001/redis.conf
+redis-server redis-cluster/7004/redis.conf
 #指定119.23.181.11机器的master为47.106.79.8
 relicaof 47.106.79.8 7001
                   </code>
@@ -306,24 +307,13 @@ relicaof 47.106.79.8 7001
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
                 </div>
+                <p>以上就是关于redis集群的几项针对测试，测试代码详见：<a href="https://linfengda.github.io/blog/articles/article031.html">redis cluster test</a></p>
 
                 
 
                 
 
 
-
-
-
-
-
-
-
-                <p></p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article067_001.png" alt="" />
-                </div>
-                
                 
 
 
