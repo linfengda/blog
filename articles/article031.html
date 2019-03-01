@@ -202,34 +202,36 @@ sentinel parallel-syncs master_3 1
 最大连接数：jedis:8/lettuce：1<br>
                 </p>
                 </blockquote>
-                <p>测试出jedis慢查询比例为：8%，lettuce慢查询比例为：77%，理论上来说通过netty共享连接实例比起连接池技术消耗更少、并发效率更高，但是我们的测试结果却和理论相反，说明redis lettuce客户端的实现有待完善，也说明了理论好实现垃圾一样是垃圾，理论简单实现细腻一样跑的飞快。</p>
+                <p>测试出jedis慢查询比例为：8%</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_013.png" alt="" />
                 </div>
+                <p>lettuce慢查询比例为：77%</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_014.png" alt="" />
                 </div>
+                <p>理论上来说通过netty共享连接实例比起连接池技术消耗更少、并发效率更高，但是我们的测试结果却和理论相反，说明redis lettuce客户端的实现有待完善，也说明了理论对实现垃圾一样是垃圾，理论简单实现细腻一样跑的飞快。</p>
 
 
                 <h3>4. redis qps测试：redis服务器在高qps下的表现如何？</h3>
                 <p>redis自带性能测试工具redis-benchmark，我们先使用redis-benchmark进行单机的基准测试：</p>
 
                 <p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
-				redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 100
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 100
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_015.png" alt="" />
                 </div>
 				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
-				redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 10000
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 10000
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_016.png" alt="" />
                 </div>
-				<p>3.测试性能：并发连接数=10，请求数=100000，数据包=10000字节</p>
-				redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 100000 -d 10000
+				<p>3.测试性能：并发连接数=100，请求数=100000，数据包=10000字节</p>
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 100 -n 10000 -d 10000
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_017.png" alt="" />
                 </div>
-				<p>以上测试结果都是99%的请求耗时&lt;1ms</p>
+				<p>测试结果显示，99%的请求耗时&lt;1ms</p>
 
 				<p>接下来使用jedis客户端进行redis qps测试：</p>
 				<blockquote>
@@ -245,27 +247,66 @@ sentinel parallel-syncs master_3 1
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_018.png" alt="" />
                 </div>
-				<p>我设置的redis最大连接数是8，而并发连接数是10，当并发数&gt;最大连接数时，如果同一时间内所有线程都在查询，会导致连接数不够用。解决的方法很简单，设置最大连接数=200，得到以下测试结果：</p>
+				<p>我设置的并发连接数是10，而redis最大连接数是8，当并发数&gt;最大连接数时，如果同一时间内所有线程都在查询，会导致连接数不够用。解决的方法很简单，设置最大连接数=200：</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_019.png" alt="" />
+                </div>
+                <p>我用AtomicLong类型的3个变量milliseconds1Count，milliseconds10Count,milliseconds20Count分别记录查询速度在1ms，10ms，20ms以下的查询数，返回结果显示查询总数=10*10000，milliseconds1Count=27328，milliseconds10Count=71464，milliseconds20Count=1208，说明java原子类型还是靠谱的：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_020.png" alt="" />
+                </div>
+                <p>测试结果显示99%的查询&lt;10ms，跟benchmark的测试结果对比，说明实际应用中网络RTT占redis处理耗时的绝大部分，同时说明redis在10*10000的qps下还算稳定。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_021.png" alt="" />
+                </div>
+                <p>不过测试结果反映的是redis集群的qps，redis单机的qps我估计更低，随机检查2台机器的keys，截图如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_022.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_023.png" alt="" />
                 </div>
 
 				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_020.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_024.png" alt="" />
                 </div>
+                <p>测试结果显示只有76%的查询&lt;10ms，速度有所下降，可能跟服务器的处理速度有关。</p>
 
-				<p>3.测试性能：并发连接数=10，请求数=100000，数据包=10000字节</p>
+				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_021.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_025.png" alt="" />
+                </div>
+                <p>具体原因可能是输入输出缓冲溢出问题，因为我的linux服务器内存才2G，也可能是其他问题，这里我没有继续找原因，不过测试结果说明了redis在高qps下还是会崩溃的，其实我们的程序，包括生产环境的程序，都是在侥幸地运行，只不过这个侥幸在99%的运行时间里没有出问题罢了。</p>
+
+                <h3>5. redis主从复制测试：redis分布式锁在主从模式下会失效吗？</h3>
+                <p>我们都知道redis在主从复制模式下，slaver端会设置参数replica-read-only=yes，即只能在master写入，所以不存在session A从master获得锁，session B从slaver获取锁的情况，（这跟mysql的主从复制是一个道理），但是眼见为实，我们新建一个主从架构来测试下，它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_026.png" alt="" />
+                </div>
+                <p>搭建命令如下：</p>
+                <pre>
+                  <code>
+#在47.106.79.8机器上启动master
+redis-server redis-cluster/7001/redis.conf
+#在119.23.181.11机器上启动slaver
+redis-server redis-cluster/7001/redis.conf
+#指定119.23.181.11机器的master为47.106.79.8
+relicaof 47.106.79.8 7001
+                  </code>
+                </pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_027.png" alt="" />
+                </div>
+                <p>我们使用Thread A先获取锁，获取锁后超时时间为60s：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_028.png" alt="" />
+                </div>
+                <p>再使用Thread B尝试获取同样的锁，结果无论Thread B如何尝试，都无法获取该锁，只有Thread A释放锁后才能获取：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
                 </div>
 
-
-
-
-
-
-                <h3>5. redis big key测试：如何让一台普配的redis服务器负载更大的数据流量？</h3>
                 
 
                 
