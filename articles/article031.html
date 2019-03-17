@@ -45,7 +45,7 @@ Redis cluster performance test
 
 
                 <h3>1. 关于redis cluster？</h3>
-                <p>redis cluster是解决redis可用性和可水平扩展的方案，它主要提供数据分片。</p>
+                <p>redis cluster是解决redis可用性和水平扩展的方案，它主要提供数据分片。</p>
                 <h3>2. 怎样在linux机器上部署redis cluster？</h3>
                 <p>在6台机器上部署redis cluster架构的步骤如下：</p>
                 <pre>
@@ -272,7 +272,7 @@ sentinel parallel-syncs master_3 1
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_024.png" alt="" />
                 </div>
-                <p>测试结果显示只有76%的查询&lt;10ms，速度有所下降，可能跟服务器的处理速度有关。</p>
+                <p>测试结果显示只有76%的查询&lt;20ms，速度有所下降，可能跟服务器的处理速度有关。</p>
 
 				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
 				<div class="full-div">
@@ -307,9 +307,13 @@ relicaof 47.106.79.8 7001
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
                 </div>
+
+                <h3>6. redis集群测试：redis分布式锁在集群模式下会失效吗？</h3>
+                <p></p>
+
+
                 <p>以上就是关于redis集群的几项针对测试，测试代码详见：<a href="https://github.com/linfengda/springbootChapter1">git springbootChapter1</a></p>
 
-                
 
                 
 
