@@ -309,8 +309,18 @@ relicaof 47.106.79.8 7001
                 </div>
 
                 <h3>6. redis集群测试：redis分布式锁在集群模式下会失效吗？</h3>
-                <p></p>
-
+                <p>redis集群的每台机器负责分片不同槽的写入，即属于某个槽的key只能写入一台机器，所以不存在session A从node1获取锁，session B从node2获取锁的情况，但是眼见为实，我们新建一个集群架构来测试下，它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_001.png" alt="" />
+                </div>
+                <p>我们使用Thread A先获取锁，获取锁后超时时间为60s：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_028.png" alt="" />
+                </div>
+                <p>再使用Thread B尝试获取同样的锁，结果无论Thread B如何尝试，都无法获取该锁，只有Thread A释放锁后才能获取：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
+                </div>
 
                 <p>以上就是关于redis集群的几项针对测试，测试代码详见：<a href="https://github.com/linfengda/springbootChapter1">git springbootChapter1</a></p>
 
