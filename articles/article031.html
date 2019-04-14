@@ -184,7 +184,7 @@ sentinel parallel-syncs master_3 1
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_010.png" alt="" />
                 </div>
-                <p>spring-data-redis包下的代码，个人认为过度封装，而且从代码规范性来看，我怀疑部分功能代码根本没用测试过，所以这里我直接简单封装了lettuce-core包下的redis command命令集，以供lettuce客户端的测试使用：</p>
+                <p>spring-data-redis包下的代码，个人认为过度封装，而且从代码规范性来看，我怀疑部分功能代码根本没有测试过，所以这里我直接简单封装了lettuce-core包下的redis command命令集，以供lettuce客户端的测试使用：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_011.png" alt="" />
                 </div>
@@ -231,7 +231,7 @@ sentinel parallel-syncs master_3 1
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_017.png" alt="" />
                 </div>
-				<p>测试结果显示，99%的请求耗时&lt;1ms</p>
+				<p>测试结果显示，99%的请求耗时&lt;10ms</p>
 
 				<p>接下来使用jedis客户端进行redis qps测试：</p>
 				<blockquote>
@@ -255,7 +255,7 @@ sentinel parallel-syncs master_3 1
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_020.png" alt="" />
                 </div>
-                <p>测试结果显示99%的查询&lt;10ms，跟benchmark的测试结果对比说明实际应用中网络RTT占redis处理耗时的绝大部分，同时说明redis在10*10000的qps下还算稳定。</p>
+                <p>测试结果显示99%的查询&lt;20ms，对比benchmark的测试结果，说明实际应用中网络RTT占redis处理耗时的绝大部分，同时说明redis在10*10000的qps下还算稳定。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_021.png" alt="" />
                 </div>
@@ -272,13 +272,13 @@ sentinel parallel-syncs master_3 1
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_024.png" alt="" />
                 </div>
-                <p>测试结果显示只有76%的查询&lt;20ms，速度有所下降，可能跟服务器的处理速度有关。</p>
+                <p>测试结果显示只有76%的查询&lt;20ms，速度有所下降，说明更大的key-value需要更长的服务器处理时间。</p>
 
 				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_025.png" alt="" />
                 </div>
-                <p>具体原因可能是输入输出缓冲溢出问题，因为我的linux服务器内存才2G，也可能是其他问题，这里我没有继续找原因，不过测试结果说明了redis在高qps下还是会崩溃的，其实我们的程序，包括生产环境的程序，都是在侥幸地运行，只不过这个侥幸在99%的运行时间里没有出问题罢了。</p>
+                <p>具体原因可能是输入输出缓冲溢出问题，因为我的linux服务器内存才2G，也可能是tcp-backlog溢出或者其他问题，这里我没有继续找原因，不过测试结果说明了redis在高qps下还是会崩溃的，其实我们的程序，包括生产环境的程序，都是在侥幸地运行，只不过这个侥幸在99%的运行时间里没有出问题罢了。</p>
 
                 <h3>5. redis主从复制测试：redis分布式锁在主从模式下会失效吗？</h3>
                 <p>我们都知道redis在主从复制模式下，slaver端会设置参数replica-read-only=yes，即只能在master写入，所以不存在session A从master获得锁，session B从slaver获取锁的情况，（这跟mysql的主从复制是一个道理），但是眼见为实，我们新建一个主从架构来测试下，它大概长下面这样子：</p>
