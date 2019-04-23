@@ -280,7 +280,7 @@ sentinel parallel-syncs master_3 1
                 </div>
                 <p>具体原因可能是输入输出缓冲溢出问题，因为我的linux服务器内存才2G，也可能是tcp-backlog溢出或者其他问题，这里我没有继续找原因，不过测试结果说明了redis在高qps下还是会崩溃的，其实我们的程序，包括生产环境的程序，都是在侥幸地运行，只不过这个侥幸在99%的运行时间里没有出问题罢了。</p>
 
-                <h3>5. redis主从复制测试：redis分布式锁在主从模式下会失效吗？</h3>
+                <h3>5. redis分布式锁测试：在主从模式下会失效吗？</h3>
                 <p>我们都知道redis在主从复制模式下，slaver端会设置参数replica-read-only=yes，即只能在master写入，所以不存在session A从master获得锁，session B从slaver获取锁的情况，（这跟mysql的主从复制是一个道理），但是眼见为实，我们新建一个主从架构来测试下，它大概长下面这样子：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_026.png" alt="" />
@@ -308,7 +308,7 @@ relicaof 47.106.79.8 7001
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
                 </div>
 
-                <h3>6. redis集群测试：redis分布式锁在集群模式下会失效吗？</h3>
+                <h3>6. redis分布式锁测试：在集群模式下会失效吗？</h3>
                 <p>redis集群的每台机器负责分片不同槽的写入，即属于某个槽的key只能写入一台机器，所以不存在session A从node1获取锁，session B从node2获取锁的情况，但是眼见为实，我们新建一个集群架构来测试下，它大概长下面这样子：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_001.png" alt="" />
@@ -321,6 +321,46 @@ relicaof 47.106.79.8 7001
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
                 </div>
+
+                <h3>7. redi哨兵测试：在主从模式下如何生效？</h3>
+                <p>我们分别在2台机器上启动master节点（7001）和slaver节点（7004），在另外3台机器上启动3个sentinel节点（26379,26380,26381），sentinel配置文件如下：</p>
+                <pre>
+                  <code>
+port 26379
+dir /tmp
+daemonize yes
+sentinel monitor master 47.106.79.8 7001 2
+sentinel down-after-milliseconds master 30000
+sentinel failover-timeout master 180000
+sentinel parallel-syncs master 1
+                  </code>
+                </pre>
+                <p>这个架构它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_030.png" alt="" />
+                </div>
+                <p>在7001查看节点信息，显示它是master：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_031.png" alt="" />
+                </div>
+                <p>在7004查看节点信息，显示它是slaver：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_032.png" alt="" />
+                </div>
+                <p>我们偷偷把7001 down掉：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_033.png" alt="" />
+                </div>
+                <p>发现30s后，sentinel们把7004变为master继续支持服务，并关闭只读：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_034.png" alt="" />
+                </div>
+                <p>再次启动7001，发现它已经变为7004的slaver：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_035.png" alt="" />
+                </div>
+
+
 
                 <p>以上就是关于redis集群的几项针对测试，测试代码详见：<a href="https://github.com/linfengda/springbootChapter1">git springbootChapter1</a></p>
 
