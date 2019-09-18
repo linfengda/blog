@@ -1,0 +1,399 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 21, 2018</span>
+									<h1>spring boot chapter6</h1>
+									<p>
+Redis master-slaver test
+								    </p>
+								</header>
+
+
+                <h3>1. 关于redis主从模式？</h3>
+                <p>为了解决redis单机数据查询瓶颈问题，通过多台从服务器分担查询请求，以达到水平扩展查询量的目的。</p>
+                <h3>2. 怎样在linux机器上部署redis主从模式？</h3>
+                <h3>3. 一主多从怎么合理配置？</h3>
+                <h3>3. 一主多从怎么合理配置？</h3>
+                <p>在6台机器上部署redis cluster架构的步骤如下：</p>
+                <pre>
+                  <code>
+一：Redis安装
+
+1.下载，解压，安装，编译：
+cd /usr/local
+wget http://download.redis.io/releases/redis-5.0.3.tar.gz
+tar xvzf redis-5.0.3.tar.gz
+cd redis-5.0.3
+make && make install      # 编译后产生bin的目录，包含redis可执行文件
+
+
+2.6个节点的redis-cluster目录如下：
+├── redis-cluster
+│   ├── 7001/redis.conf
+│   ├── 7002/redis.conf
+│   ├── 7003/redis.conf
+│   ├── 7004/redis.conf
+│   ├── 7005/redis.conf
+│   └── 7006/redis.conf
+
+
+3. 启动所有节点：
+redis-server redis-cluster/7001/redis.conf
+redis-server redis-cluster/7002/redis.conf
+redis-server redis-cluster/7003/redis.conf
+redis-server redis-cluster/7004/redis.conf
+redis-server redis-cluster/7005/redis.conf
+redis-server redis-cluster/7006/redis.conf 
+
+4. 关闭所有节点：
+redis-cli -p 7001 shutdown
+redis-cli -p 7002 shutdown
+redis-cli -p 7003 shutdown
+redis-cli -p 7004 shutdown
+redis-cli -p 7005 shutdown
+redis-cli -p 7006 shutdown
+
+5. 连接所有节点：
+redis-cli -h 119.23.181.11 -c -p 7001
+redis-cli -h 119.23.181.12 -c -p 7002
+redis-cli -h 119.23.181.13 -c -p 7003
+redis-cli -h 119.23.181.14 -c -p 7004
+redis-cli -h 119.23.181.15 -c -p 7005
+redis-cli -h 119.23.181.16 -c -p 7006
+
+6.使用redis-cli进行集群握手并分配槽：
+redis-cli --cluster create 119.23.181.11:7001 119.23.181.12:7002 119.23.181.13:7003 119.23.181.14:7004 119.23.181.15:7005 119.23.181.16:7006 --cluster-replicas 1
+                  </code>
+                </pre>
+                <p>如果你不想在master节点down的时候手动指定新的master，就最好配置sentinel监控节点运行情况，以保证故障自动转移：</p>
+                <pre>
+                  <code>
+7.启动3个redis sentinel：
+redis-sentinel redis-cluster/26379/sentinel.conf
+redis-sentinel redis-cluster/26380/sentinel.conf
+redis-sentinel redis-cluster/26381/sentinel.conf
+                  </code>
+                </pre>
+                <p>redis sentinel节点的作用是：监控---&gt;通知---&gt;故障转移<br>
+				redis sentinel节点最重要的配置：sentinel monitor &lt;master-name&gt; &lt;ip&gt; &lt;port&gt; &lt;quorum&gt;<br>
+				表示该sentinel监控的master节点，其中quorum表示主观下线的票数，实际上Sentinel节点会对所有节点进行监控，但是在Sentinel节点的配置中没有看到有关从节点和其余Sentinel节点的配置，那是因为Sentinel节点会从主节点中获取有关从节点以及其余Sentinel节点的相关信息</p>
+                <p>部署完成后效果如下所示：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_001.png" alt="" />
+                </div>
+                <p>server节点的配置文件如下：</p>
+                <pre>
+                  <code>
+port 7001
+cluster-enabled yes
+cluster-config-file nodes-7001.conf
+cluster-node-timeout 5000
+daemonize yes
+                  </code>
+                </pre>
+                <p>sentinel节点的配置文件如下：</p>
+                <pre>
+                  <code>
+port 26379
+dir /tmp
+daemonize yes
+sentinel monitor master_1 119.23.181.11 7001 2
+sentinel down-after-milliseconds master_1 30000
+sentinel failover-timeout master_1 180000
+sentinel parallel-syncs master_1 1
+
+sentinel monitor master_2 119.23.181.12 7002 2
+sentinel down-after-milliseconds master_2 30000
+sentinel failover-timeout master_2 180000
+sentinel parallel-syncs master_2 1
+
+sentinel monitor master_3 119.23.181.13 7003 2
+sentinel down-after-milliseconds master_3 30000
+sentinel failover-timeout master_3 180000
+sentinel parallel-syncs master_3 1
+                  </code>
+                </pre>
+
+
+				<h3>3. redis client测试：jedis/lettuce哪个好？</h3>
+				<p>redis jedis和lettuce客户端均支持单机和集群命令集，代码结构如下所示：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_002.jpg" alt="" />
+                </div>
+                <p>RedisTemplate模板类提供了封装后的redis所有api操作接口，并根据数据类型被分为ValueOperations/ListOperations/SetOperations/HashOperations/...等操作类，例如DefaultValueOperations封装了字符串的get，set操作，并使用一个函数接口（RedisCallback）实现了command执行前/执行后的资源获取/资源关闭操作。执行顺序非常清晰：RedisTemplate--->ValueOperations--->RedisStringCommands。</p>
+
+                <p>我们分别将JedisConnectionFactory和LettuceConnectionFactory注入RedisTemplate来测试效率：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_003.png" alt="" />
+                </div>
+                <p>发现Jedis的平均处理时间基本在20ms以内：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_004.png" alt="" />
+                </div>
+                <p>但是LettuceConnectionFactory的代码在处理的时候直接报错：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_005.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_006.png" alt="" />
+                </div>
+                <p>于是调试lettuce-core包下的源码，发现LettuceConnection在获取redis node节点列表的时候发生了错误，仔细观察这里的代码逻辑有问题，取本地ip当做集群ip返回，然后尝试获取连接就会直接报错：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_007.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_008.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_009.png" alt="" />
+                </div>
+				<p>代码流程如下所示：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_010.png" alt="" />
+                </div>
+                <p>spring-data-redis包下的代码，个人认为过度封装，而且从代码规范性来看，我怀疑部分功能代码根本没有测试过，所以这里我直接简单封装了lettuce-core包下的redis command命令集，以供lettuce客户端的测试使用：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_011.png" alt="" />
+                </div>
+                <p>然后再次测试，发现lettuce客户端的单线程的执行效率与jedis基本相同，都在20ms以内：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_012.png" alt="" />
+                </div>
+
+                <p>Jedis是直连模式，在多个线程间共享一个jedis实例时是线程不安全的，如果想要在多线程环境下使用Jedis，需要使用连接池。lettuce使用netty进行连接管理，连接实例可以在多个线程间共享，理论上并发效率要比jedis高。<br>接下来我们通过java多线程来测试jedis和lettuce客户端的并发性能，测试条件如下：</p>
+                <blockquote>
+                <p>
+并发连接数：8<br>
+请求数：1000*8<br>
+慢查询阈值：30ms<br>
+最大连接数：jedis:8/lettuce：1<br>
+                </p>
+                </blockquote>
+                <p>测试出jedis慢查询比例为：8%</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_013.png" alt="" />
+                </div>
+                <p>lettuce慢查询比例为：77%</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_014.png" alt="" />
+                </div>
+                <p>理论上来说通过netty共享连接实例比起连接池技术消耗更少、并发效率更高，但是我们的测试结果却和理论相反，说明redis lettuce客户端的实现有待完善，也说明了理论对实现垃圾一样是垃圾，理论简单实现细腻一样跑的飞快。</p>
+
+
+                <h3>4. redis qps测试：redis服务器在高qps下的表现如何？</h3>
+                <p>redis自带性能测试工具redis-benchmark，我们先使用redis-benchmark进行单机的基准测试：</p>
+
+                <p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 100
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_015.png" alt="" />
+                </div>
+				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 10000
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_016.png" alt="" />
+                </div>
+				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 100 -n 10000 -d 10000
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_017.png" alt="" />
+                </div>
+				<p>测试结果显示，99%的请求耗时&lt;10ms</p>
+
+				<p>接下来使用jedis客户端进行redis qps测试：</p>
+				<blockquote>
+                <p>
+并发连接数：10<br>
+请求数：1000*10<br>
+慢查询阈值：1ms/10ms/20ms<br>
+最大连接数：jedis:8/lettuce：1<br>
+                </p>
+                </blockquote>
+				<p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
+				<p>结果在测试过程中发现redis报错：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_018.png" alt="" />
+                </div>
+				<p>我设置的并发连接数是10，而redis最大连接数是8，当并发数&gt;最大连接数时，如果同一时间内所有线程都在查询，会导致连接数不够用。解决的方法很简单，设置最大连接数=200：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_019.png" alt="" />
+                </div>
+                <p>我用AtomicLong类型的3个变量milliseconds1Count，milliseconds10Count,milliseconds20Count分别记录查询速度在1ms，10ms，20ms以下的查询数，返回结果显示查询总数=10*10000，milliseconds1Count=27328，milliseconds10Count=71464，milliseconds20Count=1208，说明java原子类型还是靠谱的：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_020.png" alt="" />
+                </div>
+                <p>测试结果显示99%的查询&lt;20ms，对比benchmark的测试结果，说明实际应用中网络RTT占redis处理耗时的绝大部分，同时说明redis在10*10000的qps下还算稳定。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_021.png" alt="" />
+                </div>
+                <p>不过测试结果反映的是redis集群的qps，这从redis server db的keys可以看出，随机检查2台机器的keys，截图如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_022.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_023.png" alt="" />
+                </div>
+                <p>redis单机的qps我估计更低。</p>
+
+				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_024.png" alt="" />
+                </div>
+                <p>测试结果显示只有76%的查询&lt;20ms，速度有所下降，说明更大的key-value需要更长的服务器处理时间。</p>
+
+				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_025.png" alt="" />
+                </div>
+                <p>具体原因可能是输入输出缓冲溢出问题，因为我的linux服务器内存才2G，也可能是tcp-backlog溢出或者其他问题，这里我没有继续找原因，不过测试结果说明了redis在高qps下还是会崩溃的，其实我们的程序，包括生产环境的程序，都是在侥幸地运行，只不过这个侥幸在99%的运行时间里没有出问题罢了。</p>
+
+                <h3>5. redis分布式锁测试：在主从模式下会失效吗？</h3>
+                <p>我们都知道redis在主从复制模式下，slaver端会设置参数replica-read-only=yes，即只能在master写入，所以不存在session A从master获得锁，session B从slaver获取锁的情况，（这跟mysql的主从复制是一个道理），但是眼见为实，我们新建一个主从架构来测试下，它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_026.png" alt="" />
+                </div>
+                <p>搭建命令如下：</p>
+                <pre>
+                  <code>
+#在47.106.79.8机器上启动master
+redis-server redis-cluster/7001/redis.conf
+#在119.23.181.11机器上启动slaver
+redis-server redis-cluster/7004/redis.conf
+#指定119.23.181.11机器的master为47.106.79.8
+relicaof 47.106.79.8 7001
+                  </code>
+                </pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_027.png" alt="" />
+                </div>
+                <p>我们使用Thread A先获取锁，获取锁后超时时间为60s：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_028.png" alt="" />
+                </div>
+                <p>再使用Thread B尝试获取同样的锁，结果无论Thread B如何尝试，都无法获取该锁，只有Thread A释放锁后才能获取：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
+                </div>
+
+                <h3>6. redis分布式锁测试：在集群模式下会失效吗？</h3>
+                <p>redis集群的每台机器负责分片不同槽的写入，即属于某个槽的key只能写入一台机器，所以不存在session A从node1获取锁，session B从node2获取锁的情况，但是眼见为实，我们新建一个集群架构来测试下，它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_001.png" alt="" />
+                </div>
+                <p>我们使用Thread A先获取锁，获取锁后超时时间为60s：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_028.png" alt="" />
+                </div>
+                <p>再使用Thread B尝试获取同样的锁，结果无论Thread B如何尝试，都无法获取该锁，只有Thread A释放锁后才能获取：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
+                </div>
+
+                <h3>7. redi哨兵测试：在主从模式下如何生效？</h3>
+                <p>我们分别在2台机器上启动master节点（7001）和slaver节点（7004），在另外3台机器上启动3个sentinel节点（26379,26380,26381），sentinel配置文件如下：</p>
+                <pre>
+                  <code>
+port 26379
+dir /tmp
+daemonize yes
+sentinel monitor master 47.106.79.8 7001 2
+sentinel down-after-milliseconds master 30000
+sentinel failover-timeout master 180000
+sentinel parallel-syncs master 1
+                  </code>
+                </pre>
+                <p>这个架构它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_030.png" alt="" />
+                </div>
+                <p>在7001查看节点信息，显示它是master：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_031.png" alt="" />
+                </div>
+                <p>在7004查看节点信息，显示它是slaver：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_032.png" alt="" />
+                </div>
+                <p>我们偷偷把7001 down掉：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_033.png" alt="" />
+                </div>
+                <p>发现30s后，sentinel们把7004变为master继续支持服务，并关闭只读：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_034.png" alt="" />
+                </div>
+                <p>再次启动7001，发现它已经变为7004的slaver：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_035.png" alt="" />
+                </div>
+
+
+
+                <p>以上就是关于redis集群的几项针对测试，测试代码详见：<a href="https://github.com/linfengda/springbootChapter1">git springbootChapter1</a></p>
+
+
+                
+
+
+                
+
+
+							</section>
+					</div>
+
+
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
