@@ -46,331 +46,126 @@ Redis master-slaver test
 
                 <h3>1. 关于redis主从模式？</h3>
                 <p>为了解决redis单机数据查询瓶颈问题，通过多台从服务器分担查询请求，以达到水平扩展查询量的目的。</p>
+
                 <h3>2. 怎样在linux机器上部署redis主从模式？</h3>
+
                 <h3>3. 一主多从怎么合理配置？</h3>
-                <h3>3. 一主多从怎么合理配置？</h3>
-                <p>在6台机器上部署redis cluster架构的步骤如下：</p>
+
+                <h3>4. redis实例间具体如何分担查询请求？</h3>
+
+                <p>在2台机器上部署redis一主一丛：</p>
                 <pre>
                   <code>
-一：Redis安装
-
-1.下载，解压，安装，编译：
-cd /usr/local
-wget http://download.redis.io/releases/redis-5.0.3.tar.gz
-tar xvzf redis-5.0.3.tar.gz
-cd redis-5.0.3
-make && make install      # 编译后产生bin的目录，包含redis可执行文件
-
-
-2.6个节点的redis-cluster目录如下：
-├── redis-cluster
-│   ├── 7001/redis.conf
-│   ├── 7002/redis.conf
-│   ├── 7003/redis.conf
-│   ├── 7004/redis.conf
-│   ├── 7005/redis.conf
-│   └── 7006/redis.conf
-
-
-3. 启动所有节点：
-redis-server redis-cluster/7001/redis.conf
-redis-server redis-cluster/7002/redis.conf
-redis-server redis-cluster/7003/redis.conf
-redis-server redis-cluster/7004/redis.conf
-redis-server redis-cluster/7005/redis.conf
-redis-server redis-cluster/7006/redis.conf 
-
-4. 关闭所有节点：
-redis-cli -p 7001 shutdown
-redis-cli -p 7002 shutdown
-redis-cli -p 7003 shutdown
-redis-cli -p 7004 shutdown
-redis-cli -p 7005 shutdown
-redis-cli -p 7006 shutdown
-
-5. 连接所有节点：
-redis-cli -h 119.23.181.11 -c -p 7001
-redis-cli -h 119.23.181.12 -c -p 7002
-redis-cli -h 119.23.181.13 -c -p 7003
-redis-cli -h 119.23.181.14 -c -p 7004
-redis-cli -h 119.23.181.15 -c -p 7005
-redis-cli -h 119.23.181.16 -c -p 7006
-
-6.使用redis-cli进行集群握手并分配槽：
-redis-cli --cluster create 119.23.181.11:7001 119.23.181.12:7002 119.23.181.13:7003 119.23.181.14:7004 119.23.181.15:7005 119.23.181.16:7006 --cluster-replicas 1
+1.2个节点的目录如下：
+├── master---119.23.181.11:7001
+│   └── redis-ms/7001/redis.conf
+├── slaver---47.106.79.8:7004
+│   └── redis-ms/7004/redis.conf
                   </code>
                 </pre>
-                <p>如果你不想在master节点down的时候手动指定新的master，就最好配置sentinel监控节点运行情况，以保证故障自动转移：</p>
+                <p>7001和7004的配置信息分别为：</p>
                 <pre>
                   <code>
-7.启动3个redis sentinel：
-redis-sentinel redis-cluster/26379/sentinel.conf
-redis-sentinel redis-cluster/26380/sentinel.conf
-redis-sentinel redis-cluster/26381/sentinel.conf
-                  </code>
-                </pre>
-                <p>redis sentinel节点的作用是：监控---&gt;通知---&gt;故障转移<br>
-				redis sentinel节点最重要的配置：sentinel monitor &lt;master-name&gt; &lt;ip&gt; &lt;port&gt; &lt;quorum&gt;<br>
-				表示该sentinel监控的master节点，其中quorum表示主观下线的票数，实际上Sentinel节点会对所有节点进行监控，但是在Sentinel节点的配置中没有看到有关从节点和其余Sentinel节点的配置，那是因为Sentinel节点会从主节点中获取有关从节点以及其余Sentinel节点的相关信息</p>
-                <p>部署完成后效果如下所示：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_001.png" alt="" />
-                </div>
-                <p>server节点的配置文件如下：</p>
-                <pre>
-                  <code>
+# 7001
 port 7001
-cluster-enabled yes
-cluster-config-file nodes-7001.conf
-cluster-node-timeout 5000
+logfile "7001.log"
+dbfilename "dump-7001.rdb"
 daemonize yes
+protected-mode no
+bind 0.0.0.0
+requirepass oi54wrw36mns37kdf3hs475_b54wl73qwge0qwk4ld
+
+tcp-backlog 128
+replica-serve-stale-data yes
+replica-read-only yes
+slowlog-log-slower-than 10000
+maxmemory 209715200
+loglevel verbose
+# 7004
+port 7004
+logfile "7004.log"
+dbfilename "dump-7004.rdb"
+daemonize yes
+protected-mode no
+slaveof 119.23.181.11 7001
+masterauth oi54wrw36mns37kdf3hs475_b54wl73qwge0qwk4ld
+
+tcp-backlog 128
+replica-serve-stale-data yes
+replica-read-only yes
+slowlog-log-slower-than 10000
+maxmemory 209715200
+loglevel verbose
                   </code>
                 </pre>
-                <p>sentinel节点的配置文件如下：</p>
+                <p>注意这里有个坑：如果你配置了save ''即关闭RDB和AOP持久化（纯内存redis有一定的使用场景），会导致主从连接失败。因为redis默认使用RDB文件进行主从同步操作，如果关闭持久化，redis就无法进行主从连接和同步。</p>
+                <p>启动并连接所有节点（主从模式）：</p>
                 <pre>
                   <code>
-port 26379
-dir /tmp
-daemonize yes
-sentinel monitor master_1 119.23.181.11 7001 2
-sentinel down-after-milliseconds master_1 30000
-sentinel failover-timeout master_1 180000
-sentinel parallel-syncs master_1 1
+redis-server redis-ms/7001/redis.conf
+redis-server redis-ms/7004/redis.conf
 
-sentinel monitor master_2 119.23.181.12 7002 2
-sentinel down-after-milliseconds master_2 30000
-sentinel failover-timeout master_2 180000
-sentinel parallel-syncs master_2 1
-
-sentinel monitor master_3 119.23.181.13 7003 2
-sentinel down-after-milliseconds master_3 30000
-sentinel failover-timeout master_3 180000
-sentinel parallel-syncs master_3 1
+redis-cli -h 127.0.0.1 -c -p 7001
+redis-cli -h 127.0.0.1 -c -p 7004
                   </code>
                 </pre>
-
-
-				<h3>3. redis client测试：jedis/lettuce哪个好？</h3>
-				<p>redis jedis和lettuce客户端均支持单机和集群命令集，代码结构如下所示：</p>
+                <p>查看主节点和从节点的连接情况：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_002.jpg" alt="" />
-                </div>
-                <p>RedisTemplate模板类提供了封装后的redis所有api操作接口，并根据数据类型被分为ValueOperations/ListOperations/SetOperations/HashOperations/...等操作类，例如DefaultValueOperations封装了字符串的get，set操作，并使用一个函数接口（RedisCallback）实现了command执行前/执行后的资源获取/资源关闭操作。执行顺序非常清晰：RedisTemplate--->ValueOperations--->RedisStringCommands。</p>
-
-                <p>我们分别将JedisConnectionFactory和LettuceConnectionFactory注入RedisTemplate来测试效率：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_003.png" alt="" />
-                </div>
-                <p>发现Jedis的平均处理时间基本在20ms以内：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_004.png" alt="" />
-                </div>
-                <p>但是LettuceConnectionFactory的代码在处理的时候直接报错：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_005.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_001.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_006.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_002.png" alt="" />
                 </div>
-                <p>于是调试lettuce-core包下的源码，发现LettuceConnection在获取redis node节点列表的时候发生了错误，仔细观察这里的代码逻辑有问题，取本地ip当做集群ip返回，然后尝试获取连接就会直接报错：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_007.png" alt="" />
-                </div>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_008.png" alt="" />
-                </div>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_009.png" alt="" />
-                </div>
-				<p>代码流程如下所示：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_010.png" alt="" />
-                </div>
-                <p>spring-data-redis包下的代码，个人认为过度封装，而且从代码规范性来看，我怀疑部分功能代码根本没有测试过，所以这里我直接简单封装了lettuce-core包下的redis command命令集，以供lettuce客户端的测试使用：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_011.png" alt="" />
-                </div>
-                <p>然后再次测试，发现lettuce客户端的单线程的执行效率与jedis基本相同，都在20ms以内：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_012.png" alt="" />
-                </div>
-
-                <p>Jedis是直连模式，在多个线程间共享一个jedis实例时是线程不安全的，如果想要在多线程环境下使用Jedis，需要使用连接池。lettuce使用netty进行连接管理，连接实例可以在多个线程间共享，理论上并发效率要比jedis高。<br>接下来我们通过java多线程来测试jedis和lettuce客户端的并发性能，测试条件如下：</p>
+                <p>PSYNC命令具有完整重同步（full resynchronization）和部分重同步（partial resynchronization）两种模式：<br>
+1、其中完整重同步用于处理初次复制情况：完整重同步的执行步骤和SYNC命令的执行步骤基本一样，它们都是通过让主服务器创建并发送RDB文件，以及向从服务器发送保存在缓冲区里面的写命令来进行同步；<br>
+2、而部分重同步则用于处理断线后重连复制情况：当从服务器在断线后重新连接主服务器时，如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</p>
+                <p>其中部分重同步的实现与图中红线部分三个指标相关</p>
                 <blockquote>
                 <p>
-并发连接数：8<br>
-请求数：1000*8<br>
-慢查询阈值：30ms<br>
-最大连接数：jedis:8/lettuce：1<br>
+a、服务器的运行ID（replication id）<br>
+b、主服务器的复制偏移量（replication offset）和从服务器的复制偏移量；<br>
+c、主服务器的复制积压缓冲区（replication backlog）；<br>
                 </p>
                 </blockquote>
-                <p>测试出jedis慢查询比例为：8%</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_013.png" alt="" />
-                </div>
-                <p>lettuce慢查询比例为：77%</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_014.png" alt="" />
-                </div>
-                <p>理论上来说通过netty共享连接实例比起连接池技术消耗更少、并发效率更高，但是我们的测试结果却和理论相反，说明redis lettuce客户端的实现有待完善，也说明了理论对实现垃圾一样是垃圾，理论简单实现细腻一样跑的飞快。</p>
-
-
-                <h3>4. redis qps测试：redis服务器在高qps下的表现如何？</h3>
-                <p>redis自带性能测试工具redis-benchmark，我们先使用redis-benchmark进行单机的基准测试：</p>
-
-                <p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
-				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 100
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_015.png" alt="" />
-                </div>
-				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
-				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 10000
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_016.png" alt="" />
-                </div>
-				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
-				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 100 -n 10000 -d 10000
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_017.png" alt="" />
-                </div>
-				<p>测试结果显示，99%的请求耗时&lt;10ms</p>
-
-				<p>接下来使用jedis客户端进行redis qps测试：</p>
-				<blockquote>
+                <p>指标1：replication id</p>
                 <p>
-并发连接数：10<br>
-请求数：1000*10<br>
-慢查询阈值：1ms/10ms/20ms<br>
-最大连接数：jedis:8/lettuce：1<br>
+a、每个Redis服务器，不论主服务器还是从服务，都会有自己的运行ID；<br>
+b、运行ID在服务器启动时自动生成，由40个随机的十六进制字符组成，例如53b9b28df8042fdc9ab5e3fcbbbabff1d5dce2b3；<br>
+当从服务器对主服务器进行初次复制时，主服务器会将自己的运行ID传送给从服务器，而从服务器则会将这个运行ID保存起来。<br>
+当从服务器断线并重新连上一个主服务器时，从服务器将向当前连接的主服务器发送之前保存的运行ID：<br>
+a、如果从服务器保存的运行ID和当前连接的主服务器的运行ID相同，那么说明从服务器断线之前复制的就是当前连接的这个主服务器，主服务器可以继续尝试执行部分重同步操作；<br>
+b、相反地，如果从服务器保存的运行ID和当前连接的主服务器的运行ID并不相同，那么说明从服务器断线之前复制的主服务器并不是当前连接的这个主服务器，主服务器将对从服务器执行完整重同步操作。</p>
+                <p>查看redis主从首次连接的日志，发现走的是full resynchronization</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_003.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_004.png" alt="" />
+                </div>
+                <p>在slaver（47.106.79.8:7004）执行slaveof 127.0.0.1 7001命令，即指向一个不存在的master实例，然后在master写入k1，k2，k3等数据，在slaver（47.106.79.8:7004）重新执行slaveof 119.23.181.11 7001，指向与原来的master，命令观察主从同步日志</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_005.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_006.png" alt="" />
+                </div>
+                <p>可以看到主服务器的运行ID没有改变的情况下，主从同步走的是partial resynchronization</p>
+                <p>但是如果我们重启master实例，它的运行ID改变，主从同步会走full resynchronization</p>
+                <p>指标2：replication offset</p>
+                <p>
+执行复制的双方——主服务器和从服务器会分别维护一个复制偏移量，通过对比主从服务器的复制偏移量，程序可以很容易地知道主从服务器是否处于一致状态；<br>
+如上图所示，partial resynchronization的时候，从服务器将向主服务器发送命令Trying a partial resynchronization (request 20d44988493adeb2f9f5f687f5c320f4da711c18:4908).，其中4908为从服务器偏移量，主服务器会将偏移量4908之后的数据都发送给从服务器，即日志Partial resynchronization request from 47.106.79.8:7004 accepted. Sending 84 bytes of backlog starting from offset 4908.；
                 </p>
-                </blockquote>
-				<p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
-				<p>结果在测试过程中发现redis报错：</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_018.png" alt="" />
-                </div>
-				<p>我设置的并发连接数是10，而redis最大连接数是8，当并发数&gt;最大连接数时，如果同一时间内所有线程都在查询，会导致连接数不够用。解决的方法很简单，设置最大连接数=200：</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_019.png" alt="" />
-                </div>
-                <p>我用AtomicLong类型的3个变量milliseconds1Count，milliseconds10Count,milliseconds20Count分别记录查询速度在1ms，10ms，20ms以下的查询数，返回结果显示查询总数=10*10000，milliseconds1Count=27328，milliseconds10Count=71464，milliseconds20Count=1208，说明java原子类型还是靠谱的：</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_020.png" alt="" />
-                </div>
-                <p>测试结果显示99%的查询&lt;20ms，对比benchmark的测试结果，说明实际应用中网络RTT占redis处理耗时的绝大部分，同时说明redis在10*10000的qps下还算稳定。</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_021.png" alt="" />
-                </div>
-                <p>不过测试结果反映的是redis集群的qps，这从redis server db的keys可以看出，随机检查2台机器的keys，截图如下：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_022.png" alt="" />
-                </div>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_023.png" alt="" />
-                </div>
-                <p>redis单机的qps我估计更低。</p>
-
-				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_024.png" alt="" />
-                </div>
-                <p>测试结果显示只有76%的查询&lt;20ms，速度有所下降，说明更大的key-value需要更长的服务器处理时间。</p>
-
-				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_025.png" alt="" />
-                </div>
-                <p>具体原因可能是输入输出缓冲溢出问题，因为我的linux服务器内存才2G，也可能是tcp-backlog溢出或者其他问题，这里我没有继续找原因，不过测试结果说明了redis在高qps下还是会崩溃的，其实我们的程序，包括生产环境的程序，都是在侥幸地运行，只不过这个侥幸在99%的运行时间里没有出问题罢了。</p>
-
-                <h3>5. redis分布式锁测试：在主从模式下会失效吗？</h3>
-                <p>我们都知道redis在主从复制模式下，slaver端会设置参数replica-read-only=yes，即只能在master写入，所以不存在session A从master获得锁，session B从slaver获取锁的情况，（这跟mysql的主从复制是一个道理），但是眼见为实，我们新建一个主从架构来测试下，它大概长下面这样子：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_026.png" alt="" />
-                </div>
-                <p>搭建命令如下：</p>
-                <pre>
-                  <code>
-#在47.106.79.8机器上启动master
-redis-server redis-cluster/7001/redis.conf
-#在119.23.181.11机器上启动slaver
-redis-server redis-cluster/7004/redis.conf
-#指定119.23.181.11机器的master为47.106.79.8
-relicaof 47.106.79.8 7001
-                  </code>
-                </pre>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_027.png" alt="" />
-                </div>
-                <p>我们使用Thread A先获取锁，获取锁后超时时间为60s：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_028.png" alt="" />
-                </div>
-                <p>再使用Thread B尝试获取同样的锁，结果无论Thread B如何尝试，都无法获取该锁，只有Thread A释放锁后才能获取：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
-                </div>
-
-                <h3>6. redis分布式锁测试：在集群模式下会失效吗？</h3>
-                <p>redis集群的每台机器负责分片不同槽的写入，即属于某个槽的key只能写入一台机器，所以不存在session A从node1获取锁，session B从node2获取锁的情况，但是眼见为实，我们新建一个集群架构来测试下，它大概长下面这样子：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_001.png" alt="" />
-                </div>
-                <p>我们使用Thread A先获取锁，获取锁后超时时间为60s：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_028.png" alt="" />
-                </div>
-                <p>再使用Thread B尝试获取同样的锁，结果无论Thread B如何尝试，都无法获取该锁，只有Thread A释放锁后才能获取：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_029.png" alt="" />
-                </div>
-
-                <h3>7. redi哨兵测试：在主从模式下如何生效？</h3>
-                <p>我们分别在2台机器上启动master节点（7001）和slaver节点（7004），在另外3台机器上启动3个sentinel节点（26379,26380,26381），sentinel配置文件如下：</p>
-                <pre>
-                  <code>
-port 26379
-dir /tmp
-daemonize yes
-sentinel monitor master 47.106.79.8 7001 2
-sentinel down-after-milliseconds master 30000
-sentinel failover-timeout master 180000
-sentinel parallel-syncs master 1
-                  </code>
-                </pre>
-                <p>这个架构它大概长下面这样子：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_030.png" alt="" />
-                </div>
-                <p>在7001查看节点信息，显示它是master：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_031.png" alt="" />
-                </div>
-                <p>在7004查看节点信息，显示它是slaver：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_032.png" alt="" />
-                </div>
-                <p>我们偷偷把7001 down掉：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_033.png" alt="" />
-                </div>
-                <p>发现30s后，sentinel们把7004变为master继续支持服务，并关闭只读：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_034.png" alt="" />
-                </div>
-                <p>再次启动7001，发现它已经变为7004的slaver：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article031_035.png" alt="" />
-                </div>
-
-
-
-                <p>以上就是关于redis集群的几项针对测试，测试代码详见：<a href="https://github.com/linfengda/springbootChapter1">git springbootChapter1</a></p>
-
-
+                <p>指标3：replication backlog复制积压缓冲区大家都熟悉了，就是主从复制期间主服务器保存写入数据的缓冲区，当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
+                <p>
+a、如果offset偏移量之后的数据（也即是偏移量offset+1开始的数据）仍然存在于复制积压缓冲区里面，那么主服务器将对从服务器执行部分重同步操作；<br>
+b、相反，如果offset偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器将对从服务器执行完整重同步操作。
+                </p>
+                <p>你可以通过将repl-backlog-size设置为很小，例如16KB，然后写入超过16KB的数据，然后将从服务器断开重连，观察日志是否走的是full resynchronization。</p>
                 
 
 
-                
+
 
 
 							</section>
