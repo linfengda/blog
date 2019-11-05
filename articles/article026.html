@@ -36,133 +36,345 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-									<span class="date">April 15, 2018</span>
-									<h1>zoopkeeper: application scene</h1>
+									<span class="date">April 21, 2018</span>
+									<h1>spring boot chapter6</h1>
+									<p>
+Redis cluster performance test
+								    </p>
 								</header>
 
 
-                <h3>zookeeper提供了什么</h3>
-                <p>zookeeper=文件系统+通知机制。</p>
-                <h4>1. 文件系统</h4>
-                <p>Zookeeper维护一个类似文件系统的数据结构，每个子目录项，如NameService都被称作为 znode，和文件系统一样，我们能够自由的增加、删除znode，在一个znode下增加、删除子znode，唯一的不同在于znode是可以存储数据的。</p>
+                <h3>1. 关于redis cluster？</h3>
+                <p>redis cluster是解决redis可用性和水平扩展的方案，它主要提供数据分片。</p>
+                <h3>2. 怎样在linux机器上部署redis cluster？</h3>
+                <p>在6台机器上部署redis cluster架构的步骤如下：</p>
+                <pre>
+                  <code>
+一：Redis安装
+
+1.下载，解压，安装，编译：
+cd /usr/local
+wget http://download.redis.io/releases/redis-5.0.3.tar.gz
+tar xvzf redis-5.0.3.tar.gz
+cd redis-5.0.3
+make && make install      # 编译后产生bin的目录，包含redis可执行文件
+
+
+2.6个节点的redis-cluster目录如下：
+├── redis-cluster
+│   ├── 7001/redis.conf
+│   ├── 7002/redis.conf
+│   ├── 7003/redis.conf
+│   ├── 7004/redis.conf
+│   ├── 7005/redis.conf
+│   └── 7006/redis.conf
+
+
+3. 启动所有节点：
+redis-server redis-cluster/7001/redis.conf
+redis-server redis-cluster/7002/redis.conf
+redis-server redis-cluster/7003/redis.conf
+redis-server redis-cluster/7004/redis.conf
+redis-server redis-cluster/7005/redis.conf
+redis-server redis-cluster/7006/redis.conf 
+
+4. 关闭所有节点：
+redis-cli -p 7001 shutdown
+redis-cli -p 7002 shutdown
+redis-cli -p 7003 shutdown
+redis-cli -p 7004 shutdown
+redis-cli -p 7005 shutdown
+redis-cli -p 7006 shutdown
+
+5. 连接所有节点：
+redis-cli -h 119.23.181.11 -c -p 7001
+redis-cli -h 119.23.181.12 -c -p 7002
+redis-cli -h 119.23.181.13 -c -p 7003
+redis-cli -h 119.23.181.14 -c -p 7004
+redis-cli -h 119.23.181.15 -c -p 7005
+redis-cli -h 119.23.181.16 -c -p 7006
+
+6.使用redis-cli进行集群握手并分配槽：
+redis-cli --cluster create 119.23.181.11:7001 119.23.181.12:7002 119.23.181.13:7003 119.23.181.14:7004 119.23.181.15:7005 119.23.181.16:7006 --cluster-replicas 1
+                  </code>
+                </pre>
+                <p>如果你不想在master节点down的时候手动指定新的master，就最好配置sentinel监控节点运行情况，以保证故障自动转移：</p>
+                <pre>
+                  <code>
+7.启动3个redis sentinel：
+redis-sentinel redis-cluster/26379/sentinel.conf
+redis-sentinel redis-cluster/26380/sentinel.conf
+redis-sentinel redis-cluster/26381/sentinel.conf
+                  </code>
+                </pre>
+                <p>redis sentinel节点的作用是：监控---&gt;通知---&gt;故障转移<br>
+				redis sentinel节点最重要的配置：sentinel monitor &lt;master-name&gt; &lt;ip&gt; &lt;port&gt; &lt;quorum&gt;<br>
+				表示该sentinel监控的master节点，其中quorum表示主观下线的票数，实际上Sentinel节点会对所有节点进行监控，但是在Sentinel节点的配置中没有看到有关从节点和其余Sentinel节点的配置，那是因为Sentinel节点会从主节点中获取有关从节点以及其余Sentinel节点的相关信息</p>
+                <p>部署完成后效果如下所示：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article026_001.png" alt="" />
                 </div>
-                <p>有四种类型的znode：</p>
-                <blockquote>
-                <p>
-                    1、PERSISTENT-持久化目录节点，客户端与zookeeper断开连接后，该节点依旧存在<br>
-                    2、 PERSISTENT_SEQUENTIAL-持久化顺序编号目录节点，客户端与zookeeper断开连接后，该节点依旧存在，只是Zookeeper给该节点名称进行顺序编号<br>
-                    3、EPHEMERAL-临时目录节点，客户端与zookeeper断开连接后，该节点被删除<br>
-                    4、EPHEMERAL_SEQUENTIAL-临时顺序编号目录节点，客户端与zookeeper断开连接后，该节点被删除，只是Zookeeper给该节点名称进行顺序编号<br>
-                </p>
-                </blockquote>
-                <h4>2. 通知机制</h4>
-                <p>客户端注册监听它关心的目录节点，当目录节点发生变化（数据改变/被删除、子目录节点增加/删除）时，zookeeper会通知客户端。 </p>
-
-                <h3>zookeeper可以做什么</h3>
-
-                <h4>1. 命名服务(Naming Service)</h4>
-                <p style="background-color: #C2C287; color: #333;font-size: 10pt;">
-                命名服务也是分布式系统中比较常见的一类场景。在分布式系统中，通过使用命名服务，客户端应用能够根据名字来获取资源或服务的地址、提供者等信息。被命名的实体通常可以是集群中的机器，提供的服务地址，远程对象等等。其中较为常见的就是一些分布式服务框架中的服务地址列表。通过调用ZK提供的创建节点的API，能够很容易创建一个全局唯一的path，这个path就可以作为一个名称。</p>
-                <p style="background-color: #D0D0D0; color: #333;font-size: 10pt;"> 阿里巴巴开源的分布式服务框架Dubbo中使用ZooKeeper来作为其命名服务，维护全局的服务地址列表。在Dubbo实现中：<br>
-                服务提供者在启动的时候，向ZK上的指定节点/dubbo/${serviceName}/providers目录下写入自己的URL地址，这个操作就完成了服务的发布。<br>
-                服务消费者启动的时候，订阅/dubbo/${serviceName}/providers目录下的提供者URL地址， 并向/dubbo/${serviceName} /consumers目录下写入自己的URL地址。<br>
-                注意，所有向ZK上注册的地址都是临时节点，这样就能够保证服务提供者和消费者能够自动感应资源的变化。<br><br></p>
-
-                <h4>2. 配置管理</h4>
-                <p style="background-color: #C2C287; color: #333;font-size: 10pt;">
-                程序总是需要配置的，如果程序分散部署在多台机器上，要逐个改变配置就变得困难。现在将应用的配置信息放到ZK上进行集中管理。这类场景通常是这样：应用在启动的时候会主动来获取一次配置，同时，在节点上注册一个Watcher，这样一来，以后每次配置有更新的时候，都会实时通知到订阅的客户端，从来达到获取最新配置信息的目的。</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_002.png" alt="" />
-                </div>
-                <p style="background-color: #D0D0D0; color: #333;font-size: 10pt;"> 注意：在上面提到的应用场景中，有个默认前提是：数据量很小，但是数据更新可能会比较快的场景。<br><br></p>
-
-                <h4>3. 集群管理与Master选举</h4>
-                <p style="background-color: #C2C287; color: #333;font-size: 10pt;">
-                所谓集群管理无在乎两点：是否有机器退出和加入、选举master。<br>
-                对于集群管理：所有机器都在父目录GroupMembers节点上注册一个Watcher，以后每动态加机器，那么就往 /GroupMembers 下创建一个临时目录节点（EPHEMERAL）：/GroupMembers/{hostname}，然后监听父目录GroupMembers的子节点变化消息。
-                一旦有机器挂掉，该机器与zookeeper的连接断开，其所创建的临时节点被删除，所有其他机器都收到通知：某个兄弟目录被删除了。新机器加入也是类似，所有机器收到通知。<br>
-                对于选举master：我们稍微改变一下，所有机器创建临时顺序编号节点（EPHEMERAL_SEQUENTIAL），每次选取编号最小的机器作为master就好。<br><br>
-                </p>
-
-                <h4>4. 分布式锁</h4>
-                <p style="background-color: #C2C287; color: #333;font-size: 10pt;">
-                锁服务可以分为两类，一个是保持独占，另一个是控制时序。<br>
-                利用ZooKeeper实现分布式lock，主要是通过一个临时顺序编号Node（EPHEMERAL_SEQUENTIAL）来代表一个Lock，当一个client去拿锁的时候，会在这个Node下创建一个自增序列的child，然后通过getChildren()方式来check创建的child是不是最靠前的，如果是则拿到锁，否则就调用exist()来check第二靠前的child，并加上watch来监视。当拿到锁的child执行完后归还锁，归还锁仅仅需要删除自己创建的child，这时watch机制会通知到所有没有拿到锁的client，这些child就会根据前面所讲的拿锁规则来竞争锁。<br><br></p>
-
-                <h4>5. 分布式队列</h4>
-                <p style="background-color: #C2C287; color: #333;font-size: 10pt;">
-                ZooKeeper提供了一个种简单的方式， ZooKeeper通过一个Node来维护Queue的实体，用其children来存储Queue的内容，并且ZooKeeper的create方法中提供了顺序递增的模式，会自动地在name后面加上一个递增的数字来插入新元素。可以用其children来构建一个queue的数据结构，offer的时候使用create，take的时候按照children的顺序删除第一个即可。 ZooKeeper保障了各个server上数据是一致的，因此也就实现了一个分布式Queue。<br>
-                实现类为org.apache.zookeeper.recipes.queue.DistributedQueue，其中take和offer的实例代码如下所示：</p>
+                <p>server节点的配置文件如下：</p>
                 <pre>
                   <code>
-/**
- * Removes the head of the queue and returns it, blocks until it succeeds.
- * @return The former head of the queue
- * @throws NoSuchElementException
- * @throws KeeperException
- * @throws InterruptedException
- */
-public byte[] take() throws KeeperException, InterruptedException {
-    Map&lt;Long,String&gt; orderedChildren;
-    // Same as for element.  Should refactor this.
-    while(true){
-        LatchChildWatcher childWatcher = new LatchChildWatcher();
-        try{
-            orderedChildren = orderedChildren(childWatcher);
-        }catch(KeeperException.NoNodeException e){
-            zookeeper.create(dir, new byte[0], acl, CreateMode.PERSISTENT);
-            continue;
-        }
-        if(orderedChildren.size() == 0){
-            childWatcher.await();
-            continue;
-        }
-
-        for(String headNode : orderedChildren.values()){
-            String path = dir +&quot;/&quot;+headNode;
-            try{
-                byte[] data = zookeeper.getData(path, false, null);
-                zookeeper.delete(path, -1);
-                return data;
-            }catch(KeeperException.NoNodeException e){
-                // Another client deleted the node first.
-            }
-        }
-    }
-}
-
-/**
- * Inserts data into queue.
- * @param data
- * @return true if data was successfully added
- */
-public boolean offer(byte[] data) throws KeeperException, InterruptedException{
-    for(;;){
-        try{
-            zookeeper.create(dir+&quot;/&quot;+prefix, data, acl, CreateMode.PERSISTENT_SEQUENTIAL);
-            return true;
-        }catch(KeeperException.NoNodeException e){
-            zookeeper.create(dir, new byte[0], acl, CreateMode.PERSISTENT);
-        }
-    }
-
-}
+port 7001
+cluster-enabled yes
+cluster-config-file nodes-7001.conf
+cluster-node-timeout 5000
+daemonize yes
                   </code>
                 </pre>
-        
-				
+                <p>sentinel节点的配置文件如下：</p>
+                <pre>
+                  <code>
+port 26379
+dir /tmp
+daemonize yes
+sentinel monitor master_1 119.23.181.11 7001 2
+sentinel down-after-milliseconds master_1 30000
+sentinel failover-timeout master_1 180000
+sentinel parallel-syncs master_1 1
+
+sentinel monitor master_2 119.23.181.12 7002 2
+sentinel down-after-milliseconds master_2 30000
+sentinel failover-timeout master_2 180000
+sentinel parallel-syncs master_2 1
+
+sentinel monitor master_3 119.23.181.13 7003 2
+sentinel down-after-milliseconds master_3 30000
+sentinel failover-timeout master_3 180000
+sentinel parallel-syncs master_3 1
+                  </code>
+                </pre>
+
+
+				<h3>3. redis client测试：jedis/lettuce哪个好？</h3>
+				<p>redis jedis和lettuce客户端均支持单机和集群命令集，代码结构如下所示：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_002.jpg" alt="" />
+                </div>
+                <p>RedisTemplate模板类提供了封装后的redis所有api操作接口，并根据数据类型被分为ValueOperations/ListOperations/SetOperations/HashOperations/...等操作类，例如DefaultValueOperations封装了字符串的get，set操作，并使用一个函数接口（RedisCallback）实现了command执行前/执行后的资源获取/资源关闭操作。执行顺序非常清晰：RedisTemplate--->ValueOperations--->RedisStringCommands。</p>
+
+                <p>我们分别将JedisConnectionFactory和LettuceConnectionFactory注入RedisTemplate来测试效率：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_003.png" alt="" />
+                </div>
+                <p>发现Jedis的平均处理时间基本在20ms以内：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_004.png" alt="" />
+                </div>
+                <p>但是LettuceConnectionFactory的代码在处理的时候直接报错：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_005.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_006.png" alt="" />
+                </div>
+                <p>于是调试lettuce-core包下的源码，发现LettuceConnection在获取redis node节点列表的时候发生了错误，仔细观察这里的代码逻辑有问题，取本地ip当做集群ip返回，然后尝试获取连接就会直接报错：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_007.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_008.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_009.png" alt="" />
+                </div>
+				<p>代码流程如下所示：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_010.png" alt="" />
+                </div>
+                <p>spring-data-redis包下的代码，个人认为过度封装，而且从代码规范性来看，我怀疑部分功能代码根本没有测试过，所以这里我直接简单封装了lettuce-core包下的redis command命令集，以供lettuce客户端的测试使用：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_011.png" alt="" />
+                </div>
+                <p>然后再次测试，发现lettuce客户端的单线程的执行效率与jedis基本相同，都在20ms以内：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_012.png" alt="" />
+                </div>
+
+                <p>Jedis是直连模式，在多个线程间共享一个jedis实例时是线程不安全的，如果想要在多线程环境下使用Jedis，需要使用连接池。lettuce使用netty进行连接管理，连接实例可以在多个线程间共享，理论上并发效率要比jedis高。<br>接下来我们通过java多线程来测试jedis和lettuce客户端的并发性能，测试条件如下：</p>
+                <blockquote>
+                <p>
+并发连接数：8<br>
+请求数：1000*8<br>
+慢查询阈值：30ms<br>
+最大连接数：jedis:8/lettuce：1<br>
+                </p>
+                </blockquote>
+                <p>测试出jedis慢查询比例为：8%</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_013.png" alt="" />
+                </div>
+                <p>lettuce慢查询比例为：77%</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_014.png" alt="" />
+                </div>
+                <p>理论上来说通过netty共享连接实例比起连接池技术消耗更少、并发效率更高，但是我们的测试结果却和理论相反，说明redis lettuce客户端的实现有待完善，也说明了理论对实现垃圾一样是垃圾，理论简单实现细腻一样跑的飞快。</p>
+
+
+                <h3>4. redis qps测试：redis服务器在高qps下的表现如何？</h3>
+                <p>redis自带性能测试工具redis-benchmark，我们先使用redis-benchmark进行单机的基准测试：</p>
+
+                <p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 100
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_015.png" alt="" />
+                </div>
+				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 10 -n 10000 -d 10000
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_016.png" alt="" />
+                </div>
+				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
+				命令：redis-benchmark -h 127.0.0.1 -p 7001 -t set -c 100 -n 10000 -d 10000
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_017.png" alt="" />
+                </div>
+				<p>测试结果显示，99%的请求耗时&lt;10ms</p>
+
+				<p>接下来使用jedis客户端进行redis qps测试：</p>
+				<blockquote>
+                <p>
+并发连接数：10<br>
+请求数：1000*10<br>
+慢查询阈值：1ms/10ms/20ms<br>
+最大连接数：jedis:8/lettuce：1<br>
+                </p>
+                </blockquote>
+				<p>1.测试性能：并发连接数=10，请求数=10000，数据包=100字节</p>
+				<p>结果在测试过程中发现redis报错：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_018.png" alt="" />
+                </div>
+				<p>我设置的并发连接数是10，而redis最大连接数是8，当并发数&gt;最大连接数时，如果同一时间内所有线程都在查询，会导致连接数不够用。解决的方法很简单，设置最大连接数=200：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_019.png" alt="" />
+                </div>
+                <p>我用AtomicLong类型的3个变量milliseconds1Count，milliseconds10Count,milliseconds20Count分别记录查询速度在1ms，10ms，20ms以下的查询数，返回结果显示查询总数=10*10000，milliseconds1Count=27328，milliseconds10Count=71464，milliseconds20Count=1208，说明java原子类型还是靠谱的：</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_020.png" alt="" />
+                </div>
+                <p>测试结果显示99%的查询&lt;20ms，对比benchmark的测试结果，说明实际应用中网络RTT占redis处理耗时的绝大部分，同时说明redis在10*10000的qps下还算稳定。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_021.png" alt="" />
+                </div>
+                <p>不过测试结果反映的是redis集群的qps，这从redis server db的keys可以看出，随机检查2台机器的keys，截图如下：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_022.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_023.png" alt="" />
+                </div>
+                <p>redis单机的qps我估计更低。</p>
+
+				<p>2.测试性能：并发连接数=10，请求数=10000，数据包=10000字节</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_024.png" alt="" />
+                </div>
+                <p>测试结果显示只有76%的查询&lt;20ms，速度有所下降，说明更大的key-value需要更长的服务器处理时间。</p>
+
+				<p>3.测试性能：并发连接数=100，请求数=10000，数据包=10000字节</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_025.png" alt="" />
+                </div>
+                <p>具体原因可能是输入输出缓冲溢出问题，因为我的linux服务器内存才2G，也可能是tcp-backlog溢出或者其他问题，这里我没有继续找原因，不过测试结果说明了redis在高qps下还是会崩溃的，其实我们的程序，包括生产环境的程序，都是在侥幸地运行，只不过这个侥幸在99%的运行时间里没有出问题罢了。</p>
+
+                <h3>5. redis分布式锁测试：在主从模式下会失效吗？</h3>
+                <p>我们都知道redis在主从复制模式下，slaver端会设置参数replica-read-only=yes，即只能在master写入，所以不存在session A从master获得锁，session B从slaver获取锁的情况，（这跟mysql的主从复制是一个道理），但是眼见为实，我们新建一个主从架构来测试下，它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_026.png" alt="" />
+                </div>
+                <p>搭建命令如下：</p>
+                <pre>
+                  <code>
+#在47.106.79.8机器上启动master
+redis-server redis-cluster/7001/redis.conf
+#在119.23.181.11机器上启动slaver
+redis-server redis-cluster/7004/redis.conf
+#指定119.23.181.11机器的master为47.106.79.8
+relicaof 47.106.79.8 7001
+                  </code>
+                </pre>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_027.png" alt="" />
+                </div>
+                <p>我们使用Thread A先获取锁，获取锁后超时时间为60s：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_028.png" alt="" />
+                </div>
+                <p>再使用Thread B尝试获取同样的锁，结果无论Thread B如何尝试，都无法获取该锁，只有Thread A释放锁后才能获取：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_029.png" alt="" />
+                </div>
+
+                <h3>6. redis分布式锁测试：在集群模式下会失效吗？</h3>
+                <p>redis集群的每台机器负责分片不同槽的写入，即属于某个槽的key只能写入一台机器，所以不存在session A从node1获取锁，session B从node2获取锁的情况，但是眼见为实，我们新建一个集群架构来测试下，它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_001.png" alt="" />
+                </div>
+                <p>我们使用Thread A先获取锁，获取锁后超时时间为60s：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_028.png" alt="" />
+                </div>
+                <p>再使用Thread B尝试获取同样的锁，结果无论Thread B如何尝试，都无法获取该锁，只有Thread A释放锁后才能获取：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_029.png" alt="" />
+                </div>
+
+                <h3>7. redi哨兵测试：在主从模式下如何生效？</h3>
+                <p>我们分别在2台机器上启动master节点（7001）和slaver节点（7004），在另外3台机器上启动3个sentinel节点（26379,26380,26381），sentinel配置文件如下：</p>
+                <pre>
+                  <code>
+port 26379
+dir /tmp
+daemonize yes
+sentinel monitor master 47.106.79.8 7001 2
+sentinel down-after-milliseconds master 30000
+sentinel failover-timeout master 180000
+sentinel parallel-syncs master 1
+                  </code>
+                </pre>
+                <p>这个架构它大概长下面这样子：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_030.png" alt="" />
+                </div>
+                <p>在7001查看节点信息，显示它是master：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_031.png" alt="" />
+                </div>
+                <p>在7004查看节点信息，显示它是slaver：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_032.png" alt="" />
+                </div>
+                <p>我们偷偷把7001 down掉：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_033.png" alt="" />
+                </div>
+                <p>发现30s后，sentinel们把7004变为master继续支持服务，并关闭只读：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_034.png" alt="" />
+                </div>
+                <p>再次启动7001，发现它已经变为7004的slaver：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article026_035.png" alt="" />
+                </div>
 
 
 
+                <p>以上就是关于redis集群的几项针对测试，测试代码详见：<a href="https://github.com/linfengda/springbootChapter1">git springbootChapter1</a></p>
 
-               
 
+                
+
+
+                
 
 
 							</section>
 					</div>
+
+
 
 
 

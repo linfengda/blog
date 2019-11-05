@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="../index.html" class="logo">Massively</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="../index.html">Massively</a></li>
+							<li class="active"><a href="../generic.html">Page guide</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 21, 2018</span>
+									<h1>spring boot chapter6</h1>
+									<p>
+java锁
+								    </p>
+								</header>
+
+                <h3>Java提供了多种多线程锁机制的实现方式，常见的有：</h3>
+                <blockquote>
+                <p>
+synchronized<br>
+ReentrantLock<br>
+Semaphore<br>
+AtomicInteger等
+                </p>
+                </blockquote>
+
+                <h3>synchronized</h3>
+                <p>synchronized实现的机理依赖于软件层面上的JVM，因此其性能会随着Java版本的不断升级而提高。到了Java1.6，synchronized进行了很多的优化，有适应自旋、锁消除、锁粗化、轻量级锁及偏向锁等，效率有了本质上的提高。在之后推出的Java1.7与1.8中，均对该关键字的实现机理做了优化。最后，尽管Java实现的锁机制有很多种，并且有些锁机制性能也比synchronized高，但还是强烈推荐在多线程应用程序中使用该关键字，因为实现方便，后续工作由JVM来完成，可靠性高。只有在确定锁机制是当前多线程程序的性能瓶颈时，才考虑使用其他机制，如ReentrantLock等。 </p>
+                
+                <h3>ReentrantLock</h3>
+                <p>ReentrantLock实现的机理依赖于特殊的CPU指定，可以认为不受JVM的约束，并可以通过其他语言平台来完成底层的实现。在并发量较小的多线程应用程序中，ReentrantLock与synchronized性能相差无几，但在高并发量的条件下，synchronized性能会迅速下降几十倍，而ReentrantLock的性能却能依然维持一个水准。因此我们建议在高并发量情况下使用ReentrantLock。 </p>
+                <h4>AQS</h4>
+                <p>同步队列是AQS很重要的组成部分，它是一个双端队列，遵循FIFO原则，主要作用是用来存放在锁上阻塞的线程，当一个线程尝试获取锁时，如果已经被占用，那么当前线程就会被构造成一个Node节点假如到同步队列的</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_001.png" alt="" />
+                </div>
+                <h4>重入锁</h4>
+                <p>重入锁指的是当前线成功获取锁后，如果再次访问该临界区，则不会对自己产生互斥行为。Java中对synchronized和ReentrantLock都是可重入锁，synchronized由jvm实现可重入，ReentrantLock可重入性基于AQS实现。ReentrantLock的重入锁有公平锁和非公平锁两种模式</p>
+                <h4>ReentrantLock的非公平锁</h4>
+                <pre>
+                  <code>
+final boolean nonfairTryAcquire(int acquires) {
+            //获取当前线程
+            final Thread current = Thread.currentThread();
+            //通过AQS获取同步状态
+            int c = getState();
+            //同步状态为0，说明临界区处于无锁状态，
+            if (c == 0) {
+                //修改同步状态，即加锁
+                if (compareAndSetState(0, acquires)) {
+                    //将当前线程设置为锁的owner
+                    setExclusiveOwnerThread(current);
+                    return true;
+                }
+            }
+            //如果临界区处于锁定状态，且上次获取锁的线程为当前线程
+            else if (current == getExclusiveOwnerThread()) {
+                 //则递增同步状态
+                int nextc = c + acquires;
+                if (nextc &lt; 0) // overflow
+                    throw new Error(&quot;Maximum lock count exceeded&quot;);
+                setState(nextc);
+                return true;
+            }
+            return false;
+        }
+                  </code>
+                </pre>
+                <p>非公平锁是指当锁状态为可用时，不管在当前锁上是否有其他线程在等待，新近线程都有机会抢占锁。上述代码即为非公平锁和核心实现，可以看到只要同步状态为0，任何调用lock的线程都有可能获取到锁，而不是按照锁请求的FIFO原则来进行的。</p>
+                <h4>ReentrantLock的公平锁</h4>
+                <pre>
+                  <code>
+protected final boolean tryAcquire(int acquires) {
+            final Thread current = Thread.currentThread();
+            int c = getState();
+            if (c == 0) {
+                //此处为公平锁的核心，即判断同步队列中当前节点是否有前驱节点
+                if (!hasQueuedPredecessors() &amp;&amp;
+                    compareAndSetState(0, acquires)) {
+                    setExclusiveOwnerThread(current);
+                    return true;
+                }
+            }
+            else if (current == getExclusiveOwnerThread()) {
+                int nextc = c + acquires;
+                if (nextc &lt; 0)
+                    throw new Error(&quot;Maximum lock count exceeded&quot;);
+                setState(nextc);
+                return true;
+            }
+            return false;
+        }
+                  </code>
+                </pre>
+                <p>从上面的代码中可以看出，公平锁与非公平锁的区别仅在于是否判断当前节点是否存在前驱节点!hasQueuedPredecessors()，由AQS可知，如果当前线程获取锁失败就会被加入到AQS同步队列中，那么，如果同步队列中的节点存在前驱节点，也就表明存在线程比当前节点线程更早的获取锁，故只有等待前面的线程释放锁后才能获取锁。</p>
+
+                
+                
+
+
+
+
+
+							</section>
+					</div>
+
+
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

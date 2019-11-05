@@ -48,11 +48,6 @@ Redis master-slaver test
                 <p>为了解决redis单机数据查询瓶颈问题，通过多台从服务器分担查询请求，以达到水平扩展查询量的目的。</p>
 
                 <h3>2. 怎样在linux机器上部署redis主从模式？</h3>
-
-                <h3>3. 一主多从怎么合理配置？</h3>
-
-                <h3>4. redis实例间具体如何分担查询请求？</h3>
-
                 <p>在2台机器上部署redis一主一丛：</p>
                 <pre>
                   <code>
@@ -74,13 +69,13 @@ daemonize yes
 protected-mode no
 bind 0.0.0.0
 requirepass oi54wrw36mns37kdf3hs475_b54wl73qwge0qwk4ld
-
 tcp-backlog 128
 replica-serve-stale-data yes
 replica-read-only yes
 slowlog-log-slower-than 10000
 maxmemory 209715200
 loglevel verbose
+
 # 7004
 port 7004
 logfile "7004.log"
@@ -89,7 +84,6 @@ daemonize yes
 protected-mode no
 slaveof 119.23.181.11 7001
 masterauth oi54wrw36mns37kdf3hs475_b54wl73qwge0qwk4ld
-
 tcp-backlog 128
 replica-serve-stale-data yes
 replica-read-only yes
@@ -111,10 +105,10 @@ redis-cli -h 127.0.0.1 -c -p 7004
                 </pre>
                 <p>查看主节点和从节点的连接情况：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_001.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_002.png" alt="" />
                 </div>
                 <p>PSYNC命令具有完整重同步（full resynchronization）和部分重同步（partial resynchronization）两种模式：<br>
 1、其中完整重同步用于处理初次复制情况：完整重同步的执行步骤和SYNC命令的执行步骤基本一样，它们都是通过让主服务器创建并发送RDB文件，以及向从服务器发送保存在缓冲区里面的写命令来进行同步；<br>
@@ -123,8 +117,8 @@ redis-cli -h 127.0.0.1 -c -p 7004
                 <blockquote>
                 <p>
 a、服务器的运行ID（replication id）<br>
-b、主服务器的复制偏移量（replication offset）和从服务器的复制偏移量；<br>
-c、主服务器的复制积压缓冲区（replication backlog）；<br>
+b、主服务器的复制偏移量和从服务器的复制偏移量（replication offset）<br>
+c、主服务器的复制积压缓冲区（replication backlog）<br>
                 </p>
                 </blockquote>
                 <p>指标1：replication id</p>
@@ -137,31 +131,50 @@ a、如果从服务器保存的运行ID和当前连接的主服务器的运行ID
 b、相反地，如果从服务器保存的运行ID和当前连接的主服务器的运行ID并不相同，那么说明从服务器断线之前复制的主服务器并不是当前连接的这个主服务器，主服务器将对从服务器执行完整重同步操作。</p>
                 <p>查看redis主从首次连接的日志，发现走的是full resynchronization</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_003.png" alt="" />
+                </div> 
+
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_004.png" alt="" />
+                </div>
+                <p>在从服务器（47.106.79.8:7004）执行slaveof 127.0.0.1 7001命令，通过指向一个不存在的实例使其跟主服务器断开连接，然后在主服务器写入k1，k2，k3等数据，在从服务器（47.106.79.8:7004）重新执行slaveof 119.23.181.11 7001命令指向与原主服务器，然后观察主从同步日志</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_005.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_004.png" alt="" />
-                </div>
-                <p>在slaver（47.106.79.8:7004）执行slaveof 127.0.0.1 7001命令，即指向一个不存在的master实例，然后在master写入k1，k2，k3等数据，在slaver（47.106.79.8:7004）重新执行slaveof 119.23.181.11 7001，指向与原来的master，命令观察主从同步日志</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_005.png" alt="" />
-                </div>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article032_006.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_006.png" alt="" />
                 </div>
                 <p>可以看到主服务器的运行ID没有改变的情况下，主从同步走的是partial resynchronization</p>
                 <p>但是如果我们重启master实例，它的运行ID改变，主从同步会走full resynchronization</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_007.png" alt="" />
+                </div>
                 <p>指标2：replication offset</p>
                 <p>
 执行复制的双方——主服务器和从服务器会分别维护一个复制偏移量，通过对比主从服务器的复制偏移量，程序可以很容易地知道主从服务器是否处于一致状态；<br>
 如上图所示，partial resynchronization的时候，从服务器将向主服务器发送命令Trying a partial resynchronization (request 20d44988493adeb2f9f5f687f5c320f4da711c18:4908).，其中4908为从服务器偏移量，主服务器会将偏移量4908之后的数据都发送给从服务器，即日志Partial resynchronization request from 47.106.79.8:7004 accepted. Sending 84 bytes of backlog starting from offset 4908.；
                 </p>
-                <p>指标3：replication backlog复制积压缓冲区大家都熟悉了，就是主从复制期间主服务器保存写入数据的缓冲区，当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
+                <p>指标3：replication backlog复制积压缓冲区，从服务器跟主服务器可能会因为某种原因断开一段时间，当从服务器重连的时候，不需要从主服务器进行完整重同步，如果这个时间段内主服务器写入的数据都在缓冲区，那么仅需要进行部分重同步，当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
                 <p>
 a、如果offset偏移量之后的数据（也即是偏移量offset+1开始的数据）仍然存在于复制积压缓冲区里面，那么主服务器将对从服务器执行部分重同步操作；<br>
 b、相反，如果offset偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器将对从服务器执行完整重同步操作。
                 </p>
-                <p>你可以通过将repl-backlog-size设置为很小，例如16KB，然后写入超过16KB的数据，然后将从服务器断开重连，观察日志是否走的是full resynchronization。</p>
+                <p>将主服务器（119.23.181.11:7001）的repl-backlog-size设置为16KB，断开从服务器（47.106.79.8:7004）与主服务器的连接</p>
+                <p>向主服务器写入超过16KB的数据，这里需要注意的是，repl-backlog-size这个参数最小为16kb，小于16kb默认为16kb，这是实际测试的结果。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_008.png" alt="" />
+                </div>
+                <p>重连主服务器观察日志，确实是缓冲区太小，不能通过它进行部分重同步。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_009.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_010.png" alt="" />
+                </div>
+
+                <h3>3. 主从模式下容灾的具体过程？</h3>
+
+                <h3>4. redis实例间具体如何分担查询请求？</h3>
                 
 
 

@@ -44,7 +44,7 @@
 
                 <h3>1. 内存消耗在哪里？</h3>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article030_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article025_001.png" alt="" />
                 </div>
                 <p>这里我们需要注意的是缓冲内存，缓冲内存包括redis server的输入输出缓冲，所以需要避免对大键值对的查询，以免坑了自己，这跟数据库要分页查询的道理是一样的。一般我们都会设置redis server的maxmemory参数，内存终将用尽，OOM终将发生，有信仰的我们是不会用删除键这种内存溢出策略的，所以如果你的热点数据很多，可以参考我的下一篇博文：<a href="../articles/article031.html">redis cluster test</a></p>
 
