@@ -37,9 +37,9 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>spring boot chapter6</h1>
+									<h1>Redis master-slaver test</h1>
 									<p>
-Redis master-slaver test
+Redis主从复制测试
 								    </p>
 								</header>
 
@@ -111,8 +111,8 @@ redis-cli -h 127.0.0.1 -c -p 7004
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_002.png" alt="" />
                 </div>
                 <p>PSYNC命令具有完整重同步（full resynchronization）和部分重同步（partial resynchronization）两种模式：<br>
-1、其中完整重同步用于处理初次复制情况：完整重同步的执行步骤和SYNC命令的执行步骤基本一样，它们都是通过让主服务器创建并发送RDB文件，以及向从服务器发送保存在缓冲区里面的写命令来进行同步；<br>
-2、而部分重同步则用于处理断线后重连复制情况：当从服务器在断线后重新连接主服务器时，如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</p>
+1、其中完整重同步发生在初次复制情况：完整重同步的执行步骤和SYNC命令的执行步骤基本一样，1.主服务器创建RDB文件并向从服务器发送RDB文件，2.向从服务器发送创建RDB文件时保存在缓冲区里面的写命令，3.从服务器进行同步；<br>
+2、而部分重同步则发生在处理断线后重连复制情况：当从服务器在断线后重新连接主服务器时，如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</p>
                 <p>其中部分重同步的实现与图中红线部分三个指标相关</p>
                 <blockquote>
                 <p>
