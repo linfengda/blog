@@ -111,7 +111,10 @@ redis-cli -h 127.0.0.1 -c -p 7004
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_002.png" alt="" />
                 </div>
                 <p>PSYNC命令具有完整重同步（full resynchronization）和部分重同步（partial resynchronization）两种模式：<br>
-1、其中完整重同步发生在初次复制情况：完整重同步的执行步骤和SYNC命令的执行步骤基本一样，1.主服务器创建RDB文件并向从服务器发送RDB文件，2.向从服务器发送创建RDB文件时保存在缓冲区里面的写命令，3.从服务器进行同步；<br>
+1、其中完整重同步发生在初次复制情况：完整重同步的执行步骤和SYNC命令的执行步骤基本一样，<br>
+(1).主服务器创建RDB文件并向从服务器发送RDB文件，<br>
+(2).向从服务器发送创建RDB文件时保存在缓冲区里面的写命令，<br>
+(3).从服务器进行同步；<br>
 2、而部分重同步则发生在处理断线后重连复制情况：当从服务器在断线后重新连接主服务器时，如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</p>
                 <p>其中部分重同步的实现与图中红线部分三个指标相关</p>
                 <blockquote>
@@ -173,7 +176,7 @@ b、如果offset偏移量之后的数据已经不存在于复制积压缓冲区�
                 </div>
 
                 <h3>3. 主从模式下容灾的具体过程？</h3>
-                <p>主从模式中，主服务器down之后，从服务器顶上。这个过程可以自动实现，前提是我们配上了哨兵。我们先给主服务器配置3个哨兵：</p>
+                <p>主从模式中，主服务器下线之后，从服务器顶上。这个过程可以自动实现，前提是我们配上了哨兵。我们先给主服务器配置3个哨兵：</p>
                 <pre>
                   <code>
 port 26379
@@ -215,25 +218,26 @@ sentinel parallel-syncs master 1
 1.sentinel down-after-milliseconds master 30000：如果主观下线的时间太小，哨兵就会频繁的主观下线主服务器，哨兵默认1s的心跳ping一次master和其它sentinel；
                 </p>
                 </blockquote>
+                <p>在一主一从+3哨兵的配置下，停掉主服务器，从服务器会被选举为主服务器。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_011.png" alt="" />
                 </div>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_012.png" alt="" />
                 </div>
-                <p>在一主一从+3哨兵的配置下，停掉主服务器，从服务器会被选举为主服务器。</p>
+                <p>原来为主服务器，重新上线为master，但马上被哨兵们发现重新上线，于是哨兵们变为新主服务器的slaver。测试进行到这里我发现，可以随意停掉主服务器，哨兵们如果能找到可用的从服务器，就会将其升级为主服务器，并且重新上线的主服务器会变为从服务器。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_013.png" alt="" />
                 </div>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_014.png" alt="" />
                 </div>
-                <p>原来为主服务器，重新上线为master，但马上被哨兵们发现重新上线，于是哨兵们变为新主服务器的slaver。测试进行到这里我发现，可以随意停掉主服务器，哨兵们如果能找到可用的从服务器，就会将其升级为主服务器，并且重新上线的主服务器会变为从服务器。</p>
+                <p>一个有意思的现象：如果同时停掉主服务器和从服务器，哨兵们进行自动主从切换会因为找不到可用的从服务器而失败。但是哨兵们会进入重试模式，即日志的：Next failover delay: I will not start a failover before Thu Nov  7 15:13:29 2019，这时候我们重新上线从服务器也无用，哨兵们的重试还是失败，估计这是一个实现的bug。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_015.png" alt="" />
                 </div>
-                <p>上图显示了一个有意思的现象：如果同时停掉主服务器和从服务器，哨兵们进行自动主从切换会因为找不到可用的从服务器而失败。但是哨兵们会进入重试模式，即日志的：Next failover delay: I will not start a failover before Thu Nov  7 15:13:29 2019，这时候我们重新上线从服务器也无用，哨兵们的重试还是失败，估计这是一个实现的bug。</p>
-                <p>发生主从切换后对客户端是否透明？答案是肯定的，前提客户端必须通过sentinel的方式连接，如果直连master是做不到的。</p>
+                <h3>发生主从切换后对客户端是否透明？</h3>
+                <p>答案是肯定的，前提客户端必须通过sentinel的方式连接，如果直连master是做不到的。</p>
                 
 
 
