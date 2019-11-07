@@ -58,10 +58,10 @@ Redis主从复制测试
 │   └── redis-ms/7004/redis.conf
                   </code>
                 </pre>
-                <p>7001和7004的配置信息分别为：</p>
+                <p>master和slaver的配置信息分别为：</p>
                 <pre>
                   <code>
-# 7001
+# master
 port 7001
 logfile "7001.log"
 dbfilename "dump-7001.rdb"
@@ -76,7 +76,7 @@ slowlog-log-slower-than 10000
 maxmemory 209715200
 loglevel verbose
 
-# 7004
+# slaver
 port 7004
 logfile "7004.log"
 dbfilename "dump-7004.rdb"
@@ -121,22 +121,21 @@ b、主服务器的复制偏移量和从服务器的复制偏移量（replicatio
 c、主服务器的复制积压缓冲区（replication backlog）<br>
                 </p>
                 </blockquote>
-                <p>指标1：replication id</p>
+                <h4>指标1：replication id</h4>
                 <p>
 a、每个Redis服务器，不论主服务器还是从服务，都会有自己的运行ID；<br>
-b、运行ID在服务器启动时自动生成，由40个随机的十六进制字符组成，例如53b9b28df8042fdc9ab5e3fcbbbabff1d5dce2b3；<br>
-当从服务器对主服务器进行初次复制时，主服务器会将自己的运行ID传送给从服务器，而从服务器则会将这个运行ID保存起来。<br>
-当从服务器断线并重新连上一个主服务器时，从服务器将向当前连接的主服务器发送之前保存的运行ID：<br>
-a、如果从服务器保存的运行ID和当前连接的主服务器的运行ID相同，那么说明从服务器断线之前复制的就是当前连接的这个主服务器，主服务器可以继续尝试执行部分重同步操作；<br>
-b、相反地，如果从服务器保存的运行ID和当前连接的主服务器的运行ID并不相同，那么说明从服务器断线之前复制的主服务器并不是当前连接的这个主服务器，主服务器将对从服务器执行完整重同步操作。</p>
-                <p>查看redis主从首次连接的日志，发现走的是full resynchronization</p>
+b、运行ID在服务器启动时自动生成，由40个随机的十六进制字符组成，例如53b9b28df8042fdc9ab5e3fcbbbabff1d5dce2b3，当从服务器对主服务器进行初次复制时，主服务器会将自己的运行ID传送给从服务器，而从服务器则会将这个运行ID保存起来，当从服务器断线并重新连上一个主服务器时，从服务器将向当前连接的主服务器发送之前保存的运行ID：<br>
+1、如果从服务器保存的运行ID和当前连接的主服务器的运行ID相同，那么说明从服务器断线之前复制的就是当前连接的这个主服务器，主服务器可以继续尝试执行部分重同步操作；<br>
+2、如果从服务器保存的运行ID和当前连接的主服务器的运行ID并不相同，那么说明从服务器断线之前复制的主服务器并不是当前连接的这个主服务器，主服务器将对从服务器执行完整重同步操作。</p>
+                <p>先将redis日志级别设置为verbose，观察主从复制过程。</p>
+                <h4>主从首次连接走的是full resynchronization</h4>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_003.png" alt="" />
                 </div> 
-
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_004.png" alt="" />
                 </div>
+                <h4>主从断线重连走的是partial resynchronization</h4>
                 <p>在从服务器（47.106.79.8:7004）执行slaveof 127.0.0.1 7001命令，通过指向一个不存在的实例使其跟主服务器断开连接，然后在主服务器写入k1，k2，k3等数据，在从服务器（47.106.79.8:7004）重新执行slaveof 119.23.181.11 7001命令指向与原主服务器，然后观察主从同步日志</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_005.png" alt="" />
@@ -149,18 +148,19 @@ b、相反地，如果从服务器保存的运行ID和当前连接的主服务�
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_007.png" alt="" />
                 </div>
-                <p>指标2：replication offset</p>
+                <h4>指标2：replication offset</h4>
                 <p>
 执行复制的双方——主服务器和从服务器会分别维护一个复制偏移量，通过对比主从服务器的复制偏移量，程序可以很容易地知道主从服务器是否处于一致状态；<br>
 如上图所示，partial resynchronization的时候，从服务器将向主服务器发送命令Trying a partial resynchronization (request 20d44988493adeb2f9f5f687f5c320f4da711c18:4908).，其中4908为从服务器偏移量，主服务器会将偏移量4908之后的数据都发送给从服务器，即日志Partial resynchronization request from 47.106.79.8:7004 accepted. Sending 84 bytes of backlog starting from offset 4908.；
                 </p>
-                <p>指标3：replication backlog复制积压缓冲区，从服务器跟主服务器可能会因为某种原因断开一段时间，当从服务器重连的时候，不需要从主服务器进行完整重同步，如果这个时间段内主服务器写入的数据都在缓冲区，那么仅需要进行部分重同步，当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
+                <h4>指标2：replication backlog复制积压缓冲区</h4>
+                <p>从服务器跟主服务器可能会因为某种原因断开一段时间，当从服务器重连的时候，不需要从主服务器进行完整重同步，如果这个时间段内主服务器写入的数据都在缓冲区，那么仅需要进行部分重同步，当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
                 <p>
 a、如果offset偏移量之后的数据（也即是偏移量offset+1开始的数据）仍然存在于复制积压缓冲区里面，那么主服务器将对从服务器执行部分重同步操作；<br>
-b、相反，如果offset偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器将对从服务器执行完整重同步操作。
+b、如果offset偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器将对从服务器执行完整重同步操作。
                 </p>
                 <p>将主服务器（119.23.181.11:7001）的repl-backlog-size设置为16KB，断开从服务器（47.106.79.8:7004）与主服务器的连接</p>
-                <p>向主服务器写入超过16KB的数据，这里需要注意的是，repl-backlog-size这个参数最小为16kb，小于16kb默认为16kb，这是实际测试的结果。</p>
+                <p>向主服务器写入超过16KB的数据，这里需要注意的是：参数repl-backlog-size的最小值为16kb，小于16kb将默认为16kb，这是实际测试的结果。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_008.png" alt="" />
                 </div>
@@ -173,8 +173,67 @@ b、相反，如果offset偏移量之后的数据已经不存在于复制积压�
                 </div>
 
                 <h3>3. 主从模式下容灾的具体过程？</h3>
+                <p>主从模式中，主服务器down之后，从服务器顶上。这个过程可以自动实现，前提是我们配上了哨兵。我们先给主服务器配置3个哨兵：</p>
+                <pre>
+                  <code>
+port 26379
+dir /tmp
+protected-mode no
+sentinel monitor master 119.23.181.11 7001 2
+sentinel down-after-milliseconds master 30000
+sentinel failover-timeout master 60000
+sentinel parallel-syncs master 1
 
-                <h3>4. redis实例间具体如何分担查询请求？</h3>
+port 26380
+dir /tmp
+protected-mode no
+sentinel monitor master 119.23.181.11 7001 2
+sentinel down-after-milliseconds master 30000
+sentinel failover-timeout master 60000
+sentinel parallel-syncs master 1
+
+port 26381
+dir /tmp
+protected-mode no
+sentinel monitor master 119.23.181.11 7001 2
+sentinel down-after-milliseconds master 30000
+sentinel failover-timeout master 60000
+sentinel parallel-syncs master 1
+                  </code>
+                </pre>
+                <p>需要确保redis.conf的下列参数配置正确：</p>
+                <blockquote>
+                <p>
+1.protected-mode no：因为我们是不同机器，因此不能配置yes，否则只能localhost访问；<br>
+2.replica-read-only no：需要关闭从服务器只读，否则在主服务器下线后哨兵会无法切换到从服务器，出现-failover-abort-no-good-slave master master 119.23.181.11 7001错误；<br>
+2.注释bind 127.0.0.1：否则redis服务不能被公网地址访问，哨兵ping不到；
+                </p>
+                </blockquote>
+                <p>需要确保sentinel.conf的下列参数配置正确：</p>
+                <blockquote>
+                <p>
+1.sentinel down-after-milliseconds master 30000：如果主观下线的时间太小，哨兵就会频繁的主观下线主服务器，哨兵默认1s的心跳ping一次master和其它sentinel；
+                </p>
+                </blockquote>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_011.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_012.png" alt="" />
+                </div>
+                <p>在一主一从+3哨兵的配置下，停掉主服务器，从服务器会被选举为主服务器。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_013.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_014.png" alt="" />
+                </div>
+                <p>原来为主服务器，重新上线为master，但马上被哨兵们发现重新上线，于是哨兵们变为新主服务器的slaver。测试进行到这里我发现，可以随意停掉主服务器，哨兵们如果能找到可用的从服务器，就会将其升级为主服务器，并且重新上线的主服务器会变为从服务器。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article027_015.png" alt="" />
+                </div>
+                <p>上图显示了一个有意思的现象：如果同时停掉主服务器和从服务器，哨兵们进行自动主从切换会因为找不到可用的从服务器而失败。但是哨兵们会进入重试模式，即日志的：Next failover delay: I will not start a failover before Thu Nov  7 15:13:29 2019，这时候我们重新上线从服务器也无用，哨兵们的重试还是失败，估计这是一个实现的bug。</p>
+                <p>发生主从切换后对客户端是否透明？答案是肯定的，前提客户端必须通过sentinel的方式连接，如果直连master是做不到的。</p>
                 
 
 
