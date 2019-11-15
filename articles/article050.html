@@ -58,13 +58,6 @@ AtomicInteger等
                 
                 <h3>ReentrantLock</h3>
                 <p>ReentrantLock实现的机理依赖于特殊的CPU指定，可以认为不受JVM的约束，并可以通过其他语言平台来完成底层的实现。在并发量较小的多线程应用程序中，ReentrantLock与synchronized性能相差无几，但在高并发量的条件下，synchronized性能会迅速下降几十倍，而ReentrantLock的性能却能依然维持一个水准。因此我们建议在高并发量情况下使用ReentrantLock。 </p>
-                <h4>AQS</h4>
-                <p>同步队列是AQS很重要的组成部分，它是一个双端队列，遵循FIFO原则，主要作用是用来存放在锁上阻塞的线程，当一个线程尝试获取锁时，如果已经被占用，那么当前线程就会被构造成一个Node节点假如到同步队列的</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_001.png" alt="" />
-                </div>
-                <h4>重入锁</h4>
-                <p>重入锁指的是当前线成功获取锁后，如果再次访问该临界区，则不会对自己产生互斥行为。Java中对synchronized和ReentrantLock都是可重入锁，synchronized由jvm实现可重入，ReentrantLock可重入性基于AQS实现。ReentrantLock的重入锁有公平锁和非公平锁两种模式</p>
                 <h4>ReentrantLock的非公平锁</h4>
                 <pre>
                   <code>
@@ -122,6 +115,55 @@ protected final boolean tryAcquire(int acquires) {
                   </code>
                 </pre>
                 <p>从上面的代码中可以看出，公平锁与非公平锁的区别仅在于是否判断当前节点是否存在前驱节点!hasQueuedPredecessors()，由AQS可知，如果当前线程获取锁失败就会被加入到AQS同步队列中，那么，如果同步队列中的节点存在前驱节点，也就表明存在线程比当前节点线程更早的获取锁，故只有等待前面的线程释放锁后才能获取锁。</p>
+                <h4>AQS</h4>
+                <p>同步队列是AQS很重要的组成部分，它是一个双端队列，遵循FIFO原则，主要作用是用来存放在锁上阻塞的线程，当一个线程尝试获取锁时，如果已经被占用，那么当前线程就会被构造成一个Node节点假如到同步队列的</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_001.png" alt="" />
+                </div>
+                <h4>重入锁</h4>
+                <p>重入锁指的是当前线成功获取锁后，如果再次访问该临界区，则不会对自己产生互斥行为。Java中对synchronized和ReentrantLock都是可重入锁，synchronized由jvm实现可重入，ReentrantLock可重入性基于AQS实现。</p>
+
+
+                <pre>
+                  <code>
+-Xmx4096m //最大内存分配
+-Xms4096m //最小内存分配
+-Xss256k //每个线程的堆栈大小
+//-XX:NewRatio=2 年轻代和老年代大小的比例，默认是2 G1垃圾回收最好不要设置采用下面的配置
+-XX:G1NewSizePercent=30 //新生代最小值，默认值5%
+-XX:G1MaxNewSizePercent=45 //新生代最大值，默认值60%
+-XX:MetaspaceSize=256m //jdk8 元空间大小（相当于以前的perm）
+-XX:MaxMetaspaceSize=512m //jdk8最大元空间大小
+-XX:+UseG1GC //指定G1垃圾收集器
+-XX:G1HeapRegionSize=16m //G1垃圾收集器分区大小
+-XX:G1ReservePercent=25 //预留多少内存，防止晋升失败的情况，默认值是10
+-XX:MaxTenuringThreshold=15 //晋升的阈值，默认是15（一个存活对象经历多少次GC周期之后晋升到老年代)
+-XX:SurvivorRatio=8 //	eden和survivor区域空间大小的比例，默认是8
+-XX:+ParallelRefProcEnabled //采用多线程的方式发现需要处理的finalize方法的对象，非多线程执行对象的finalize方法
+-XX:-OmitStackTraceInFastThrow //一些频繁抛出的异常，JVM为了性能优化而抛出没有堆栈的异常，默认开启，
+-XX:+AlwaysPreTouch //jvm预先访问所有分配给它的内存,让操作系统把内存真正的分配给JVM
+-XX:+PrintTenuringDistribution //显示出survivor区间有效对象的年龄(经历过几次新生代回收)分布情况，可以通过该参数的输出确定出survivor大小以及 MaxTenuringThreshold 的值
+-XX:+PrintGCApplicationStoppedTime //打印垃圾收集期间应用被暂停的时间
+-XX:+UnlockExperimentalVMOptions //打印出实验性的参数
+-XX:InitiatingHeapOccupancyPercent=40 //内存占用达到整个堆百分之多少的时候开启一个GC周期，G1 GC会根据整个堆的占用，而不是某个代的占用情况去触发一个并发GC周期，0表示一直在GC，默认值是45
+-XX:MaxGCPauseMillis=20 //G1收集器GC最大停顿时间ms
+-XX:ParallelGCThreads=4 //GC在并行处理阶段启动多少个线程，默认值和平台有关。一般不设采用默认配置
+-XX:ConcGCThreads=n //并发收集的时候使用多少个线程，默认值和平台有关。一般不设采用默认配置
+-verbose:gc // 表示输出虚拟机中GC的详细情况
+-XX:+PrintGCDetails //打印gc日志，打印的出日志包含日志收集原因，各区域变化情况，以及用时
+-XX:+PrintHeapAtGC //打印gc前后堆详细信息，不管是minor gc还是full gc都会打印
+-XX:+PrintGCDateStamps //日志中输出时间戳
+-XX:+PrintPromotionFailure //是多大的新生代对象晋升到老生代失败从而引发Full GC
+-XX:+HeapDumpOnOutOfMemoryError //在Out Of Memory，JVM快死掉的时候，输出Heap Dump到指定文件。不然开发很多时候还真不知道怎么重现错误
+-XX:+PrintAdaptiveSizePolicy //可以打印出survivor的一些详细信息，关于survivor区间是否溢出，是否有对象转移到老年代
+-XX:+UseGCLogFileRotation //
+-XX:NumberOfGCLogFiles=5 //
+-XX:GCLogFileSize=30M //这三个参数用于设置gc文件滚动和设置滚动日志文件的个数，为了防止单个gc日志文件太大，生产上建议加上这两个参数；
+-Xloggc:/opt/logs/jetty/gc_%p.log //gc log输出地址
+-XX:HeapDumpPath=/opt/logs/jetty/java.hprof //heap dump日志地址
+-XX:ErrorFile=/opt/logs/jetty/hs_err_pid%p.log //JVM crash时生成crash文件的路径
+                  </code>
+                </pre>
 
                 
                 
