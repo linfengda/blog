@@ -39,25 +39,25 @@
 									<span class="date">April 21, 2018</span>
 									<h1>java 集合</h1>
 									<p>
-this page introduce java Collection classes which implements interface java.util.Collection, including classes from both package: java.util.* and java.util.concurrent.*. 
+                                    本章介绍java.util.*包和java.util.concurrent.*包下的集合类，即java.util.Collection接口的实现类。
 								    </p>
 								</header>
 
-				        <h3>Collection接口</h3>
-                <p>这里只讲解ArrayList、LinkedList、Vector、CopyOnWriteArrayList；HashSet、CopyOnWriteArraySet；ConcurrentLinkedQueue、ArrayBlockingQueue、LinkedBlockingQueue，因为其他的也不会更难。<br>
-                Collection接口下面的子类：</p>
+				<h3>Collection接口的实现类们</h3>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article016_001.png" alt="" />
                 </div>
+                <p>这里只讲解列表类ArrayList、LinkedList、CopyOnWriteArrayList；<br>
+                集合类HashSet、CopyOnWriteArraySet；<br>
+                队列类ConcurrentLinkedQueue、ArrayBlockingQueue、LinkedBlockingQueue；</p>
 
-                <h3>1. Collection接口</h3>
-                <p>接口定义了如下方法。</p>
+                <h3>Collection接口定义了如下方法</h3>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article016_002.png" alt="" />
                 </div>
 
-                <h3>2. ArrayList</h3>
-                <p>ArrayList就是典型的java版本顺序表，</p>
+                <h3>1. ArrayList</h3>
+                <p>ArrayList就是典型的java版本顺序表</p>
 				        <pre>
                   <code>
 public class ArrayList&lt;E&gt; extends AbstractList&lt;E&gt;
@@ -139,7 +139,7 @@ public E remove(int index) {
                 </pre>
 
                 <h3>2. LinkedList</h3>
-                <p>LinkedList就是典型的java版本的双向链表。</p>
+                <p>LinkedList就是典型的java版本的双向链表</p>
                 <pre>
                   <code>
 public class LinkedList&lt;E&gt;
@@ -155,7 +155,7 @@ public class LinkedList&lt;E&gt;
     transient Node&lt;E&gt; last;
                   </code>
                 </pre>
-                <p>清空链表。</p>
+                <p>清空链表</p>
                 <pre>
                   <code>
 public void clear() {
@@ -253,11 +253,8 @@ E unlink(Node&lt;E&gt; x) {
                   </code>
                 </pre>
 
-                <h3>3. Vector</h3>
-                <p>通过给insertElementAt、get、remove、clear等方法加synchronized关键字来简单粗暴的达到同步的目的，直接锁住整个数组了，效率不高。</p>
-
-                <h3>4. CopyOnWriteArrayList</h3>
-                <p>向数组中添加元素，先用lock锁住，然后copy出新数组进行插入操作，原数组不做任何改变，就不会影响读取了。</p>
+                <h3>3. CopyOnWriteArrayList</h3>
+                <p>向数组中添加删除元素，先用ReentrantLock锁住，然后copy出新数组进行插入删除操作，原数组不做任何改变，就不会影响读取了。</p>
                 <pre>
                   <code>
 public void add(int index, E element) {
@@ -290,9 +287,8 @@ public void add(int index, E element) {
 }
                   </code>
                 </pre>
-                <p>其他操作都类似，用到了ReentrantLock。</p>
 
-                <h3>5. HashSet</h3>
+                <h3>4. HashSet</h3>
                 <p>HashSet其实基于HashMap做了一层封装，HashMap里面放键值对，HashSet放的是对象。</p>
                 <pre>
                   <code>
@@ -322,7 +318,7 @@ public class HashSet&lt;E&gt;
                   </code>
                 </pre>
 
-                <h3>6. CopyOnWriteArraySet</h3>
+                <h3>5. CopyOnWriteArraySet</h3>
                 <p>
                 CopyOnWriteArraySet基于CopyOnWriteArrayList实现，CopyOnWriteArraySet具有以下特性：<br>
                 1. 它最适合于Set大小通常保持很小，只读操作远多于可变操作的情景。<br>
@@ -357,7 +353,7 @@ public class CopyOnWriteArraySet&lt;E&gt; extends AbstractSet&lt;E&gt;
                   </code>
                 </pre>
 
-                <h3>7. Queue</h3>
+                <h3>6. Queue</h3>
                 <p>
                   (1)分为没有实现的阻塞接口的：<br>
                 　　* PriorityQueue<br>
