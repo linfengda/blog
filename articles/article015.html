@@ -42,30 +42,21 @@
                   本章介绍java中经常用到的类：HashMap
 								    </p>
 								</header>
-                <p>hash表：通过一个哈希函数h(key)，将关键字key映射为内存单元的某个地址h(key)，并将value存储在这个内存单元中，哈希表也称散列表。</p>
+                <p>导读：hash表：通过一个哈希函数h(key)，将关键字key映射为内存单元的某个地址h(key)，并将value存储在这个内存单元中，哈希表也称散列表。</p>
 
-				<h3>Map接口</h3>
-                <p>Map接口下面的子类，这里只讲解HashMap、ConcurrentHashMap。</p>
+				        <h3>Map接口</h3>
+                <p>Map接口下面的子类有一大堆，这里只讲解HashMap、ConcurrentHashMap。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article015_001.png" alt="" />
                 </div>
-                <p></p>
 
-                <h3>Map接口</h3>
-                <p>接口定义了如下方法：</p>
+                <h3>Map接口接口定义了如下方法：</h3>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article015_002.png" alt="" />
                 </div>
-                <p>需要注意Map的子接口Entry接口，它定义了hash表中数组元素的标准，每个Map实现类再实现自己的Entry类型。</p>
 
-                <h3>1. HashMap</h3>
-                <p>HashMap的整体结构如下：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article015_003.png" alt="" />
-                </div>
-                <p>从上图中可以看出，HashMap就是：链表组成的数组，为什么时链表呢？我们都知道哈希表解决哈希冲突的方法有开放地址法和链表法，HashMap使用的是链表法。
-                </p>
-                <p>当新建一个HashMap的时候，就会初始化一个Entry数组。</p>
+                <h3>HashMap的结构简介：</h3>
+                <p>一种链表组成的数组结构，为什么是链表呢？我们都知道哈希表解决哈希冲突的方法有开放地址法和链表法，HashMap使用的是链表法。当新建一个HashMap的时候，就会初始化一个Entry数组。</p>
                 <pre>
                   <code>
 //哈希表数组
