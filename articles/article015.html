@@ -37,37 +37,56 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 20, 2018</span>
-									<h1>java 集合</h1>
+									<h1>java Map</h1>
 									<p>
-this page introduce java Map, including Map classes from both package: java.util.* and java.util.concurrent.*. 
+                  本章介绍java.util.*包和java.util.concurrent.*包下的Map类。
 								    </p>
 								</header>
 
-				<p>数据结构无非就是：数组、链表、哈希表和树（请忽略图这种结构）。这里只介绍java集合主体：Map接口和List接口下面的实现类，它们都只用到了数组、链表、哈希表和树结构来实现。</p>
+				<p>数据结构无非就是：数组、链表、哈希表和树（请忽略图这种结构）。本章介绍Map接口和List接口下面的实现类，它们都只用到了数组、链表、哈希表和树结构来实现。</p>
                 <p>hash表：通过一个哈希函数h(key)，将关键字key映射为内存单元的某个地址h(key)，并将value存储在这个内存单元中，哈希表也称散列表。</p>
 
 				<h3>Map接口</h3>
-                <p>Map接口下面的子类，这里只讲解HashMap、LinkedHashMap、Hashtable、ConcurrentHashMap，因为其他的也不会更难。</p>
+                <p>Map接口下面的子类，这里只讲解HashMap、ConcurrentHashMap。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article015_001.png" alt="" />
                 </div>
                 <p></p>
 
-                <h3>1. Map接口</h3>
-                <p>接口定义了如下方法，。</p>
+                <h3>Map接口</h3>
+                <p>接口定义了如下方法：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article015_002.png" alt="" />
                 </div>
                 <p>需要注意Map的子接口Entry接口，它定义了hash表中数组元素的标准，每个Map实现类再实现自己的Entry类型。</p>
 
-                <h3>2. HashMap</h3>
-                <p>HashMap的整体结构如下</p>
+                <h3>1. HashMap</h3>
+                <p>HashMap的整体结构如下：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article015_003.png" alt="" />
                 </div>
-                <p>从上图中可以看出，HashMap就是：数组+链表，我们都知道哈希表解决哈希冲突的方法有开放地址法和链表法，HashMap使用的是链表法。<br>
+                <p>从上图中可以看出，HashMap就是：链表组成的数组，为什么时链表呢？我们都知道哈希表解决哈希冲突的方法有开放地址法和链表法，HashMap使用的是链表法。
                 </p>
-				<pre>
+                <p>当新建一个HashMap的时候，就会初始化一个Entry数组。</p>
+                <pre>
+                  <code>
+//哈希表数组
+transient Entry&lt;K,V&gt;[] table;
+...
+ 
+static class Entry&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
+    final K key;
+    V value;
+    Entry&lt;K,V&gt; next;
+    final int hash;
+    ...
+
+}
+                  </code>
+                </pre>
+                <p>可以看出，Entry就是数组中的元素，每个 Map.Entry 其实就是一个key-value对，它持有一个指向下一个元素的引用，这就构成了链表。</p>
+                <p>打开HashMap的源码，映入眼帘的是这段代码：</p>
+				        <pre>
                   <code>
 //数组默认初始容量，总是2的n次方
 static final int DEFAULT_INITIAL_CAPACITY = 16;
@@ -94,27 +113,39 @@ final float loadFactor;
 transient int modCount;
                   </code>
                 </pre>
-                <p>当新建一个HashMap的时候，就会初始化一个数组。</p>
+                <p>这段代码包含的考点很多，我们先来说说考点一：数组的容量为什么总是2的n次方？</p>
+                <p>其实解释起来也简单，我们知道哈希表插入数据时需要根据哈希函数得到插入数据的下标，这其中就会有哈希冲突等问题出现。虽然我们能够解决哈希冲突，但是作为HashMap的开发者，肯定是要尽量避免哈希冲突的，怎么避免呢？就是使得哈希函数得到的下标在数组种尽量均匀分布。</p>
                 <pre>
                   <code>
-//哈希表数组
-transient Entry&lt;K,V&gt;[] table;
-...
- 
-static class Entry&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
-    final K key;
-    V value;
-    Entry&lt;K,V&gt; next;
-    final int hash;
-    ...
-
+atic final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
 }
                   </code>
                 </pre>
-                <p>可以看出，Entry就是数组中的元素，每个 Map.Entry 其实就是一个key-value对，它持有一个指向下一个元素的引用，这就构成了链表。</p>
-				<h3>HashMap的存实现</h3>
-				<pre>
+                <p>HashMap的开发者就是使用(h = key.hashCode()) ^ (h &gt;&gt;&gt; 16)这个操作使返回的数组下标均匀，例如key的hashcode=766132转换二进制就是10111011000010110100，
+用h &gt;&gt;&gt; 16取出高16位：0000 0000 0000 0000   0000 0000 0000 1011，则(h = key.hashCode()) ^ (h &gt;&gt;&gt; 16)的运算就是：0000 0000 0000 1011   1011 0000 1011 1111，即十进制766143，使得到的下标均匀分布。</p>
+                <pre>
                   <code>
+0000 0000 0000 1011   1011 0000 1011 0100
+0000 0000 0000 0000   0000 0000 0000 1011 (h &gt;&gt;&gt; 16)
+0000 0000 0000 1011   1011 0000 1011 1111 (&amp;)
+                  </code>
+                </pre>
+                <p>在JDK1.7中，hash函数长下面这样子：</p>
+                <pre>
+                  <code>
+static int indexFor(int h, int length) {
+    return h &amp; (length-1);
+}
+                  </code>
+                </pre>
+                <p>当length总是 2 的n次方时，h &amp; (length-1)运算等价于对length取模，也就是h%length，但是&amp;比%具有更高的效率。设数组长度分别为15和16，优化后的hash码分别为8和9，那么& 运算后的结果如下： </p>
+                <img style="max-width: 100%;max-height: 100%;" src="../images/article015_004.png" alt="" />
+
+                <p>HashMap的存实现</p>
+        				<pre>
+                    <code>
 public V put(K key, V value) {
     // HashMap允许存放null键和null值。
     // 当key为null时，调用putForNullKey方法，将value放置在数组第一个位置。  
@@ -141,18 +172,11 @@ public V put(K key, V value) {
 }
                   </code>
                 </pre>
-                <p>
-                	当我们将一个key-value对放入HashMap中时，先根据key的hashCode计算hash值，根据hash值得到这个元素所在Entry链表在数组中的位置（即下标）， 如果这个位置上没有元素，就新建一个Entry，在这个位置上的元素将以链表的形式存放。如果有元素，就取出Entry链表，新加入的放在链头，最先加入的放在链尾。<br>
-                	如果这两个 Entry 的 key 和 hash 都相等，新添加 Entry 的 value 将覆盖集合中原有 Entry 的 value，但key不会覆盖。
-                </p>
-                <p>
-                	addEntry(hash, key, value, i)方法根据计算出的hash值，将key-value对放在数组table的bucketIndex索引处。
-                </p>
                 <pre>
                   <code>
 void addEntry(int hash, K key, V value, int bucketIndex) {
     if ((size &gt;= threshold) &amp;&amp; (null != table[bucketIndex])) {
-    	// 扩容
+      // 扩容
         resize(2 * table.length);
         hash = (null != key) ? hash(key) : 0;
         // 根据hash获取Entry位置
@@ -164,7 +188,7 @@ void addEntry(int hash, K key, V value, int bucketIndex) {
 ...
 
 void createEntry(int hash, K key, V value, int bucketIndex) {
-	// 获取指定bucketIndex索引处的Entry 
+  // 获取指定bucketIndex索引处的Entry 
     Entry&lt;K,V&gt; e = table[bucketIndex];
     // 将新创建的Entry放入bucketIndex索引处，并让新的Entry指向原来的Entry
     table[bucketIndex] = new Entry&lt;&gt;(hash, key, value, e);
@@ -172,52 +196,21 @@ void createEntry(int hash, K key, V value, int bucketIndex) {
 }
                   </code>
                 </pre>
-                <p>hash(int h)方法根据key的hashCode重新计算一次散列。此算法加入了高位计算，防止低位不变，高位变化时，造成的hash冲突。</p>
-				<pre>
-                  <code>
-final int hash(Object k) {
-    ...
-
-    h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);
-    return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);
-}
-                  </code>
-                </pre>
                 <p>
-                	我们可以看到在HashMap中要找到某个元素，需要根据key的hash值来求得对应数组中的位置。如何计算这个位置就是hash算法。前面说过HashMap的数据结构是数组和链表的结合，所以我们当然希望这个HashMap里面的 元素位置尽量的分布均匀些，尽量使得每个位置上的元素数量只有一个，那么当我们用hash算法求得这个位置的时候，马上就可以知道对应位置的元素就是我们要的，而不用再去遍历链表，这样就大大优化了查询的效率。
-
-					对于任意给定的对象，只要它的 hashCode() 返回值相同，那么程序调用 hash(int h) 方法所计算得到的 hash 码值总是相同的。我们首先想到的就是把hash值对数组长度取模运算，这样一来，元素的分布相对来说是比较均匀的。但是，“模”运算的消耗还是比较大的，在HashMap中是这样做的：调用 indexFor(int h, int length) 方法来计算该对象应该保存在 table 数组的哪个索引处。
+                	当我们将一个key-value对放入HashMap中时，先根据key的hashCode计算hash值，根据hash值得到这个元素所在Entry链表在数组中的下标， 如果这个位置上没有元素，就新建一个Entry，在这个位置上的元素将以链表的形式存放。如果有元素，就取出Entry链表，新加入的放在链头，这叫头部插入。但是，在java8之后，都是所用尾部插入了。为啥改为尾部插入呢？这是因为如果使用头部插入，在Hash扩容时会出现环形链表，假设还没扩容前链表是这样的：
                 </p>
-                <pre>
-                  <code>
-static int indexFor(int h, int length) {
-    return h &amp; (length-1);
-}
-                  </code>
-                </pre>
-                <p>这个方法非常巧妙，它通过 h &amp; (table.length -1) 来得到该对象的保存位，而HashMap底层数组的长度总是 2 的 n 次方，这是HashMap在速度上的优化。在 HashMap 构造器中有如下代码：</p>
-                <pre>
-                  <code>
-int capacity = 1;
-    while (capacity < initialCapacity)  
-        capacity <<= 1;
-                  </code>
-                </pre>
+                <img style="max-width: 100%;max-height: 100%;" src="../images/article015_005.png" alt="" />
                 <p>
-                这段代码保证初始化时HashMap的容量总是2的n次方，即底层数组的长度总是为2的n次方。
-				当length总是 2 的n次方时，h&amp; (length-1)运算等价于对length取模，也就是h%length，但是&amp;比%具有更高的效率。<br>
-				这看上去很简单，其实很有心机，我们举个例子来说明：<br>
-				假设数组长度分别为15和16，优化后的hash码分别为8和9，那么&amp; 运算后的结果如下：
-				</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article015_004.png" alt="" />
-                </div>
-                <p>
-                从上面的例子中可以看出：当它们和15-1（1110）“与”的时候，产生了相同的结果，也就是说它们会定位到数组中的同一个位置上去，这就产生了碰撞，8和9会被放到数组中的同一个位置上形成链表，那么查询的时候就需要遍历这个链 表，得到8或者9，这样就降低了查询的效率。同时，我们也可以发现，当数组长度为15的时候，hash值会与15-1（1110）进行“与”，那么最后一位永远是0，而0001，0011，0101，1001，1011，0111，1101这几个位置永远都不能存放元素了，空间浪费相当大，更糟的是这种情况中，数组可以使用的位置比数组长度小了很多，这意味着进一步增加了碰撞的几率，减慢了查询的效率！而当数组长度为16时，即为2的n次方时，2n-1得到的二进制数的每个位上的值都为1，这使得在低位上&amp; 时，得到的和原hash的低位相同，加之hash(int h)<br>方法对key的hashCode的进一步优化，加入了高位计算，就使得只有相同的hash值的两个值才会被放到数组中的同一个位置上形成链表。
-				</p>
+                  当进行Hash扩容时，A，B，C三个元素通过重新计算索引位置后，有可能被放到了新数组的不同位置上，且使用头部插入，同一位置上新元素总会被放在链表的头部位置，这导致了B被放到了A的前面：
+                </p>
+                <img style="max-width: 100%;max-height: 100%;" src="../images/article015_006.png" alt="" />
+                <p>于是A与B成为了环形链表，如果这个时候去取值，悲剧就出现了——Infinite Loop。</p>
+                <p>但是如果使用尾插，在扩容时会保持链表元素原本的顺序，就不会出现链表成环的问题了。</p>
+                <p>就是说原本是A->B，在扩容后那个链表还是A->B。</p>
+                <img style="max-width: 100%;max-height: 100%;" src="../images/article015_007.png" alt="" />
 
-				<h3>HashMap的取实现</h3>
-				<pre>
+                <p>HashMap的取实现</p>
+        				<pre>
                   <code>
 public V get(Object key) {
     if (key == null)
@@ -252,182 +245,9 @@ final Entry&lt;K,V&gt; getEntry(Object key) {
 }
                   </code>
                 </pre>
-                <p>从HashMap中get元素时，首先计算key-->hash-->Entry链表位置-->遍历Entry链表找到需要的元素。</p>
-				<h3>Iterator迭代器</h3>
-                <p>直观的理解，迭代器就是将for(int i==0;i&lt;size;i++)，中的控制变量i放到了Iterator里面，将i&lt;size变成hasNext()方法，将i++放到next()方法里面而已。</p>
-				<pre>
-                  <code>
-private abstract class HashIterator&lt;E&gt; implements Iterator&lt;E&gt; {
-    Entry&lt;K,V&gt; next;        // next entry to return
-    int expectedModCount;   // For fast-fail
-    int index;              // current slot
-    Entry&lt;K,V&gt; current;     // current entry
-
-    ...
-
-    public final boolean hasNext() {
-        return next != null;
-    }
-
-    final Entry&lt;K,V&gt; nextEntry() {
-        if (modCount != expectedModCount)
-        	// 如果在使用迭代器的过程中有其他线程修改了map，那么将抛出ConcurrentModificationException，这就是所谓fail-fast策略。
-            throw new ConcurrentModificationException();
-        Entry&lt;K,V&gt; e = next;
-        if (e == null)
-            throw new NoSuchElementException();
-
-        if ((next = e.next) == null) {
-            Entry[] t = table;
-            while (index &lt; t.length &amp;&amp; (next = t[index++]) == null)
-                ;
-        }
-        current = e;
-        return e;
-    }
-    ...
-                  </code>
-                </pre>
-
-                <h3>2. LinkedHashMap</h3>
-                <p>
-                LinkedHashMap通过维护一个额外的双向链表保证了迭代顺序。<br>
-				因此对于每次put进来Entry，除了将其保存到哈希表中对应的位置上之外，还会将其插入到双向链表的尾部。<br>
-				它的结构如下图所示：<br>
-				</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article015_005.png" alt="" />
-                </div>
-                <pre>
-                  <code>
-void addEntry(int hash, K key, V value, int bucketIndex) {
-    super.addEntry(hash, key, value, bucketIndex);
-
-    // Remove eldest entry if instructed
-    Entry&lt;K,V&gt; eldest = header.after;
-    if (removeEldestEntry(eldest)) {
-        removeEntryForKey(eldest.key);
-    }
-}
-...
-
-void createEntry(int hash, K key, V value, int bucketIndex) {
-    HashMap.Entry&lt;K,V&gt; old = table[bucketIndex];
-    Entry&lt;K,V&gt; e = new Entry&lt;&gt;(hash, key, value, old);
-    table[bucketIndex] = e;
-    // 维护额外的双向链表
-    e.addBefore(header);
-    size++;
-}
-                  </code>
-                </pre>
-
-                <h3>3. Hashtable</h3>
-                <p>通过给put、get、remove、clear等方法加synchronized关键字来简单粗暴的达到同步的目的，直接锁住整个table了，效率不高。</p>
-
-                <h3>4. ConcurrentHashMap</h3>
-                <p>在JDK1.7版本中，ConcurrentHashMap的数据结构是由Segment数组，而Segment又是HashEntry数组组成，（在JDK1.8版本中换了另一种实现）如下图所示：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article015_006.png" alt="" />
-                </div>
-                <p>简单来看就是将HashMap分成若干片，每一片就是一个Segment，将一个大的table分割成多个小的table来进行加锁，这样降低了锁的粒度，并发环境下，对于不同Segment的数据进行操作是不用考虑锁竞争的。（并发数由ConcurrentLeve控制，默认为16。）</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article015_007.png" alt="" />
-                </div>
-				<p>我们来看看Segment类</p>
-				<pre>
-                  <code>
-static final class Segment&lt;K,V&gt; extends ReentrantLock implements Serializable {
-...
-
-    transient volatile HashEntry&lt;K,V&gt;[] table;
-    
-    transient int count;
-
-    transient int modCount;
-
-    transient int threshold;
-
-    final float loadFactor;
-
-    Segment(float lf, int threshold, HashEntry&lt;K,V&gt;[] tab) {
-        this.loadFactor = lf;
-        this.threshold = threshold;
-        this.table = tab;
-    }
-                  </code>
-                </pre>
-                <p>我们来看下ConcurrentHashMap的构造方法</p>
-				<pre>
-                  <code>
-public ConcurrentHashMap(int initialCapacity,
-                           float loadFactor, int concurrencyLevel) {
-      if (!(loadFactor &gt; 0) || initialCapacity &lt; 0 || concurrencyLevel &lt;= 0)
-          throw new IllegalArgumentException();
-      //MAX_SEGMENTS 为1&lt;&lt;16=65536，也就是最大并发数为65536
-      if (concurrencyLevel &gt; MAX_SEGMENTS)
-          concurrencyLevel = MAX_SEGMENTS;
-      //2的sshif次方等于ssize，例:ssize=16,sshift=4;ssize=32,sshif=5
-     int sshift = 0;
-     //ssize 为segments数组长度，根据concurrentLevel计算得出
-     int ssize = 1;
-     while (ssize &lt; concurrencyLevel) {
-         ++sshift;
-         ssize &lt;&lt;= 1;
-     }
-     //segmentShift和segmentMask这两个变量在定位segment时会用到，后面会详细讲
-     this.segmentShift = 32 - sshift;
-     this.segmentMask = ssize - 1;
-     if (initialCapacity &gt; MAXIMUM_CAPACITY)
-         initialCapacity = MAXIMUM_CAPACITY;
-     //计算cap的大小，即Segment中HashEntry的数组长度，cap也一定为2的n次方.
-     int c = initialCapacity / ssize;
-     if (c * ssize &lt; initialCapacity)
-         ++c;
-     int cap = MIN_SEGMENT_TABLE_CAPACITY;
-     while (cap &lt; c)
-         cap &lt;&lt;= 1;
-     //创建segments数组并初始化第一个Segment，其余的Segment延迟初始化
-     Segment&lt;K,V&gt; s0 =
-         new Segment&lt;K,V&gt;(loadFactor, (int)(cap * loadFactor),
-                          (HashEntry&lt;K,V&gt;[])new HashEntry[cap]);
-     Segment&lt;K,V&gt;[] ss = (Segment&lt;K,V&gt;[])new Segment[ssize];
-     UNSAFE.putOrderedObject(ss, SBASE, s0); 
-     this.segments = ss;
- }
-                  </code>
-                </pre>
-                <p>
-               	初始化方法有三个参数，如果用户不指定则会使用默认值，initialCapacity为16，loadFactor为0.75（负载因子，扩容时需要参考），concurrentLevel为16。<br>
-				从上面的代码可以看出来,Segment数组的大小ssize是由concurrentLevel来决定的，但是却不一定等于concurrentLevel，ssize一定是大于或等于concurrentLevel的最小的2的次幂。比如：默认情况下concurrentLevel是16，则ssize为16；若concurrentLevel为14，ssize为16；若concurrentLevel为17，则ssize为32。
-                </p>
-				<p>接下来，我们来看看put方法</p>
-				<pre>
-                  <code>
-public V put(K key, V value) {
-    Segment&lt;K,V&gt; s;
-    //concurrentHashMap不允许key/value为空
-    if (value == null)
-        throw new NullPointerException();
-    //hash函数对key的hashCode重新散列，避免差劲的不合理的hashcode，保证散列均匀
-    int hash = hash(key);
-    //返回的hash值无符号右移segmentShift位与段掩码进行位运算，定位segment
-    int j = (hash &gt;&gt;&gt; segmentShift) &amp; segmentMask;
-    if ((s = (Segment&lt;K,V&gt;)UNSAFE.getObject          // nonvolatile; recheck
-         (segments, (j &lt;&lt; SSHIFT) + SBASE)) == null) //  in ensureSegment
-        s = ensureSegment(j);
-    return s.put(key, hash, value, false);
-}
-                  </code>
-                </pre>
-                <p></p>
-
-
-				
-
-				
-               
-                
+                <p>查找方式为key-->hash-->Entry链表位置-->遍历Entry链表找到key和hash相等的元素。</p>
+                <p>HashMap为什么是线程不安全的？</p>
+                <p>通过HashMap源码看到put/get方法都没有加同步锁，多线程情况最容易出现的就是：无法保证上一秒put的值，下一秒get的时候还是原值，所以线程安全还是无法保证。</p>
 
 							</section>
 					</div>
