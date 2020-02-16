@@ -107,7 +107,7 @@ atic final int hash(Object key) {
 }
                   </code>
                 </pre>
-                <p>HashMap的开发者就是使用哈希函数：(h = key.hashCode()) ^ (h &gt;&gt;&gt; 16)，使返回的数组下标均匀，例如key的hashcode=766132，<br>转换二进制就是10111011000010110100，<br>
+                <p>HashMap的开发者就是使用哈希函数：(h = key.hashCode()) ^ (h &gt;&gt;&gt; 16)，使返回的数组下标均匀，例如key的hashcode=766132，转换二进制就是10111011000010110100，<br>
                 用h &gt;&gt;&gt; 16取出高16位：0000 0000 0000 0000   0000 0000 0000 1011，<br>
                 则(h = key.hashCode()) ^ (h &gt;&gt;&gt; 16)的运算结果：0000 0000 0000 1011   1011 0000 1011 1111，即十进制766143，使得到的下标均匀分布。</p>
                 <pre>
