@@ -37,14 +37,12 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">May 10, 2018</span>
-									<h1>solr linux deploy</h1>
-									<p>
-Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more. Solr powers the search and navigation features of many of the world's largest internet sites. 
-                  </p>
+									<h1>linux部署：apache solr</h1>
+									<p>本章介绍一个很流行的搜索引擎---apache solr,现在最流行的搜索引擎非solr和ES必属，本文从应用入手介绍solr的部署和基本应用。</p>
 								</header>
 
                 <!-- Definition area -->
-                <h3>Definition</h3>
+                <h3>solr入门基本概念</h3>
                 <dl>
                   <dt>Collections</dt>
                   <dd>SolrCloud集群中的一个完整的逻辑上的倒排索引(什么是倒排索引?)，和一个独立的config set相关联，由一个或者多个shard组成，shard可以在不同的服务器上，shard对搜索接口的调用者来说是隐形的，搜索者不用考虑在搜索时如何指定shard，只需要传入Collection名即可。</dd>

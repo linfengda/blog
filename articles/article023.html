@@ -37,27 +37,10 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">May 02, 2018</span>
-									<h1>zookeeper linux deploy</h1>
-									<p>in distributed applications, coordination services are notoriously hard to get right. They are especially prone to errors such as race conditions and deadlock. <br>
-                  zooKeeper is a distributed, open-source coordination service for distributed applications. It exposes a simple set of primitives that distributed applications can build upon to implement higher level services for synchronization, configuration maintenance, and groups and naming. It is designed to be easy to program to, and uses a data model styled after the familiar directory tree structure of file systems. It runs in Java and has bindings for both Java and C.<br>
-                  ZooKeeper is simple. ZooKeeper allows distributed processes to coordinate with each other through a shared hierarchal namespace which is organized similarly to a standard file system. The name space consists of data registers - called znodes, in ZooKeeper parlance - and these are similar to files and directories. Unlike a typical file system, which is designed for storage, ZooKeeper data is kept in-memory, which means ZooKeeper can acheive high throughput and low latency numbers. <br>
-                  The ZooKeeper implementation puts a premium on high performance, highly available, strictly ordered access. The performance aspects of ZooKeeper means it can be used in large, distributed systems. The reliability aspects keep it from being a single point of failure. The strict ordering means that sophisticated synchronization primitives can be implemented at the client.<br>
-
-                  </p>
+									<h1>linux部署：zoopkeeper</h1>
+									<p>本章介绍如何并在3个测试服务器上部署zoopkeeper</p>
 								</header>
-
-                <!-- Definition area -->
-                <h3>Definition</h3>
-                <dl>
-                  <dt>同步原语</dt>
-                  <dd>当一个进程调用一个send原语时，在消息开始发送后，发送进程便处于阻塞状态，直至消息完全发送完毕，send原语的后继语句才能继续执行。当一个进程调用一个receive原语时，并不立即返回控制，而是等到把消息实际接收下来，并把它放入指定的接收区，才返回控制，继续执行该原语的后继指令。在这段时间它一直处于阻塞状态。上述的send和receive被称为同步通信原语或阻塞通信原语。（不懂得去复习《计算机操作系统》） </dd>
-                  <dt>数据模型和分层命名空间</dt>
-                  <dd>ZooKeeper的数据模型是内存中的一个ZNode数，由斜杠/进行分割的路径，就是一个ZNode，每个ZNode上除了保存自己的数据内容，还保存一系列属性信息； 
-                  ZooKeeper中的数据节点分为两种：持久节点和临时节点。
-                  所谓的持久节点是指一旦这个ZNode创建成功，除非主动进行ZNode的移除操作，节点会一直保存在ZooKeeper上；而临时节点的生命周期是跟客户端的会话相关联的，一旦客户端会话失效，这个会话上的所有临时节点都会被自动移除。</dd>
-                </dl>
-
-                <p></p>
+               
                 <h3>配置</h3>
                 <dl>
                   <dt>CentOS Linux release 7.4.1708 (Core)</dt>
