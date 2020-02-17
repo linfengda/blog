@@ -37,7 +37,7 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>synchronized锁升级策略</h1>
+									<h1>从synchronized关键字到锁升级策略</h1>
 								</header>
 
                 <h3>Java提供了多种多线程锁机制的实现方式，常见的有：</h3>
@@ -125,7 +125,7 @@ protected final boolean tryAcquire(int acquires) {
                 <h3>AQS</h3>
                 <p>同步队列是AQS很重要的组成部分，它是一个双端队列，遵循FIFO原则，主要作用是用来存放在锁上阻塞的线程，当一个线程尝试获取锁时，如果锁已经被占用，那么当前线程会被构造成一个Node节点加入到同步队列</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article044_001.png" alt="" />
                 </div>
 
                 <h3>乐观锁</h3>
@@ -134,7 +134,8 @@ protected final boolean tryAcquire(int acquires) {
 				<h3>悲观锁</h3>
                 <p>悲观锁是就是悲观思想，即认为写多，遇到并发写的可能性高，每次去拿数据的时候都认为别人会修改，所以每次在读写数据的时候都会上锁，java中的悲观锁就是Synchronized，AQS框架下的锁则是先尝试cas乐观锁去获取锁，获取不到，才会转换为悲观锁，如RetreenLock。</p>
 
-                <h3>锁的状态</h3>
+                <h3>synchronized关键字的锁升级策略</h3>
+                <p>在使用synchronized关键字时，Jvm为了提高锁的获取与释放效率做了优化，synchronized锁将会视情况进行锁升级，而在大多数情况下不需要升级到重量级锁状态。</p>
                 <blockquote>
                 <p>
 1.无锁状态
@@ -143,7 +144,6 @@ protected final boolean tryAcquire(int acquires) {
 4.重量级锁状态
                 </p>
                 </blockquote>
-                <p>要注意的是，这四种状态都不是Java语言中的锁，而是使用synchronized时，Jvm为了提高锁的获取与释放效率而做的优化。</p>
                 <h3>偏向锁</h3>
                 <blockquote>
                 <p>
@@ -167,7 +167,7 @@ protected final boolean tryAcquire(int acquires) {
                 </blockquote>
                 <h3>三种锁的对比</h3>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article050_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article044_002.png" alt="" />
                 </div>
 
 
