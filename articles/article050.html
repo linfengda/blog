@@ -36,48 +36,42 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-									<span class="date">May 30, 2018</span>
-									<h1>spring: DI and IOC</h1>
-									<p>this page intruduce DI and IOC in spring framework.</p>
+									<span class="date">April 20, 2018</span>
+									<h1>spring IOC原理导读之BeanDefinition</h1>
+									<p>接下来将用3篇文章介绍spring IOC控制反转的简要流程，第一篇先来了解下BeanDefinition。</p>
 								</header>
 
-				<h3>容器和bean</h3>
-                <p>
-                bean: bean就是由Spring容器初始化、装配及管理的对象。<br>
-				容器: 你可以想象成一个水池，负责容纳上面说的bean，并对bean进行管理。org.springframework.beans.factory.BeanFactory 是Spring IoC容器的实际代表者，它的职责包括：实例化、定位、配置应用程序中的对象及建立这些对象间的依赖。<br>
-				实例化bean的方式：用构造器来实例化；使用静态工厂方法实例化；使用实例工厂方法实例化<br>
-				bean的作用域：
-				</p>
-				<table style="border: 2px solid;" cellpadding="1px" cellspacing="1px">
-					<tr><td>作用域</td><td>描述</td></tr>
-					<tr><td>singleton</td><td>在每个Spring IoC容器中一个bean定义对应一个对象实例。</td></tr>
-					<tr><td>prototype</td><td>一个bean定义对应多个对象实例。</td></tr>
-					<tr><td>request</td><td>在一次HTTP请求中，一个bean定义对应一个实例；即每次HTTP请求将会有各自的bean实例， 它们依据某个bean定义创建而成。该作用域仅在基于web的Spring ApplicationContext情形下有效。</td></tr>
-					<tr><td>session</td><td>在一个HTTP Session中，一个bean定义对应一个实例。该作用域仅在基于web的Spring ApplicationContext情形下有效。</td></tr>
-					<tr><td>global session</td><td>在一个全局的HTTP Session中，一个bean定义对应一个实例。典型情况下，仅在使用portlet context的时候有效。该作用域仅在基于web的Spring ApplicationContext情形下有效。</td></tr>
-				</table>
+                <h3>spring代码中的BeanDefinition是什么？</h3>
+                <p>BeanDefinition是一个接口，有很多属性例如：类名、scope、属性、构造函数参数列表、是否是单例类、是否是懒加载等，spring将bean信息赋予BeanDefifition，在实际使用中，使用的是其实现类RootBeanDefinition和GenericBeanDefinition等。</p>
+
+                <h3>BeanDefinition从哪里来？</h3>
+                <p>大家都知道在spring中有个东西叫ApplicationContext，它有很多的实现类，我们在使用注解注入bean的时候，使用的是AnnotationConfigServletWebServerApplicationContext，也就是下面这个类。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/50/001.png" alt="" />
+                </div>
+
+
+
+
+
+
+
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/article015_002.png" alt="" />
+                </div>
+
+                <h3>HashMap的结构简介：</h3>
+
                 
-                <p>注入依赖DI：调用者不负责被调用者的实例创建工作，该工作由Spring框架中的容器来负责，它通过开发者的配置来判断实例类型，创建后再注入调用者。由于Spring容器负责被调用者实例，实例创建后又负责将该实例注入调用者，因此称为依赖注入。</p>
                 <pre>
                   <code>
-//1.	通过构造器注入依赖
-&lt;bean id=&quot;exampleBean&quot; class=&quot;examples.ExampleBean&quot;&gt;
-	&lt;constructor-arg type=&quot;int&quot; value=&quot;7500000&quot;/&gt;
-	&lt;constructor-arg type=&quot;java.lang.String&quot; value=&quot;42&quot;/&gt;
-&lt;/bean&gt;
-
-//2.	通过setter注入依赖
-public class SimpleMovieLister {
-	private MovieFinder movieFinder;
-
-	public void setMovieFinder(MovieFinder movieFinder) {
-		this.movieFinder = movieFinder;
-	}
-}
+0000 0000 0000 1011   1011 0000 1011 0100
+0000 0000 0000 0000   0000 0000 0000 1011 (h &gt;&gt;&gt; 16)
+0000 0000 0000 1011   1011 0000 1011 1111 (&amp;)
                   </code>
                 </pre>
 
-                <p>控制反转IOC：而被调用者的实例创建工作不再由调用者来创建而是由Spring来创建，控制权由应用代码转移到了外部容器，控制权发生了反转，因此称为控制反转（Inversion of Control， IoC）。</p>
+
 
 
 							</section>
