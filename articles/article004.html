@@ -37,16 +37,11 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">February 30, 2018</span>
-									<h1>String implementation and KMP match</h1>
-									<p>this page shows a implementation of String and KMP match algorithm.</p>
+									<h1>字符串的实现</h1>
+									<p>本章介绍字符串的c语言实现，并在此基础上简单介绍下KMP算法</p>
 								</header>
 
-                <!-- Introduction area -->
-                  <p>KMP算法是在Brute-Force算法的基础上同时提出的模式匹配算法，KMP算法消除了Brute-Force算法的主串比较位置在多个字符比较相等后只要一个字符不相等就回退的缺点。
-                  </p>
-
-                <p>/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////</p>
-                <p>串的C语言实现：</p>
+                <h3>串的C语言实现：</h3>
                 <!-- Code area -->
                 <pre>
                   <code>
@@ -108,7 +103,8 @@ int delete(String *str, int pos, int len) {
                   </code>
                 </pre>
 
-				<p>KMP算法的原理：</p>
+				<h3>KMP算法</h3>
+				<p>KMP算法是在Brute-Force算法的基础上同时提出的模式匹配算法，KMP算法消除了Brute-Force算法的主串比较位置在多个字符比较相等后只要一个字符不相等就回退的缺点。KMP算法的原理：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article006_010.png" alt="" />
                 </div>
