@@ -37,9 +37,9 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>spring boot chapter2</h1>
+									<h1>在spring boot中集成redis</h1>
 									<p>
-                                    How to build a efficient spring boot project. 
+                                    How to build redis in spring boot project. 
 								    </p>
 								</header>
 
@@ -51,15 +51,15 @@
                 </p>
                 <p>(1)先在application.yml中配置本地单机redis，这里有一个坑，就是在Spring Boot 1.2及更高的版本中,spring.redis.pool.max-active等属性已经过期，只能使用spring.redis.jedis.pool.max-active来代替。关于spring redis的默认配置，可以参考org.springframework.boot.autoconfigure.data.redisRedisProperties类。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_001.png" alt="" />
                 </div>
                 <p>(2)然后我们指定下redisTemplate类的序列化方式为Jackson2JsonRedisSerializer，如果不指定默认使用JdkSerializationRedisSerializer。这里说下，spring data提供了2种json序列化器，GenericJackson2JsonRedisSerializer和Jackson2JsonRedisSerializer，它们的序列化方式一样（调用的代码一样），即在序列化时将java类型和javaBean的json格式一起写入byte数组。然后在反序列化时，根据java类型将字节数组反序列化为对应类型的javaBean。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_002.png" alt="" />
                 </div>
                 <p>不同之处在于：GenericJackson2JsonRedisSerializer在反序列化时多了个参数java类型，可以根据传入的java类型反序列化。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_003.png" alt="" />
                 </div>
                 <p>我们配置下redis的序列化方式，然后测试下Jackson2JsonRedisSerializer能序列化的java类型。</p>
                 <pre>
@@ -156,14 +156,14 @@ public class Pig {
                 </pre>
                 <p>(4)使用Chapter1ApplicationTestslei类测试下redisTemplate的使用，这里我们需要先把/main/resources目录下的配置文件复制到/test/resources，否则会报找不到配置文件错误。然后我们使用上面的java类进行测试。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_004.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_004.png" alt="" />
                 </div>
                 <p>(5)Redis Desktop Manager查看信息如下，可以看到头部带有java类型信息。支持度比Protobuff好，可以看到我们使用了几乎所有常用的数据类型，包括：
                 列表，哈希表，继承，自定义类型，</br>
                 都能序列化和反序列化成功，并且没有信息丢失。</br>
                 </p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_005.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_005.png" alt="" />
                 </div>
                 <p>(6)接下来我们测试下Jackson2JsonRedisSerializer序列化器对redis数据类型： List, Set, Hash的支持。</p>
                 <h3>List类型操作</h3>
@@ -227,7 +227,7 @@ private void ListSerializeTest() {
                 </pre>
                 <p>输出的反序列化信息如下：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_007.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_007.png" alt="" />
                 </div>
 
                 <h3>Set类型操作</h3>
@@ -284,7 +284,7 @@ private void ListSerializeTest() {
                 </pre>
                 <p>输出的反序列化信息如下：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_008.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_008.png" alt="" />
                 </div>
 
                 <h3>Hash类型操作</h3>
@@ -341,7 +341,7 @@ private void HashSerializeTest() {
                 </pre>
                 <p>输出的反序列化信息如下：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_009.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_009.png" alt="" />
                 </div>
                 
                 
@@ -350,50 +350,50 @@ private void HashSerializeTest() {
                 <p>(6)接下来我们使用Protobuff实现序列化，ProtocolBuffer在谷歌被广泛用于各种结构化信息存储和交换。这里有个问题，就是ProtocolBuffer序列化时没有保存类型信息，因此在反序列化时需要传入java类型，这与org.springframework.data.redis.serializer.RedisSerializer.deserialize(@Nullable byte[] bytes)接口不兼容。该接口被设计为只处理字节数组，无法传入类型信息。</p>
                 <p>要解决这个问题，我们需要先搞清楚springframework.data.redis的api操作层的代码设计：</p> 
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_010.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_010.png" alt="" />
                 </div>
                 <p>从上面的类结构设计图中可以看出，springframework.data.redis的设计只考虑了代码职责单一性，完全没有考虑代码的可用性和扩展性，简直就是一大败笔。RedisTemplate&lt;K, V&gt;类与它使用的各个操作类之间是聚合关系，DefaultValueOperations,DefaultListOperations,DefaultSetOperations,DefaultHashOperations都是RedisTemplate&lt;K, V&gt;类的全局变量。而且，反序列化代码部分是直接写死在AbstractOperations父类中的，它与各个操作类之间是继承关系，这部分代码按道理是要解耦出来，让开发人员可以扩展。综上所述，如果我们要在springframework.data.redis中完美集成ProtocolBuffer这种反序列化时需要类型信息的序列化方式，需要重构整个springframework.data.redis的api操作层的代码，这简直太恐怖了。这就是老程序员们为什么一直强调代码设计要可扩展的原因，总有一些中二的程序员，他们的工作导致了别人需要花费数倍的工作来完成后续功能，这样的程序员我们称之为负产出程序员。</p> 
                 <p><br>所以我们退而求其次，在ProtoStuffSerializer类的deserialize(@Nullable byte[] bytes)方法中直接返回字节数组，然后在SimpleRedisTemplate4PS模板中处理。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_011.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_011.png" alt="" />
                 </div>
                 <p>这样处理其实有一个隐患，就是反序列化数组的时候，需要额外的遍历操作，这直接将反序列化的时间复杂度由原来的O(n)变成O(2n)。</p>
               	<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_012.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_012.png" alt="" />
                 </div>
                 <p>同时对于String类型，我们需要在ProtoStuffUtil反序列化方式中快捷处理，不然走ProtoStuff原来的反序列化方式会出错。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_0122.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_0122.png" alt="" />
                 </div>
 
 
                 <h3>3. protostuff的坑</h3>
                 <p>(1)不能反序列化java.sql.TimeStamp，如Myson.class的f8字段：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_013.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_013.png" alt="" />
                 </div>
                 <p>反序列化之后变成了格林威治时间+x：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_014.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_014.png" alt="" />
                 </div>
 
 				<p>(2)反序列化时按字段顺序赋值而非名称赋值，protostuff序列化一个对象时是按字段顺序把值序列化到字节码中，反序列化时也是按字段顺序赋值。如果序列化后修改了字段名称，反序列化时会将旧字段的值赋值到新字段。如序列化一个Myson.class的实例，然后修改MySecondson.class的字段名f7为f77，反序列化之后f77被赋值为f7的值：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_015.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_015.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_016.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_016.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_017.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_017.png" alt="" />
                 </div>
 
 				<p>(3)序列化后不能修改对应顺序字段的类型，如MySecondson.class中，将f7字段类型由String修改为Object，会出现反序列失败报错。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_018.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_018.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article065_019.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/65/article065_019.png" alt="" />
                 </div>
 				<p>为了避免以上问题，在使用protostuff序列化时，如果需要修改已有的实体，添加字段放到最后去就可以了。</p>
 				

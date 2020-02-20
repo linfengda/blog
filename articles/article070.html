@@ -37,10 +37,8 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>git chapter1</h1>
-									<p>
-                                    git版本控制---基础篇
-								    </p>
+									<h1>git常用分支管理套路</h1>
+									<p>git版本控制---基础篇</p>
 								</header>
 
 
@@ -66,17 +64,17 @@ git push -u origin master
                 </pre>
                 <p>然后如下图所示，可以看到本地项目被成功提交到远程仓库。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_001.png" alt="" />
                 </div>
                 <p>将项目导入intellij idea，可以看到版本控制信息。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_002.png" alt="" />
                 </div>
 
 				<h3>3. git工作区、暂存区、版本库之间的关系？</h3>
 				<p>我们自己建立的项目文件夹即工作区，在初始化git版本库之后会生成一个隐藏的文件.git，可以将该文件理解为git的版本库，而在.git文件夹里面还有很多文件，其中有一个index文件就是暂存区，如下图：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_003.png" alt="" />
                 </div>
                 <p>上图命令解释：</p>
                 <blockquote>
@@ -100,15 +98,15 @@ git diff HEAD 比较工作区和版本库的差别<br>
                 <p>实例讲解</p>
                 <p>我们修改com.linfengda.sb.chapter1.git.Test1.java文件，并新建com.linfengda.sb.chapter1.git.Test2.java文件。分别执行这3条命令结果如下：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_004.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_004.png" alt="" />
                 </div>
                 <p>从图中可以看出，工作区与暂存区、工作区与版本库都有变化，而暂存区与版本库并没有变化。而且，我们发现已经提交到暂存区的文件修改的时候才可以看出明显区别，如果只是在工作区新建一个文件，那么输入这三个命令都没有结果为空白。进一步执行git add .</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_005.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_005.png" alt="" />
                 </div>
                 <p>从图中可以看出，工作区与暂存区已经同步，暂存区与版本库、工作区与版本库没有同步。最后一步执行git commit。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_006.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_006.png" alt="" />
                 </div>
                 <p>当执行完git commit后，三个命令都没有输出结果，表明我们修改的文件已经被同步的版本库，已经被版本库管理起来了。</p>
 
@@ -119,23 +117,23 @@ git diff HEAD 比较工作区和版本库的差别<br>
                 <p>项目代码并行开发的分支，一个项目有一个master分支，多个子分支，分支代码互不影响。</p>
                 <p>这是只有一个master分支的情况，HEAD指针指向的分支就是当前分支，现在它指向master。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_007.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_007.png" alt="" />
                 </div>
                 <p>我们创建一个新的分支dev，切换到dev分支，并修改该分支的Test1.java，HEAD指针就指向dev分支，而master指针不变：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_008.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_008.png" alt="" />
                 </div>
                 <p>如果我们又切换到master分支，并修改该分支的Test1.java，master分支和dev分支各自都分别有新的提交，变成了这样：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_009.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_009.png" alt="" />
                 </div>
                 <p>这时候如果我们合并dev分支到master，就会出现冲突，需要合并冲突：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_010.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_010.png" alt="" />
                 </div>
                 <p>合并后，甚至可以删除dev分支。删除dev分支就是把dev指针给删掉，删掉后，我们就剩下了一条master分支：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_011.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_011.png" alt="" />
                 </div>
                 
                 <p>实例教程：</p>
@@ -170,7 +168,7 @@ $ git branch
 
 				<h5>master分支，所有提供给用户使用的正式版本，都在这个主分支上发布，发布完成后打标签</h5>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_015.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_015.png" alt="" />
                 </div>
 
                 <h5>develop分支</h5>
@@ -188,13 +186,13 @@ git merge --no-ff develop
                   </code>
                 </pre>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_016.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_016.png" alt="" />
                 </div>
 
                 <h5>feature分支</h5>
                 <p>master和develop。前者用于正式发布，后者用于版本测试。在生产开发中，产品会创建很多需求和若干个版本，然后把需求分到不同的版本。比如：产品规划了2个版本，1.1版本和1.2版本，1.1版本新增C模块，需要在10号上线，1.2版本升级A模块，需要在15号上线，但是它们需要同时进行开发。这时候我们就需要从develop分支上面分出feature-1.1分支和feature-1.2分支，同时进行开发。开发完成后，要再并入develop。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_017.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_017.png" alt="" />
                 </div>
                 <pre>
                   <code>
@@ -215,7 +213,7 @@ git branch -d feature-x
                 <h5>fixBug分支</h5>
                 <p>软件正式发布以后，如果出现bug。这时就需要创建一个分支，进行bug修补。我们称呼为fixbug-*分支，fixbug-*分支是直接从master分支上面分出来的。bug修补后，再合并进master和develop分支。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_018.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_018.png" alt="" />
                 </div>
                 <pre>
                   <code>
@@ -238,7 +236,7 @@ git merge --no-ff fixbug-x
 				<p>对代码的任何修改，包括 bug 修复、hotfix、新功能开发等都在单独的分支中进行。不管是一行代码的小改动，还是需要几个星期开发的新功能，都采用同样的方式来管理。当需要进行修改时，从 master 分支创建一个新的分支。新分支的名称应该简单清晰地描述该分支的作用。所有相关的代码修改都在新分支中进行。开发人员可以自由地提交代码和 push 到远程仓库。<br></p>
 				<p>当新分支中的代码全部完成之后，团队中的其他人员会对代码进行审查，提出相关的修改意见。然后在测试环境进行测试。当代码通过代码审查和测试之后，该分支的代码被合并到master分支。再从master分支部署到生产环境。<br></p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article070_019.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/70/article070_019.png" alt="" />
                 </div>
 
 				<h3>7. 一些你可能需要用到的操作</h3>

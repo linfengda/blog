@@ -37,7 +37,7 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>spring boot chapter1</h1>
+									<h1>快速搭建生产级别应用</h1>
 									<p>
                                     How to build a sample spring boot project. 
 								    </p>
@@ -59,42 +59,42 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
                 <h3>2. 怎样1分钟构建一个spring boot应用？</h3>
                 <p>(1)intel idea创建new project</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_001.png" alt="" />
                 </div>
                 <p>(2)选择Spring Initializr</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_002.png" alt="" />
                 </div>
                 <p>(3)填写项目信息</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_003.png" alt="" />
                 </div>
                 <p>(4)选择项目默认依赖web</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_004.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_004.png" alt="" />
                 </div>
                 <p>(5)项目创建完成，其中Chapter1Application是spring boot默认启动类，application.properties是默认配置文件，module1包是我新建的示例业务模块</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_005.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_005.png" alt="" />
                 </div>
                 <p>(6)项目创建完成后的pom文件如下。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_006.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_006.png" alt="" />
                 </div>
                 <p>(7)查看spring-boot-starter-parent的pom文件，发现项目结构是chapter1---->spring-boot-starter-parent---->spring-boot-dependencies，我们在spring-boot-dependencies的pom文件中看到了dependencyManagement标签，dependencyManagement标签一般声明在父POM中，用来声明依赖项的默认版本号,保证所有的子项目都是一个版本号。该依赖不会引入，因此子项目需要显示声明所需要引入的依赖。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_007.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_007.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_008.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_008.png" alt="" />
                 </div>
                 <p>(8)我们不直接依赖spring-boot-starter-parent父项目，而是maven import项目spring-boot-dependencies。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_009.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_009.png" alt="" />
                 </div>
 				<p>(9)我们删掉application.properties文件，新建application.yml文件，使用新式的语法来写配置项。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_010.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_010.png" alt="" />
                 </div>
 				<p>(10)然后在pom文件中，显式的声明必要的依赖项。</p>
 				<pre>
@@ -214,33 +214,33 @@ Spring Boot 是由 Pivotal 团队提供的全新框架，其设计目的是： �
 
                 <p>spring boot提供了一系列类似spring-boot-starter-*的模块化依赖，方便你构建你自己的项目，例如spring-boot-starter-web模块就声明了以下依赖。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_011.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_011.png" alt="" />
                 </div>
 
                 <p>(11)项目启动。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_012.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_012.png" alt="" />
                 </div>
 
                 <p>(12)接下来我们测试下DAO，这里使用mysql的示例库sakila，它的模型如下所示。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_013.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_013.png" alt="" />
                 </div>
                 <p>在spring boot2.0中，默认连接池是HikariDataSource，因为在代码实现上很高效，所以速度很优秀。我们先配置下mybatis的mapper路径和分页插件</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_014.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_014.png" alt="" />
                 </div>
                 <p>使用pagehelper进行自动分页。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_015.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_015.png" alt="" />
                 </div>
                 <p>直接使用spring boot的测试类Chapter1ApplicationTests。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_016.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_016.png" alt="" />
                 </div>
                 <p>打印信息如下。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_017.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_017.png" alt="" />
                 </div>
 
                 <p>(13)接下来我们配置下MVC，我们都知道HttpServletRequest类提供的获取请求参数方法getParameter()返回类型为java.lang.String，对于restful接口的断言不够方便，我们在这里提取HttpServletRequest的参数，封装成JSON形式的参数类，以提供获取参数的快捷接口。
@@ -444,15 +444,15 @@ public class FilmBizController extends BaseController {
                 </pre>
                 <p>返回信息如下。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_018.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_018.png" alt="" />
                 </div>
 
                 <p>(14)如果你没有声明HttpMessageConverter，spring boot2.0默认的json格式解析器为MappingJackson2HttpMessageConverter，我们这里不搞骚操作，因为Jackson目前是最快的json处理方式了。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_019.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_019.png" alt="" />
                 </div>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article064_020.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/64/article064_020.png" alt="" />
                 </div>
                 <p>(15)到这里一个准生产spring boot框架已经搭建起来了，快去试试给它添加缓存（redis）或者集群通信机制（zookeeper）吧。</p>
 

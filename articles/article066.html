@@ -321,7 +321,7 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>spring boot chapter3</h1>
+									<h1>序列化套路Jackson和Protobuff</h1>
 									<p>
 Performance testing between Jackson and Protobuff. 
 								    </p>
@@ -332,7 +332,7 @@ Performance testing between Jackson and Protobuff.
                 <h3>1. Jackson和Protobuff哪个更加高效？</h3>
                 <p>(1)我们直接使用现有的ProtoStuffSerializer类和Jackson2JsonRedisSerializer来测试Jackson和Protobuff的序列化效率，这2个类并没有做任何多余动作，不会影响测试的不变条件。这里ProtoStuffSerializer类需要额外扩展一个反序列化方法。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/66/article066_001.png" alt="" />
                 </div>
 
 				<p>(2)序列化测试的3种类型如下。</p>
@@ -388,22 +388,22 @@ public class StringClazz {
 
 				<p>(3)序列化测试场景为：一定数量的拥有相同字段类型的相同实例，使用不同方式序列化的耗时。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/66/article066_002.png" alt="" />
                 </div>
 
 				<p>(4)反序列化测试场景为：一定数量的拥有相同字段类型的相同实例，使用不同方式反序列化的耗时。</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_003.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/66/article066_003.png" alt="" />
                 </div>
 
                 <p>(5)对于一种测试类型，我们的不变性条件为实例类型+测试次数，唯一变量为序列化方式，其中测试入口如下：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_004.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/66/article066_004.png" alt="" />
                 </div>
 
                 <p>(6)序列化测试：其中第一次的10^2次代码运行为了排除jvm优化和代码优化生效的影响，真正的测试次数为10^3,10^4,10^5,10^6：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article066_005.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/66/article066_005.png" alt="" />
                 </div>
 
                 <p>(7)我们分别测试了整形/双精度浮点型/字符串类型的序列化和反序列化耗时，并将测试结果整理成下图的echart柱状图。其中图表的横坐标为序列化次数（10^n次），纵坐标为Protobuff或Jackson的序列化耗时。</p>
