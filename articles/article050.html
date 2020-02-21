@@ -45,7 +45,7 @@
                 <p>BeanDefinition是一个接口，有很多属性例如：类名、scope、属性、构造函数参数列表、是否是单例类、是否是懒加载等，spring将bean信息赋予BeanDefifition，在实际使用中，使用的是其实现类RootBeanDefinition，GenericBeanDefinition，AnnotatedGenericBeanDefinition等。</p>
 
                 <h3>BeanDefinition从哪里来？</h3>
-                <p>大家都知道在spring中有个东西叫ApplicationContext，它有很多的实现类，我们在使用@Component注入bean的时候，使用的就是AnnotationConfigServletWebServerApplicationContext类，在AnnotationConfigServletWebServerApplicationContext中有定义了注解Bean解析器和类路径Bean扫描器。</p>
+                <p>大家都知道在spring中有个东西叫ApplicationContext，它有很多的实现类，我们在使用@Component注入bean的时候，使用的就是AnnotationConfigServletWebServerApplicationContext类，在AnnotationConfigServletWebServerApplicationContext中有定义了注解Bean解析器和Bean扫描器。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/001.png" alt="" />
                 </div>
