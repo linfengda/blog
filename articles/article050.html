@@ -17,16 +17,21 @@
 		<!-- Wrapper -->
 			<div id="wrapper">
 
+				<!-- Intro -->
+					<div id="header">
+						<h3>坚持七分深度，五分广度，十二分的努力，为您烹饪出美味文章。</h3>
+					</div>
+
 				<!-- Header -->
 					<header id="header">
-						<a href="../index.html" class="logo">Massively</a>
+						<a href="index.html" class="logo">林丰达的技术开胃菜</a>
 					</header>
 
 				<!-- Nav -->
 					<nav id="nav">
 						<ul class="links">
-							<li><a href="../index.html">Massively</a></li>
-							<li class="active"><a href="../generic.html">Page guide</a></li>
+							<li><a href="index.html">快速浏览</a></li>
+							<li class="active"><a href="generic.html">往期回顾</a></li>
 						</ul>
 					</nav>
 
@@ -37,19 +42,19 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 20, 2018</span>
-									<h1>spring IOC原理导读之BeanDefinition</h1>
+									<h1>spring IOC原理导读之：BeanDefinition</h1>
 									<p>接下来将用3篇文章介绍spring IOC控制反转的简要流程，第一篇先来了解下BeanDefinition。</p>
 								</header>
 
-                <h3>spring代码中的BeanDefinition是什么？</h3>
-                <p>BeanDefinition是一个接口，有很多属性例如：类名、scope、属性、构造函数参数列表、是否是单例类、是否是懒加载等，spring将bean信息赋予BeanDefifition，在实际使用中，使用的是其实现类RootBeanDefinition，GenericBeanDefinition，AnnotatedGenericBeanDefinition等。</p>
+                <h3>1. BeanDefinition是什么？</h3>
+                <p>BeanDefinition是一个接口，有很多属性：类名、scope、属性、构造函数参数列表、是否是单例类、是否是懒加载等，spring将bean信息赋予BeanDefifition，实际场景使用的是RootBeanDefinition，GenericBeanDefinition，AnnotatedGenericBeanDefinition等实现类。</p>
 
-                <h3>BeanDefinition从哪里来？</h3>
-                <p>大家都知道在spring中有个东西叫ApplicationContext，它有很多的实现类，我们在使用@Component注入bean的时候，使用的就是AnnotationConfigServletWebServerApplicationContext类，在AnnotationConfigServletWebServerApplicationContext中有定义了注解Bean解析器和Bean扫描器。</p>
+                <h3>2. BeanDefinition从哪里来？</h3>
+                <p>BeanDefinition通过解析注入bean的类信息得来。例如，ApplicationContex的实现类AnnotationConfigServletWebServerApplicationContext类就定义了reader和scanner来解析注入的bean，它们会解析例如@Component注解的bean。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/001.png" alt="" />
                 </div>
-                <p>首先我们需要扫描被@Component注解的bean，然后才能解析成BeanDefinition。这些工作是由AnnotatedBeanDefinitionReader#doRegisterBean方法和ClassPathBeanDefinitionScanner#doScan方法共同完成的。</p>
+                <p>首先我们需要扫描被@Component注解的bean，然后才能解析成BeanDefinition。这些工作是由AnnotatedBeanDefinitionReader#doRegisterBean方法和ClassPathBeanDefinitionScanner#doScan方法共同完成的。过程如下：</p>
                 <h4>AnnotationConfigServletWebServerApplicationContext#postProcessBeanFactory</h4>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/002.png" alt="" />
@@ -63,50 +68,40 @@
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/004.png" alt="" />
                 </div>
 
-                <h3>BeanDefinition封装好了要到哪里去？</h3>
-                <p>BeanDefinition最后都封装成了BeanDefinitionHolder对象，然后传入了BeanDefinitionReaderUtils.registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)方法。里面的BeanDefinitionRegistry#registerBeanDefinition方法和BeanDefinitionRegistry#registerAlias方法分别以primary name和aliases name的方式注册BeanDefinition。</p>
+                <h3>3. BeanDefinition封装好了要到哪里去？</h3>
+                <p>BeanDefinition封装好了之后，紧接着被封装成了BeanDefinitionHolder，接着调用了BeanDefinitionReaderUtils.registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)方法。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/005.png" alt="" />
                 </div>
-                <p>BeanDefinitionRegistry是一个接口，AnnotationConfigServletWebServerApplicationContext实现了该接口。</p>
+                <p>BeanDefinitionReaderUtils#registerBeanDefinition方法做了2件事：</p>
+                <p>1.用BeanDefinitionRegistry#registerBeanDefinition方法以primary name的方式注册BeanDefinition；</p>
+                <p>2.用BeanDefinitionRegistry#registerAlias方法以aliases name的方式注册BeanDefinition；</p>
+                <p>那么BeanDefinitionRegistry是啥？BeanDefinitionRegistry是一个接口，spring上下文类会实现该接口，AnnotationConfigServletWebServerApplicationContext也实现了该接口：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/006.png" alt="" />
                 </div>
-                <p>具体的实现在DefaultListableBeanFactory#registerBeanDefinition方法中</p>
+                <p>具体的实现在DefaultListableBeanFactory#registerBeanDefinition方法，BeanDefinition对象被放入beanDefinitionMap中：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/007.png" alt="" />
                 </div>
-                <p>在该方法断点，可以看到apiAspect这个BeanDefinition被注册到IOC容器中。</p>
+                <p>BeanDefinitionReaderUtils#registerBeanDefinition方法中的入参BeanDefinitionRegistry registry就是spring上下文类实例，也就是说BeanDefinition封装后放到了spring上下文类中。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/008.png" alt="" />
                 </div>
-
-                <h3>BeanDefinition被注册到IOC容器中后有什么用？</h3>
-                
-                
-                
-                
-
-
-
-
-
-
-
+                <p>俗话说：边看代码边debug，神仙代码也不怕！让我们断点看看。在registerBeanDefinition方法断点，可以实例apiAspect的BeanDefinition被put到beanDefinitionMap中（被注册到IOC容器中）。</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article015_002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/50/009.png" alt="" />
                 </div>
-
-                <h3>HashMap的结构简介：</h3>
+                <p>现在我们已经对BeanDefinition有了充分的了解，那么就模拟手动注册一个BeanDefinition到spring上下文中。</p>
+                <p>1.首先让一个@Component的类实现BeanFactoryAware接口，实现setBeanFactory方法，从而获取beanFactory；</p>
+                <p>2.然后调用registerBeanDefinition方法将Dog.class的BeanDefinition注册进去；</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/50/010.png" alt="" />
+                </div>
+                <p>3.从spring上下文中获取Dog.class的实例，可以看到“旺财”已经被注入进去了，安排！</p>
 
                 
-                <pre>
-                  <code>
-0000 0000 0000 1011   1011 0000 1011 0100
-0000 0000 0000 0000   0000 0000 0000 1011 (h &gt;&gt;&gt; 16)
-0000 0000 0000 1011   1011 0000 1011 1111 (&amp;)
-                  </code>
-                </pre>
+                
 
 
 

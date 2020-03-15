@@ -17,16 +17,21 @@
 		<!-- Wrapper -->
 			<div id="wrapper">
 
+				<!-- Intro -->
+					<div id="header">
+						<h3>坚持七分深度，五分广度，十二分的努力，为您烹饪出美味文章。</h3>
+					</div>
+
 				<!-- Header -->
 					<header id="header">
-						<a href="../index.html" class="logo">Massively</a>
+						<a href="index.html" class="logo">林丰达的技术开胃菜</a>
 					</header>
 
 				<!-- Nav -->
 					<nav id="nav">
 						<ul class="links">
-							<li><a href="../index.html">Massively</a></li>
-							<li class="active"><a href="../generic.html">Page guide</a></li>
+							<li><a href="index.html">快速浏览</a></li>
+							<li class="active"><a href="generic.html">往期回顾</a></li>
 						</ul>
 					</nav>
 
@@ -36,573 +41,89 @@
 						<!-- Post -->
 							<section class="post">
 								<header class="major">
-									<span class="date">May 30, 2018</span>
-									<h1>spring: AOP</h1>
-									<p>this page intruduce AOP in spring framework.</p>
+									<span class="date">April 20, 2018</span>
+									<h1>spring IOC原理导读之：创建实例</h1>
+									<p>上一章我们讲完了BeanDefinition，接下我们继续来讲创建实例。</p>
 								</header>
 
+				<h3>1. BeanDefinition创建好了一脸懵逼？</h3>
+                <p>不用懵逼，获取到完整的RootBeanDefintion后，就可以拿这份定义信息来实例化Bean。</p>
 
-                <p>AOP(Aspect Oriented Programming)，是面向切面编程的技术。AOP基于IoC基础，是对OOP的有益补充。</p>
-                <p>AOP之所以能得到广泛认可，主要是因为它将应用系统拆分分了2个部分：核心业务逻辑（Core business concerns）及横向的通用逻辑，也就是所谓的切面Crosscutting enterprise concerns。例如，所有大中型应用都要涉及到的持久化管理（Persistent）、事务管理（Transaction Management）、权限管理（Privilege Management）、日志管理（Logging）和调试管理（Debugging）等。使用AOP技术，可以让开发人员只专注核心业务，而通用逻辑则使用AOP技术进行横向切入，由专人去处理这些通用逻辑，会使得任务简单明了，提高开发和调试的效率。</p>
+                <h3>2. 如何实例化Bean？</h3>
+				<p>我们编写一个Service来简单构造IOC场景：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_001.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/001.png" alt="" />
                 </div>
-
-                <h3>要想了解AOP，首先得了解几个重要的基本概念：</h3>
-                <p>
-			    切面（Aspect）：一个关注点的模块化，这个关注点实现可能另外横切多个对象。比如说事务管理就是J2EE应用中一个很好的横切关注点例子。切面用Spring的Advisor或拦截器实现。<br>
-			    连接点（Joinpoint）：程序执行过程中明确的点，如方法的调用或特定的异常被抛出。<br>
-			    通知（Advice）：在特定的连接点，AOP框架执行的动作。<br>
-			    切入点（Pointcut）：指定一个通知将被引发的一系列连接点的集合。使用正则表达式表示。<br>
-			    目标对象（Target Object）：包含连接点的对象，也被称作被通知或被代理对象。<br>
-			    AOP代理（AOP Proxy）：AOP框架创建的对象，包含通知。在Spring中，AOP代理可以是JDK动态代理或CGLIB代理。<br>
-			    编织（Weaving）：组装方面来创建一个被通知对象。这可以在编译时完成（例如使用AspectJ编译器），也可以在运行时完成。Spring和其他纯Java AOP框架一样，在运行时完成织入。
-				</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_002.png" alt="" />
-                </div>
-
-                <h3>各种通知（Advice）类型：</h3>
-                <p>
-			    Before advice：在某连接点（JoinPoint）之前执行的通知，但这个通知不能阻止连接点前的执行。
-				ApplicationContext中在&lt;aop:aspect&gt;里面使用&lt;aop:before&gt;元素进行声明。<br>
-				After advice：当某连接点退出的时候执行的通知（不论是正常返回还是异常退出）。
-				ApplicationContext中在&lt;aop:aspect&gt;里面使用&lt;aop:after&gt;元素进行声明。<br>
-				After returnadvice：在某连接点正常完成后执行的通知，不包括抛出异常的情况。
-				ApplicationContext中在&lt;aop:aspect&gt;里面使用&lt;aop:after-returning&gt;元素进行声明。<br>
-				Around advice：包围一个连接点的通知，类似Web中Servlet规范中的Filter的doFilter方法。可以在方法的调用前后完成自定义的行为，也可以选择不执行。
-				ApplicationContext中在&lt;aop:aspect&gt;里面使用&lt;aop:around&gt;元素进行声明。<br>
-				Afterthrowing advice：在方法抛出异常退出时执行的通知。<br>
-				ApplicationContext中在&lt;aop:aspect&gt;里面使用&lt;aop:after-throwing&gt;元素进行声明。
-				</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_003.png" alt="" />
-                </div>
-
-                <h3>Spring Aop实例之xml配置 ：</h3>
-                <p>1. 定义一个service类</p>
-                <pre>
-                  <code>
-package com.linfengda.spring.aop;
-
-public interface UserManager {
-	
-	public String findUserById(int userId);
-
-}
-
-package com.linfengda.spring.aop;
-
-public class UserManagerImpl implements UserManager {
-
-	@Override
-	public String findUserById(int userId) {
-		System.out.println("---------UserManagerImpl.findUserById()--------");
-		if (userId <= 0) {
-			throw new IllegalArgumentException("该用户不存在!"); 
-		}
-		return "张三";
-	}
-
-}
-                  </code>
-                </pre>
-				<p>2. 定义一个Advice通知类进行测试。这个通知类可以换成安全性检测、日志管理等等</p>
-                <pre>
-                  <code>
-package com.linfengda.spring.aop;
-
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
-
-/**
- * 
- * @author 玄葬
- */
-public class XMLAdvice {
-	
-	
-	/**
-	 * 在核心业务执行前执行，不能阻止核心业务的调用。
-	 * @param joinPoint
-	 */
-	private void doBefore(JoinPoint joinPoint) {
-		System.out.println("-----doBefore().invoke-----");
-		System.out.println(" 此处意在执行核心业务逻辑前，做一些安全性的判断等等");
-		System.out.println(" 可通过joinPoint来获取所需要的内容");
-		System.out.println("-----End of doBefore()------");
-	}
-	
-	/**
-	 * 手动控制调用核心业务逻辑，以及调用前和调用后的处理,
-	 * 
-	 * 注意：当核心业务抛异常后，立即退出，转向After Advice
-	 * 执行完毕After Advice，再转到Throwing Advice
-	 * @param pjp
-	 * @return
-	 * @throws Throwable
-	 */
-	private Object doAround(ProceedingJoinPoint pjp) throws Throwable {
-		System.out.println("-----doAround().invoke-----");
-		System.out.println(" 此处可以做类似于Before Advice的事情");
-		
-		//调用核心逻辑
-		Object retVal = pjp.proceed();
-		
-		System.out.println(" 此处可以做类似于After Advice的事情");
-		System.out.println("-----End of doAround()------");
-		return retVal;
-	}
-
-	/**
-	 * 核心业务逻辑退出后（包括正常执行结束和异常退出），执行此Advice
-	 * @param joinPoint
-	 */
-	private void doAfter(JoinPoint joinPoint) {
-		System.out.println("-----doAfter().invoke-----");
-		System.out.println(" 此处意在执行核心业务逻辑之后，做一些日志记录操作等等");
-		System.out.println(" 可通过joinPoint来获取所需要的内容");
-		System.out.println("-----End of doAfter()------");
-	}
-	
-	/**
-	 * 核心业务逻辑调用正常退出后，不管是否有返回值，正常退出后，均执行此Advice
-	 * @param joinPoint
-	 */
-	private void doReturn(JoinPoint joinPoint) {
-		System.out.println("-----doReturn().invoke-----");
-		System.out.println(" 此处可以对返回值做进一步处理");
-		System.out.println(" 可通过joinPoint来获取所需要的内容");
-		System.out.println("-----End of doReturn()------");
-	}
-	
-	/**
-	 * 核心业务逻辑调用异常退出后，执行此Advice，处理错误信息
-	 * @param joinPoint
-	 * @param ex
-	 */
-	private void doThrowing(JoinPoint joinPoint,Throwable ex) {
-		System.out.println("-----doThrowing().invoke-----");
-		System.out.println(" 错误信息："+ex.getMessage() + "此处意在执行核心业务逻辑出错时，捕获异常，并可做一些日志记录操作等等");
-		System.out.println(" 可通过joinPoint来获取所需要的内容");
-		System.out.println("-----End of doThrowing()------");
-	}
-
-}
-                  </code>
-                </pre>
-                <p>3. 定义一个切面</p>
-                <pre>
-                  <code>
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-	     xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-	     xmlns:aop=&quot;http://www.springframework.org/schema/aop&quot;
-	     xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
-	     xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
-           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd&quot;&gt;
-             
-	
-	&lt;bean id=&quot;userManager&quot; class=&quot;com.linfengda.spring.aop.UserManagerImpl&quot;/&gt;
-	
-	&lt;bean id=&quot;xmlHandler&quot; class=&quot;com.linfengda.spring.aop.XMLAdvice&quot; /&gt;
-	&lt;aop:config&gt;
-		&lt;aop:aspect id=&quot;aspect&quot; ref=&quot;xmlHandler&quot;&gt;
-			&lt;aop:pointcut id=&quot;pointUserMgr&quot; expression=&quot;execution(* com.linfengda.spring.aop.*.find*(..))&quot;/&gt;
-			
-			&lt;aop:before method=&quot;doBefore&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-			&lt;aop:after method=&quot;doAfter&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-			&lt;aop:around method=&quot;doAround&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-			&lt;aop:after-returning method=&quot;doReturn&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-			&lt;aop:after-throwing method=&quot;doThrowing&quot; throwing=&quot;ex&quot; pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-			
-		&lt;/aop:aspect&gt;
-	&lt;/aop:config&gt;
-&lt;/beans&gt;
-                  </code>
-                </pre>
-                <p>4. 进行测试一下</p>
-                <pre>
-                  <code>
-package demossm;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import com.linfengda.spring.aop.UserManager;
-
-public class TestAOP {
-	private BeanFactory factory;
-	
-	
-	@Before
-	public void init() {
-		factory = new ClassPathXmlApplicationContext("applicationContext.xml");
-	}
-	
-	@Test
-	public void test1() {
-		UserManager userManager = (UserManager) factory.getBean("userManager");
-		// 可以查找张三
-		userManager.findUserById(1);
-	}
-	
-	@Test
-	public void test2() {
-		try {
-			// 查不到数据，会抛异常，异常会被AfterThrowingAdvice捕获
-			UserManager userManager = (UserManager) factory.getBean("userManager");
-			userManager.findUserById(0);
-		} catch (IllegalArgumentException e) {
-		}
-	}
-}
-                  </code>
-                </pre>
-
-                <p>测试的结果如图所示：</p>
-				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_004.png" alt="" />
-                </div>
-                <p>值得注意的是Around、Before、After、Return的执行顺序，3者的执行顺序取决于在xml中的配置顺序。图中标记了3块，分别对应Before，Around，Return。其中Around中包含有Return，这是因为aop:after配在aop:around的前面，而Around是先执行的，执行完之后直接执行Return，所以After的位置反而在最后。如果将aop:around配在aop:after和aop:after-returning前面，这三块就会分开独立显示：</p>
-                <pre>
-                  <code>
-&lt;aop:before method=&quot;doBefore&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-&lt;aop:around method=&quot;doAround&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-&lt;aop:after method=&quot;doAfter&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-&lt;aop:after-returning method=&quot;doReturn&quot;  pointcut-ref=&quot;pointUserMgr&quot;/&gt;
-                  </code>
-                </pre>
+                <p>创建实例的入口在AbstractAutowireCapableBeanFactory#createBeanInstance方法：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_005.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/002.png" alt="" />
                 </div>
+                <p>有三种实例化方式，分别是：</p>
+                <p>1. 使用工厂方法创建实例</p>
+                <p>2. 使用有参构造函数创建实例</p>
+                <p>3. 使用无参构造函数创建实例</p>
+                <p>废话少说眼见为实，我们在AbstractAutowireCapableBeanFactory#createBeanInstance方法打一个断点：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/003.png" alt="" />
+                </div>
+                <p>可以清晰的看到spring使用无参构造函数创建实例demoService2。</p>
+                <p>具体来说，spring使用实例化策略类SimpleInstantiationStrategy#instantiate方法来创建实例：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/004.png" alt="" />
+                </div>
+                <p>然后使用BeanUtils#instantiateClass方法来创建实例：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/005.png" alt="" />
+                </div>
+                <p>最后使用ctor.newInstance(args)方法，通过反射构造函数创建了demoService2实例。</p>
 
-                <p>当有异常抛出时，Return不会执行，Before、After、Throwing会执行，Around只会执行Before Advice部分：</p>
+                <h3>3. 现在我们已经创建了demoService2实例，但是它依赖的demoService实例是怎么注入的呢？</h3>
+                <p>答案是通过AbstractAutowireCapableBeanFactory#populateBean方法:</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/006.png" alt="" />
+                </div>
+                <p>该方法会获取当前BeanFactory的所有InstantiationAwareBeanPostProcessor，然后逐个遍历调用postProcessPropertyValues方法：</p>
 				<div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/article061_006.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/007.png" alt="" />
+                </div>
+                <p>可以看到总共有19个InstantiationAwareBeanPostProcessor，其中CommonAnnotationBeanPostProcessor负责注入@Resource注解的bean，AutowiredAnnotationBeanPostProcessor负责注入@Autowired注解的bean。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/007.png" alt="" />
+                </div>
+                <h4>CommonAnnotationBeanPostProcessor#postProcessPropertyValues</h4>
+                <p>该方法调用了InjectionMetadata#inject方法，注入依赖的demoService实例：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/008.png" alt="" />
+                </div>
+                <p>然后使用InjectionMetadata类的内部类InjectedElement#inject方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/009.png" alt="" />
+                </div>
+                <p>最后通过反射将demoService实例填充到属性private DemoService demoService上去：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/010.png" alt="" />
                 </div>
 
-                <h3>Spring Aop实例之注解配置 ：</h3>
-                
-                <p>1. 注解</p>
-                <pre>
-                  <code>
-/**
- * 
- * @author 玄葬
- */
-@Aspect
-public class AspceJAdvice {
+                <h3>4. 这里漏了一个环节，demoService实例是怎么来的？</h3>
+                <p>demoService实例封装在InjectionMetadata中，我们回到CommonAnnotationBeanPostProcessor#postProcessPropertyValues方法，可以看到InjectionMetadata是通过CommonAnnotationBeanPostProcessor#buildResourceMetadata方法构建的：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/011.png" alt="" />
+                </div>
+                <p>InjectionMetadata类有2个主要属性，targetClass（要被安排注入bean的目标类）和injectedElements（即将被注入的bean列表）：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/012.png" alt="" />
+                </div>
+                <p>AutowiredAnnotationBeanPostProcessor注入@Autowired注解的bean原理是一样的，同时spring还有使用构造器注入bean，使用setter方法注入bean等方式，这些方式也是通过一系列InstantiationAwareBeanPostProcessor#postProcessPropertyValues方法进行处理的。</p>
 
-	/**
-	 * Pointcut
-	 * 定义Pointcut，Pointcut的名称为aspectjMethod()，此方法没有返回值和参数
-	 * 该方法就是一个标识，不进行调用
-	 */
-	@Pointcut("execution(* find*(..))")
-	private void aspectjMethod(){};
-	
-	/** 
-	 * Before
-	 * 在核心业务执行前执行，不能阻止核心业务的调用。
-	 * @param joinPoint 
-	 */  
-	@Before("aspectjMethod()")  
-	public void beforeAdvice(JoinPoint joinPoint) {  
-		System.out.println("-----beforeAdvice().invoke-----");
-		System.out.println(" 此处意在执行核心业务逻辑前，做一些安全性的判断等等");
-		System.out.println(" 可通过joinPoint来获取所需要的内容");
-		System.out.println("-----End of beforeAdvice()------");
-	}
-	
-	/** 
-	 * After 
-	 * 核心业务逻辑退出后（包括正常执行结束和异常退出），执行此Advice
-	 * @param joinPoint
-	 */
-	@After(value = "aspectjMethod()")  
-	public void afterAdvice(JoinPoint joinPoint) {  
-		System.out.println("-----afterAdvice().invoke-----");
-		System.out.println(" 此处意在执行核心业务逻辑之后，做一些日志记录操作等等");
-		System.out.println(" 可通过joinPoint来获取所需要的内容");
-		System.out.println("-----End of afterAdvice()------");
-	}  
+                <h3>5. 致命三连击-DemoService2的构造器方法与InstantiationAwareBeanPostProcessor#postProcessPropertyValues方法哪个先调用？</h3>
+                <p>肯定是构造器方法先调用</p>
 
-	/** 
-	 * Around 
-	 * 手动控制调用核心业务逻辑，以及调用前和调用后的处理,
-	 * 
-	 * 注意：当核心业务抛异常后，立即退出，转向AfterAdvice
-	 * 执行完AfterAdvice，再转到ThrowingAdvice
-	 * @param pjp
-	 * @return
-	 * @throws Throwable
-	 */ 
-	@Around(value = "aspectjMethod()")  
-	public Object aroundAdvice(ProceedingJoinPoint pjp) throws Throwable {  
-		System.out.println("-----aroundAdvice().invoke-----");
-		System.out.println(" 此处可以做类似于Before Advice的事情");
-		
-		//调用核心逻辑
-		Object retVal = pjp.proceed();
-		System.out.println(" 此处可以做类似于After Advice的事情");
-		System.out.println("-----End of aroundAdvice()------");
-		return retVal;
-	}  
-	
-	/** 
-	 * AfterReturning 
-	 * 核心业务逻辑调用正常退出后，不管是否有返回值，正常退出后，均执行此Advice
-	 * @param joinPoint
-	 */ 
-	@AfterReturning(value = "aspectjMethod()", returning = "retVal")  
-	public void afterReturningAdvice(JoinPoint joinPoint, String retVal) {  
-	    System.out.println("-----afterReturningAdvice().invoke-----");
-	    System.out.println("Return Value: " + retVal); 
-		System.out.println(" 此处可以对返回值做进一步处理");
-		System.out.println(" 可通过joinPoint来获取所需要的内容");
-		System.out.println("-----End of afterReturningAdvice()------");
-	}
-	
-	/**
-	 * 核心业务逻辑调用异常退出后，执行此Advice，处理错误信息
-	 * 
-	 * 注意：执行顺序在Around Advice之后
-	 * @param joinPoint
-	 * @param ex
-	 */
-	@AfterThrowing(value = "aspectjMethod()", throwing = "ex")  
-	public void afterThrowingAdvice(JoinPoint joinPoint, Exception ex) {  
-		System.out.println("-----afterThrowingAdvice().invoke-----");
-		System.out.println(" 错误信息："+ex.getMessage() + "此处意在执行核心业务逻辑出错时，捕获异常，并可做一些日志记录操作等等");
-		System.out.println(" 可通过joinPoint来获取所需要的内容");
-		System.out.println("-----End of afterThrowingAdvice()------");  
-	}  
-}
-                  </code>
-                </pre>
-                <p>2. 配置业务service和Aspect bean，并启用Aspect注解</p>
-                <pre>
-                  <code>
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+                <h3>6. 致命三连击-DemoService2的@PostConstruct方法与InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation方法哪个先调用？</h3>
+                <p>@PostConstruct方法先调用</p>
 
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-	     xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-	     xmlns:aop=&quot;http://www.springframework.org/schema/aop&quot;
-	     xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
-	     xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
-           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd&quot;&gt;
-           
-    &lt;!-- 启用AspectJ对Annotation的支持 --&gt;       
-	&lt;aop:aspectj-autoproxy/&gt;           
-	
-	&lt;bean id=&quot;userManager&quot; class=&quot;com.linfengda.spring.aop.UserManagerImpl&quot;/&gt;
-	&lt;bean id=&quot;aspcejHandler&quot; class=&quot;com.linfengda.spring.aop.AspceJAdvice&quot;/&gt;
-	
-&lt;/beans&gt;
-                  </code>
-                </pre>
+                <h3>7. 致命三连击-InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation方法可以用来做什么？</h3>
+                <p>可以让postProcessBeforeInstantiation返回一个代理类，例如我们在项目中需要做AOP的东西，可以自己实现一个InstantiationAwareBeanPostProcessor，然后在postProcessBeforeInstantiation方法中，对指定类型进行代理，然后返回该代理，就能实现AOP的功能。</p>
 
-                <p>
-                	Spring中AOP的两种代理方式：Java动态代理和CGLIB代理<br>
-                	原理区别：<br>
-					java动态代理是利用反射机制生成一个实现代理接口的匿名类，在调用具体方法前调用InvokeHandler来处理。而cglib动态代理是利用asm开源包，对代理对象类的class文件加载进来，通过修改其字节码生成子类来处理。<br>
-
-					1、如果目标对象实现了接口，默认情况下会采用JDK的动态代理实现AOP<br>
-					2、如果目标对象实现了接口，可以强制使用CGLIB实现AOP<br>
-					3、如果目标对象没有实现接口，必须采用CGLIB库，spring会自动在JDK动态代理和CGLIB之间转换<br>
-                </p>
-
-				<h3>1. 静态代理</h3>
-				<p>被代理类为GreetingImpl</p>
-                <pre>
-                  <code>
-package com.linfengda.spring.aop;
-
-public interface Greeting {
-	
-	void sayHello(String name);
-
-}
-...
-
-package com.linfengda.spring.aop;
-
-public class GreetingImpl implements Greeting {
-
-	@Override
-	public void sayHello(String name) {
-		
-		System.out.println("Hello! " + name);
-	}
-
-}
-                  </code>
-                </pre>
-                <p>我们要在sayHello接口方法中加入切面，最简单的解决方案就是使用静态代理模式了，我们单独为 GreetingImpl 这个类写一个代理类： </p>
-                <pre>
-                  <code>
-package com.linfengda.spring.aop;
-
-public class GreetingProxy implements Greeting {
-	
-	private GreetingImpl greetingImpl;
-
-    public GreetingProxy(GreetingImpl greetingImpl) {
-        this.greetingImpl = greetingImpl;
-    }
-
-    @Override
-    public void sayHello(String name) {
-        before();
-        greetingImpl.sayHello(name);
-        after();
-    }
-
-    private void before() {
-        System.out.println("Before");
-    }
-
-    private void after() {
-        System.out.println("After");
-    }
-
-}
-                  </code>
-                </pre>
-                <p>就用这个 GreetingProxy 去代理 GreetingImpl，测试一下： </p>
-                <pre>
-                  <code>
-@Test
-public void test1() {
-	Greeting greetingProxy = new GreetingProxy(new GreetingImpl());
-    greetingProxy.sayHello("Jack");
-}
-                  </code>
-                </pre>
-                <p>这样写没错，但是写死了。</p>
-
-                <h3>2. JDK动态代理</h3>
-                <pre>
-                  <code>
-package com.linfengda.spring.aop;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
-public class JDKDynamicProxy implements InvocationHandler {
-
-	private Object target;
-
-    public JDKDynamicProxy(Object target) {
-        this.target = target;
-    }
-
-    @SuppressWarnings(&quot;unchecked&quot;)
-    public &lt;T&gt; T getProxy() {
-        return (T) Proxy.newProxyInstance(
-            target.getClass().getClassLoader(),
-            target.getClass().getInterfaces(),
-            this
-        );
-    }
-
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        before();
-        Object result = method.invoke(target, args);
-        after();
-        return result;
-    }
-
-    private void before() {
-        System.out.println(&quot;Before&quot;);
-    }
-
-    private void after() {
-        System.out.println(&quot;After&quot;);
-    }
-
-}
-                  </code>
-                </pre>
-                <p>测试一下： </p>
-                <pre>
-                  <code>
-@Test
-public void test2() {
-	Greeting greeting = new JDKDynamicProxy(new GreetingImpl()).getProxy();
-    greeting.sayHello("Jack");
-}
-                  </code>
-                </pre>
-                <p>但是JDK动态代理只能代理接口，而不能代理没有接口的类。</p>
-                
-                <h3>3. CGLib 动态代理</h3>
-                <p>开源的 CGLib 类库可以代理没有接口的类，这样就弥补了 JDK 的不足。CGLib 动态代理类是这样玩的： </p>
-                <pre>
-                  <code>
-package com.linfengda.spring.aop;
-
-import java.lang.reflect.Method;
-
-import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
-
-public class CGLibDynamicProxy implements MethodInterceptor {
-
-	private static CGLibDynamicProxy instance = new CGLibDynamicProxy();
-
-    private CGLibDynamicProxy() {
-    }
-
-    public static CGLibDynamicProxy getInstance() {
-        return instance;
-    }
-
-    @SuppressWarnings(&quot;unchecked&quot;)
-    public &lt;T&gt; T getProxy(Class&lt;T&gt; cls) {
-        return (T) Enhancer.create(cls, this);
-    }
-
-    @Override
-    public Object intercept(Object target, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        before();
-        Object result = proxy.invokeSuper(target, args);
-        after();
-        return result;
-    }
-
-    private void before() {
-        System.out.println(&quot;Before&quot;);
-    }
-
-    private void after() {
-        System.out.println(&quot;After&quot;);
-    }
-}
-                  </code>
-                </pre>
-                <p>测试一下： </p>
-                <pre>
-                  <code>
-@Test
-public void test3() {
-	Greeting greeting = CGLibDynamicProxy.getInstance().getProxy(GreetingImpl.class);
-    greeting.sayHello("Jack");
-}
-                  </code>
-                </pre>
-
-                <p><a href="https://my.oschina.net/huangyong/blog/161338?spm=a2c4e.11153940.blogcont39075.4.424a4e53Yowr7D">
-                推荐博客：AOP 那点事儿 （黄勇）</a></p>
 
 
 

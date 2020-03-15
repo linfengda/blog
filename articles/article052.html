@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Intro -->
+					<div id="header">
+						<h3>坚持七分深度，五分广度，十二分的努力，为您烹饪出美味文章。</h3>
+					</div>
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">林丰达的技术开胃菜</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">快速浏览</a></li>
+							<li class="active"><a href="generic.html">往期回顾</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 20, 2018</span>
+									<h1>spring IOC原理导读之：解决循环依赖</h1>
+									<p>上一章我们讲完了创建实例的过程，接下我们继续来讲解决循环依赖。</p>
+								</header>
+
+				<h3>1. 什么是循环依赖？</h3>
+                <p>举个例子，这里有三个类 A、B、C，然后A关联B，B关联C，C又关联A，这就形成了一个循环依赖。如果是方法调用是不算循环依赖的，循环依赖必须要持有引用。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/001.png" alt="" />
+                </div>
+
+                <h3>2. 循环依赖根据注入的时机分成两种类型：</h3>
+				<h4>1.构造器循环依赖。依赖的对象是通过构造器传入的，发生在实例化Bean的时候。</h4>
+                <h4>2.设值循环依赖。依赖的对象是通过setter方法传入的，对象已经实例化，发生属性填充和依赖注入的时候。</h4>
+
+                <h3>3. 单例循环依赖怎么检测？</h3>
+                <p>答案是使用一个数据结构来记录正在创建中的beanName，见DefaultSingletonBeanRegistry：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/002.png" alt="" />
+                </div>
+                <p>会在bean创建前进行记录，bean创建化后删除记录：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/003.png" alt="" />
+                </div>
+                <p>singletonsCurrentlyInCreation的数据结构是Set，是不允许重复元素的，所以一旦前面记录了，这里的add操作将会返回失败，抛出BeanCurrentlyInCreationException：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/004.png" alt="" />
+                </div>
+                <p>循环依赖检测示例图：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/005.png" alt="" />
+                </div>
+                <p>加载 A，记录singletonsCurrentlyInCreation=[a]，构造依赖B，开始加载B。</p>
+                <p>加载 B，记录singletonsCurrentlyInCreation=[a, b]，构造依赖C，开始加载C。</p>
+                <p>加载 C，记录singletonsCurrentlyInCreation=[a, b, c]，构造依赖A，又开始加载A。</p>
+                <p>加载 A，记录efaultSingletonBeanRegistry#beforeSingletonCreation方法，singletonsCurrentlyInCreation中a已经存在了，检测到构造循环依赖，直接抛出异常结束操作。</p>
+
+                <h3>3. 如何解决循环依赖？</h3>
+                <p>答案是使用3级缓存：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/006.png" alt="" />
+                </div>
+                <p>这三个缓存的区别如下：</p>
+                <p>1.singletonObjects，单例缓存，缓存已经实例化完成的单例。</p>
+                <p>2.singletonFactories，生产单例的工厂的缓存，缓存工厂。</p>
+                <p>3.earlySingletonObjects，缓存提前暴露的创建完但还未完全注入依赖的单例。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/007.png" alt="" />
+                </div>
+                <p>那么加载C实例的时候，1方法获取不到A实例，从2方法获取前暴露的A实例返回，然后大家就可以愉快的完成依赖注入了：</p>
+                
+
+
+
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

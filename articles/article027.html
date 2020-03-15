@@ -93,7 +93,8 @@ loglevel verbose
                   </code>
                 </pre>
 
-                <p>注意这里有个坑：如果你配置了save ''即关闭RDB和AOP持久化（纯内存redis有一定的使用场景），会导致主从连接失败。因为redis默认使用RDB文件进行主从同步操作，如果关闭持久化，redis就无法进行主从连接和同步。</p>
+                <h3>3. 主从复制是否需要开启redis持久化？</h3>
+                <p>答案是需要，因为redis默认使用RDB文件进行主从同步操作，如果关闭RDB和AOP持久化（配置save ''，纯内存redis有一定的使用场景），会导致主从连接失败，redis就无法进行主从连接和同步。</p>
                 <p>启动并连接所有节点（主从模式）：</p>
                 <pre>
                   <code>
@@ -161,7 +162,7 @@ b、运行ID在服务器启动时自动生成，由40个随机的十六进制字
 执行复制的双方——主服务器和从服务器会分别维护一个复制偏移量，通过对比主从服务器的复制偏移量，程序可以很容易地知道主从服务器是否处于一致状态；<br>
 如上图所示，partial resynchronization的时候，从服务器将向主服务器发送命令Trying a partial resynchronization (request 20d44988493adeb2f9f5f687f5c320f4da711c18:4908).，其中4908为从服务器偏移量，主服务器会将偏移量4908之后的数据都发送给从服务器，即日志Partial resynchronization request from 47.106.79.8:7004 accepted. Sending 84 bytes of backlog starting from offset 4908.；
                 </p>
-                <h4>指标2：replication backlog复制积压缓冲区</h4>
+                <h4>指标3：replication backlog复制积压缓冲区</h4>
                 <p>从服务器跟主服务器可能会因为某种原因断开一段时间，当从服务器重连的时候，不需要从主服务器进行完整重同步，如果这个时间段内主服务器写入的数据都在缓冲区，那么仅需要进行部分重同步，当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
                 <p>
 a、如果offset偏移量之后的数据（也即是偏移量offset+1开始的数据）仍然存在于复制积压缓冲区里面，那么主服务器将对从服务器执行部分重同步操作；<br>
@@ -180,7 +181,7 @@ b、如果offset偏移量之后的数据已经不存在于复制积压缓冲区�
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_010.png" alt="" />
                 </div>
 
-                <h3>3. 主从模式下容灾的具体过程？</h3>
+                <h3>4. 主从模式下容灾的具体过程？</h3>
                 <p>主从模式中，主服务器下线之后，从服务器顶上。这个过程可以自动实现，前提是我们配上了哨兵。我们先给主服务器配置3个哨兵：</p>
                 <p>哨兵1：</p>
                 <pre>
@@ -250,7 +251,7 @@ sentinel parallel-syncs master 1
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article027_015.png" alt="" />
                 </div>
-                <h3>发生主从切换后对客户端是否透明？</h3>
+                <h3>5. 发生主从切换后对客户端是否透明？</h3>
                 <p>答案是肯定的，前提客户端必须通过sentinel的方式连接，如果直连master是做不到的。</p>
                 
 
