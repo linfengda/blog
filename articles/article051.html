@@ -103,15 +103,24 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/010.png" alt="" />
                 </div>
-
-                <h3>4. 这里漏了一个环节，demoService实例是怎么来的？</h3>
-                <p>demoService实例封装在InjectionMetadata中，我们回到CommonAnnotationBeanPostProcessor#postProcessPropertyValues方法，可以看到InjectionMetadata是通过CommonAnnotationBeanPostProcessor#buildResourceMetadata方法构建的：</p>
+                <p>demoService实例是getResourceToInject方法返回的，该方法有3个重写方法：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/011.png" alt="" />
                 </div>
-                <p>InjectionMetadata类有2个主要属性，targetClass（要被安排注入bean的目标类）和injectedElements（即将被注入的bean列表）：</p>
+                <p>demoService作为被@Resource注解注入的bean，自然是使用ResourceElement#getResourceToInject方法获取的：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/012.png" alt="" />
+                </div>
+                <p>从程序断点处可以看到resourceFactory是DefaultListableBeanFactory的实例，也就是IOC容器，requestingBeanName是要求注入的实例demoService2，element.name是被注入的实例demoService。</p>
+
+                <h3>4. 这里漏了一个环节，InjectionMetadata是如何封装的？</h3>
+                <p>我们回到CommonAnnotationBeanPostProcessor#postProcessPropertyValues方法，可以看到InjectionMetadata是通过CommonAnnotationBeanPostProcessor#buildResourceMetadata方法构建的：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/013.png" alt="" />
+                </div>
+                <p>InjectionMetadata类有2个主要属性，targetClass（要被安排注入bean的目标类）和injectedElements（即将被注入的bean列表）：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/014.png" alt="" />
                 </div>
                 <p>AutowiredAnnotationBeanPostProcessor注入@Autowired注解的bean原理是一样的，同时spring还有使用构造器注入bean，使用setter方法注入bean等方式，这些方式也是通过一系列InstantiationAwareBeanPostProcessor#postProcessPropertyValues方法进行处理的。</p>
 
