@@ -37,12 +37,12 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 21, 2018</span>
-									<h1>HashMap和HashTable的区别</h1>
+									<h1>面试官逼问系列之：HashMap和HashTable的区别</h1>
 								</header>
                     <h3>HashMap和HashTable的区别</h3>
                     <blockquote>
                     <p>
-                    实现方式不同：Hashtable继承Dictionary类，而HashMap继承的是AbstractMap类。<br>
+                    实现方式不同：，HashMap继承的是AbstractMap类，而Hashtable继承Dictionary类。<br>
                     初始化容量不同：HashMap的初始容量为：16，Hashtable初始容量为：11，两者的负载因子默认都是：0.75。<br>
                     扩容机制不同：当现有容量大于总容量 * 负载因子时，HashMap扩容规则为当前容量翻倍，Hashtable扩容规则为当前容量翻倍 + 1。<br>
                     迭代器不同：HashMap 中的Iterator迭代器是fail-fast的，而 Hashtable的Enumerator不是fail-fast的。

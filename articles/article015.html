@@ -37,17 +37,18 @@
 							<section class="post">
 								<header class="major">
 									<span class="date">April 20, 2018</span>
-									<h1>HashMap</h1>
-									<p>本章介绍java中经常用到的类：HashMap</p>
+									<h1>面试官逼问系列之：HashMap</h1>
+									<p>本章彻底弄懂面试官逼问的HashMap</p>
 								</header>
-                <p>导读：hash表：通过一个哈希函数h(key)，将关键字key映射为内存单元的某个地址h(key)，并将value存储在这个内存单元中，哈希表也称散列表。</p>
+                <h3>逼问1：什么是hash表？</h3>
+                <p>hash表：通过一个哈希函数h(key)，将关键字key映射为内存单元的某个地址h(key)，并将value存储在这个内存单元中，哈希表也称散列表。</p>
 
-                <h3>Map接口接口定义了如下方法：</h3>
+                <h3>逼问2：Map接口都定义了什么方法？</h3>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article015_002.png" alt="" />
                 </div>
 
-                <h3>HashMap的结构简介：</h3>
+                <h3>逼问3：介绍下HashMap的存储结构？</h3>
                 <p>一种链表组成的数组结构，为什么是链表呢？我们都知道哈希表解决哈希冲突的方法有开放地址法和链表法，HashMap使用的是链表法。当新建一个HashMap的时候，就会初始化一个Entry数组。</p>
                 <pre>
                   <code>
@@ -95,7 +96,7 @@ transient int modCount;
                   </code>
                 </pre>
 
-                <h3>数组的容量为什么总是2的n次方？</h3>
+                <h3>逼问4：数组的容量为什么总是2的n次方？</h3>
                 <p>其实解释起来也简单，我们知道哈希表插入数据时需要根据哈希函数得到插入数据的下标，这其中就会有哈希冲突等问题出现。虽然我们能够解决哈希冲突，但是作为HashMap的开发者，肯定是要尽量避免哈希冲突的，怎么避免呢？就是使得哈希函数得到的下标在数组种尽量均匀分布。</p>
                 <pre>
                   <code>
@@ -126,7 +127,7 @@ static int indexFor(int h, int length) {
                 <p>当length总是 2 的n次方时，h &amp; (length-1)运算等价于对length取模，也就是h%length，但是&amp;比%具有更高的效率。设数组长度分别为15和16，优化后的hash码分别为8和9，那么& 运算后的结果如下： </p>
                 <img style="max-width: 100%;max-height: 100%;" src="../images/article015_004.png" alt="" />
 
-                <h3>HashMap的存实现</h3>
+                <h3>逼问5：说说HashMap的存是怎么实现的？</h3>
         		<pre>
                     <code>
 public V put(K key, V value) {
@@ -180,7 +181,7 @@ void createEntry(int hash, K key, V value, int bucketIndex) {
                   </code>
                 </pre>
 
-                <h3>HashMap的头插法和尾插法</h3>
+                <h3>逼问6：HashMap为什么将头插法改为尾插法？</h3>
                 <p>
                 	当我们将一个key-value对放入HashMap中时，先根据key的hashCode计算hash值，根据hash值得到这个元素所在Entry链表在数组中的下标， 如果这个位置上没有元素，就新建一个Entry，在这个位置上的元素将以链表的形式存放。如果有元素，就取出Entry链表，新加入的放在链头，这叫头部插入。但是，在java8之后，都是所用尾部插入了。为啥改为尾部插入呢？这是因为如果使用头部插入，在Hash扩容时会出现环形链表，假设还没扩容前链表是这样的：
                 </p>
@@ -232,7 +233,7 @@ final Entry&lt;K,V&gt; getEntry(Object key) {
                 </pre>
                 <p>查找方式为key-->hash-->Entry链表位置-->遍历Entry链表找到key和hash相等的元素。</p>
 
-                <h3>HashMap为什么是线程不安全的？</h3>
+                <h3>逼问7：HashMap为什么是线程不安全的？</h3>
                 <p>通过HashMap源码看到put/get方法都没有加同步锁，多线程情况最容易出现的就是：无法保证上一秒put的值，下一秒get的时候还是原值，所以线程安全还是无法保证。</p>
 
 							</section>
