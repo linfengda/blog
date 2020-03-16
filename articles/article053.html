@@ -43,19 +43,56 @@
 								<header class="major">
 									<span class="date">April 20, 2018</span>
 									<h1>spring AOP原理之: </h1>
-									<h1>AnnotationAwareAspectJ</h1>
-									<h1>AutoProxyCreator</h1>
+									<h1>@EnableAspectJAutoProxy注解</h1>
 									<p>接下来的三篇文章，我们来讲AOP这个小可爱。</p>
 								</header>
 
 				<h3>1. 怎么开启spring AOP？</h3>
-                <p>举个例子，这里有三个类 A、B、C，然后A关联B，B关联C，C又关联A，这就形成了一个循环依赖。如果是方法调用是不算循环依赖的，循环依赖必须要持有引用。</p>
+                <p>答案是使用@EnableAspectJAutoProxy注解开启AOP：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/53/001.png" alt="" />
                 </div>
+                <p>EnableAspectJAutoProxy注解注册了AspectJAutoProxyRegistrar.class类：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/53/002.png" alt="" />
+                </div>
+                <p>AspectJAutoProxyRegistrar.class类：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/53/003.png" alt="" />
+                </div>
+                <p>AspectJAutoProxyRegistrar#registerBeanDefinitions方法做了2件事：注册 AspectJAnnotationAutoProxyCreator ，解析@EnableAspectJAutoProxy注解。其中AopConfigUtils#registerAspectJAnnotationAutoProxyCreatorIfNecessary方法完成了AOP的所有逻辑。</p>
 
-
+                <h3>2. AspectJAutoProxyRegistrar#registerBeanDefinitions方法什么时候被调用？</h3>
+                <p>在了解AOP的逻辑之前，我们先来了解AspectJAutoProxyRegistrar#registerBeanDefinitions方法什么时候被调用的。</p>
+                <p>我们前面已经说过，Chapter1这个spring boot项目使用的IOC容器是：AnnotationConfigServletWebServerApplicationContext，</p>
+                <p>在AnnotationConfigServletWebServerApplicationContext#refresh刷新容器方法方法中，会执行invokeBeanFactoryPostProcessors方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/53/004.png" alt="" />
+                </div>
+				<p>接着执行PostProcessorRegistrationDelegate#invokeBeanFactoryPostProcessors方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/53/005.png" alt="" />
+                </div>
+                <p>接着执行PostProcessorRegistrationDelegate#invokeBeanDefinitionRegistryPostProcessors方法：（ConfigurationClassPostProcessor是spring boot配置类后置处理器）</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/53/006.png" alt="" />
+                </div>
+                <p>接着执行ConfigurationClassPostProcessor#processConfigBeanDefinitions方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/53/007.png" alt="" />
+                </div>
+                <p>在该方法中，candidates表示chapter1Application实例，parser.parse(candidates)方法会加载chapter1Application实例的所有配置类，所以耗时比较长，configClasses集合表示Chapter1Application的实例的拥有109个配置类。</p>
+                <p>接着执行ConfigurationClassBeanDefinitionReader#ConfigurationClassBeanDefinitionReader方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/53/008.png" alt="" />
+                </div>
+                <p>该方法会遍历configClasses集合中的配置类，可以看到遍历到了chapter1Application实例时，将它通过实现BeanDefinitionReader或ImportBeanDefinitionRegistrar接口注册的bean引入进来。importBeanDefinitionRegistrars表示通过@Import注解注册的Registrars集合，自然包含@EnableAspectJAutoProxy注解中@Import注册的AspectJAutoProxyRegistrar.class类。</p>
+                <p>最终看到调用了AspectJAutoProxyRegistrar#registerBeanDefinitions方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/53/009.png" alt="" />
+                </div>
                 
+
 
 
 
