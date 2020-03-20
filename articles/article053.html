@@ -31,7 +31,7 @@
 					<nav id="nav">
 						<ul class="links">
 							<li><a href="index.html">快速浏览</a></li>
-							<li class="active"><a href="generic.html">往期回顾</a></li>
+							<li class="active"><a href="../generic.html">往期回顾</a></li>
 						</ul>
 					</nav>
 
@@ -60,7 +60,7 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/53/003.png" alt="" />
                 </div>
-                <p>AspectJAutoProxyRegistrar#registerBeanDefinitions方法做了2件事：注册 AspectJAnnotationAutoProxyCreator ，解析@EnableAspectJAutoProxy注解。其中AopConfigUtils#registerAspectJAnnotationAutoProxyCreatorIfNecessary方法完成了AOP的所有逻辑。</p>
+                <p>AspectJAutoProxyRegistrar#registerBeanDefinitions方法做了2件事：注册AnnotationAwareAspectJAutoProxyCreator，解析@EnableAspectJAutoProxy注解。其中AopConfigUtils#registerAspectJAnnotationAutoProxyCreatorIfNecessary方法完成了AOP的所有逻辑。</p>
 
                 <h3>2. AspectJAutoProxyRegistrar#registerBeanDefinitions方法什么时候被调用？</h3>
                 <p>在了解AOP的逻辑之前，我们先来了解AspectJAutoProxyRegistrar#registerBeanDefinitions方法什么时候被调用的。</p>
@@ -86,11 +86,17 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/53/008.png" alt="" />
                 </div>
-                <p>该方法会遍历configClasses集合中的配置类，可以看到遍历到了chapter1Application实例时，将它通过实现BeanDefinitionReader或ImportBeanDefinitionRegistrar接口注册的bean引入进来。importBeanDefinitionRegistrars表示通过@Import注解注册的Registrars集合，自然包含@EnableAspectJAutoProxy注解中@Import注册的AspectJAutoProxyRegistrar.class类。</p>
+               
+                <p>该方法会遍历configClasses集合中的配置类，当遍历到chapter1Application实例时，importBeanDefinitionRegistrars表示通过@Import注解注册的Registrars集合，自然包含AspectJAutoProxyRegistrar.class类。</p>
+                <p>在spring boot里以下两种方式可以用来手动注入bean：</p>
+                <p>1.实现BeanDefinitionReader接口；</p>
+                <p>2.实现ImportBeanDefinitionRegistrar接口；</p>
+
                 <p>最终看到调用了AspectJAutoProxyRegistrar#registerBeanDefinitions方法：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/53/009.png" alt="" />
                 </div>
+                <p>该方法中AopConfigUtils#registerAspectJAnnotationAutoProxyCreatorIfNecessary方法负责将AnnotationAwareAspectJAutoProxyCreator注册到IOC容器，安排！</p>
                 
 
 
