@@ -81,13 +81,13 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/53/007.png" alt="" />
                 </div>
-                <p>在该方法中，candidates表示chapter1Application实例，parser.parse(candidates)方法会加载chapter1Application实例的所有配置类，所以耗时比较长，configClasses集合表示Chapter1Application的实例的拥有109个配置类。</p>
+                <p>在该方法中，candidates集合只有一个chapter1Application实例，parser.parse(candidates)方法会加载chapter1Application实例的所有配置类，所以耗时比较长，configClasses集合表示Chapter1Application的实例的拥有109个配置类。</p>
                 <p>接着执行ConfigurationClassBeanDefinitionReader#ConfigurationClassBeanDefinitionReader方法：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/53/008.png" alt="" />
                 </div>
                
-                <p>该方法会遍历configClasses集合中的配置类，当遍历到chapter1Application实例时，importBeanDefinitionRegistrars表示通过@Import注解注册的Registrars集合，自然包含AspectJAutoProxyRegistrar.class类。</p>
+                <p>该方法会遍历configClasses集合中的配置类，当遍历到chapter1Application实例时，会解析Chapter1Application类，得到所有通过@Import注解注册的importBeanDefinitionRegistrars集合，该集合自然包含AspectJAutoProxyRegistrar.class类。</p>
                 <p>在spring boot里以下两种方式可以用来手动注入bean：</p>
                 <p>1.实现BeanDefinitionReader接口；</p>
                 <p>2.实现ImportBeanDefinitionRegistrar接口；</p>
@@ -96,7 +96,7 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/53/009.png" alt="" />
                 </div>
-                <p>该方法中AopConfigUtils#registerAspectJAnnotationAutoProxyCreatorIfNecessary方法负责将AnnotationAwareAspectJAutoProxyCreator注册到IOC容器，安排！</p>
+                <p>AopConfigUtils#registerAspectJAnnotationAutoProxyCreatorIfNecessary方法负责将AnnotationAwareAspectJAutoProxyCreator注册到IOC容器，安排！</p>
                 
 
 
