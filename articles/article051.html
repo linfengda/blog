@@ -111,7 +111,7 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/012.png" alt="" />
                 </div>
-                <p>从程序断点处可以看到resourceFactory是DefaultListableBeanFactory的实例，也就是IOC容器，requestingBeanName是要求注入的实例demoService2，element.name是被注入的实例demoService。</p>
+                <p>在该方法处断点，可以看到从resourceFactory中获取到了demoService的实例，resourceFactory是DefaultListableBeanFactory的实例，也就是IOC容器，requestingBeanName是要求注入的实例demoService2。</p>
 
                 <h3>4. 这里漏了一个环节，InjectionMetadata是如何封装的？</h3>
                 <p>我们回到CommonAnnotationBeanPostProcessor#postProcessPropertyValues方法，可以看到InjectionMetadata是通过CommonAnnotationBeanPostProcessor#buildResourceMetadata方法构建的：</p>

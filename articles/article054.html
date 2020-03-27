@@ -48,7 +48,7 @@
 								</header>
 
 				<h3>1. 如果一个实例符合拦截条件，那么它什么时候才能被AOP安排一波？</h3>
-                <p>在bean实例化之后，AbstractAutowireCapableBeanFactory#initializeBean方法会遍历所有的BeanPostProcessor，这些BeanPostProcessor会对这个实例进行一些处理，例如AnnotationAwareAspectJAutoProxyCreator便是其中一个后置处理器，它会找找看有没有切面拦截了该实例，或者拦截了该实例的方法，如果有就创建相关的增强器并返回该实例的代理。</p>
+                <p>在bean实例化之后，AbstractAutowireCapableBeanFactory#initializeBean方法会遍历所有的BeanPostProcessor，这些BeanPostProcessor会对这个实例进行一些处理，例如AnnotationAwareAspectJAutoProxyCreator便是其中一个后置处理器，它首先会初始化所有的增强器，然后找找看有没有增强器匹配该实例，或者匹配该实例的方法，如果有就返回该实例的代理。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/001.png" alt="" />
                 </div>
@@ -59,14 +59,12 @@
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/002.png" alt="" />
                 </div>
 
-                <h3>3. 怎么判断一个实例要不要被代理？</h3>
-                <p>通过AbstractAdvisorAutoProxyCreator#getAdvicesAndAdvisorsForBean方法会获取的所有增强器，如果有切面切到了它，那么就创建它的代理：</p>
-                <h4>1.找到所有的增强器：</h4>
-                <p>调用AnnotationAwareAspectJAutoProxyCreator#findCandidateAdvisors方法：</p>
+                <h3>3. 怎么初始化所有的增强器？</h3>
+                <p>AbstractAdvisorAutoProxyCreator#getAdvicesAndAdvisorsForBean方法会获取的所有增强器：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/003.png" alt="" />
                 </div>
-                <h4>BeanFactoryAdvisorRetrievalHelper#findAdvisorBeans负责获取当前beanFactory中所有实现Advisor接口的切面类：</h4>
+                <h4>1.BeanFactoryAdvisorRetrievalHelper#findAdvisorBeans负责获取当前beanFactory中所有实现Advisor接口的增强器：</h4>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/004.png" alt="" />
                 </div>
@@ -74,7 +72,7 @@
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/005.png" alt="" />
                 </div>
                 <p>BeanFactoryTransactionAttributeSourceAdvisor就是负责拦截@Transactional注解并通过AOP编程实现spring事务的增强器。</p>
-                <h4>BeanFactoryAspectJAdvisorsBuilder#buildAspectJAdvisors负责获取当前beanFactory中所有@AspectJ注解的切面类，然后为它们创建增强器：</h4>
+                <h4>2.BeanFactoryAspectJAdvisorsBuilder#buildAspectJAdvisors负责获取当前beanFactory中所有@AspectJ注解的切面类，然后为它们创建增强器：</h4>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/006.png" alt="" />
                 </div>
@@ -82,14 +80,15 @@
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/007.png" alt="" />
                 </div>
                 <p>apiAspect，fastCacheAspect，hystrixAspect是@AspectJ声明的切面类，可以看到BeanFactoryAspectJAdvisorsBuilder为它们创建了增强器。</p>
-                <h4>2.获取可以应用到该实例的增强器：</h4>
-                <p>调用AopUtils#findAdvisorsThatCanApply方法：</p>
+ 
+                <h3>4. 怎么判断一个实例要不要被代理？</h3>
+                <p>调用AopUtils#findAdvisorsThatCanApply方法，获取可以应用到该实例的增强器：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/008.png" alt="" />
                 </div>
                 <p>可以看到spring获取到了可以应用到demoService2实例的增强器：BeanFactoryTransactionAttributeSourceAdvisor，这里用到了canApply方法做判断。</p>
- 
-				<h3>4. 假如一个实例的方法需要被拦截，那么如何创建它的代理？</h3>
+
+				<h3>5. 假如增强器Advisor匹配到了一个实例的方法，那么如何创建它的代理？</h3>
                 <p>通过AbstractAutoProxyCreator#wrapIfNecessary方法创建：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/009.png" alt="" />
@@ -101,11 +100,11 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/011.png" alt="" />
                 </div>
-                <p>可以看到demoService2实例找到了它的增强器：org.springframework.transaction.interceptor.BeanFactoryTransactionAttributeSourceAdvisor：</p>
+                <p>可以看到demoService2实例匹配到了增强器：org.springframework.transaction.interceptor.BeanFactoryTransactionAttributeSourceAdvisor：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/012.png" alt="" />
                 </div>
-                <p>接着调用创建createProxy为它创建代理，老铁们安排上了：</p>
+                <p>接着调用创建createProxy为它创建代理：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/012.png" alt="" />
                 </div>
@@ -117,7 +116,7 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/54/014.png" alt="" />
                 </div>
-                <p>安排！</p>
+                <p>至此，spring切面式编程完成并返回创建的代理对象！refresh()方法完成调用后代表实例初始化完成，该实例方法的执行会被相应的Interceptor代理执行，例如TransactionInterceptor。</p>
                 
                 
 

@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>lingfenda's blog</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Intro -->
+					<div id="header">
+						<h3>坚持七分深度，五分广度，十二分的努力，为您烹饪出美味文章。</h3>
+					</div>
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">林丰达的技术开胃菜</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">快速浏览</a></li>
+							<li class="active"><a href="../generic.html">往期回顾</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">April 20, 2018</span>
+									<h1>spring AOP原理之: </h1>
+									<h1>切面的优先级怎么实现</h1>
+									<p>上篇文章讲完了AbstractAutoProxyCreator增强器的创建和匹配，接下来继续讲解切面的优先级。</p>
+								</header>
+
+				<h3>1. 如果一个实例同时匹配到2个以上的增强器，哪个增强器生效？</h3>
+                <p>哪个增强器的order属性最小，哪个优先级就高。</p>
+				<div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/001.png" alt="" />
+                </div>
+
+                <h3>2. 设置了order属性如何生效？</h3>
+                <p>为了验证AOP切面顺序，我们写2个增强器：</p>
+                <h4>1. QueryCacheMethodPointcutAdvisor：</h4>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/002.png" alt="" />
+                </div>
+                <h4>2. UpdateCacheMethodPointcutAdvisor：</h4>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/003.png" alt="" />
+                </div>
+                <p>然后设置QueryCacheMethodPointcutAdvisor的order比UpdateCacheMethodPointcutAdvisor的order大1：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/004.png" alt="" />
+                </div>
+                <p>然后在SysUserServiceImpl#getUserInfo方法同时加上@ObjCache和@ObjCacheUpdate注解：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/005.png" alt="" />
+                </div>
+                <p>然后分别在QueryCacheInterceptor和UpdateCacheInterceptor打印方法执行日志：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/006.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/007.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/008.png" alt="" />
+                </div>
+				<p>可以看到ObjCache注解的拦截器queryCacheInterceptor，先于@ObjCacheUpdate注解的拦截器updateCacheInterceptor执行。</p>
+
+                <h3>3. 切面们在哪里进行排序？</h3>
+                <p>上篇文章我们说过，在doCreateBean方法中，每个bean的初始化完成后会找到所有匹配的增强器，然后进行排序，</p>
+                <p>调用AspectJAwareAdvisorAutoProxyCreator#sortAdvisors方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/009.png" alt="" />
+                </div>
+                <p>可以看到，queryCacheInterceptor确实是排在updateCacheInterceptor前面。</p>
+
+                <h3>4. 增强器们排序后如何执行？</h3>
+                <p>老铁们可能会说，这个还不简单，在拿到排序好的增强器列表后，遍历执行一遍，增强器们都完成了目标对象的代理，皆大欢喜，收工走人。实际上spring框架也是这么做的。</p>
+                <p>首先AbstractAutoProxyCreator#createProxy方法创建代理：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/010.png" alt="" />
+                </div>
+                <p>advisors就是排序好的增强器列表，进入CglibAopProxy#getProxy方法，在创建完Enhancer对象后，获取并设置它的callbackTypes：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/011.png" alt="" />
+                </div>
+                <p>new一个CglibAopProxy.DynamicAdvisedInterceptor对象，并将advised参数传入，advised参数中的advisors就是排序好的增强器列表：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/012.png" alt="" />
+                </div>
+
+                <p>CglibAopProxy.DynamicAdvisedInterceptor是一个内部类，按照spring AOP的标准实现的增强器拦截类，我们调用下SysUserServiceImpl#getUserInfo方法，能发现它被DynamicAdvisedInterceptor#intercept方法拦截：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/013.png" alt="" />
+                </div>
+                <p>它new一个CglibAopProxy.CglibMethodInvocation对象，并执行proceed方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/014.png" alt="" />
+                </div>
+                <p>CglibAopProxy.CglibMethodInvocation类的父类是ReflectiveMethodInvocation，ReflectiveMethodInvocation的proceed方法负责遍历interceptorsAndDynamicMethodMatchers，并执行链式调用：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/015.png" alt="" />
+                </div>
+                <p>可以看到proceed方法每拿到一个MethodInterceptor对象就执行它的invoke方法，并传入参数this，此时拿到的MethodInterceptor对象是queryCacheInterceptor，它执行完后会重新调用invocation.proceed()，这时候轮到下一个拦截器updateCacheInterceptor进行逻辑处理，从而实现拦截器列表的遍历执行：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/55/016.png" alt="" />
+                </div>
+
+
+                
+
+                
+                
+
+
+
+
+							</section>
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://github.com/linfengda">genius_lin</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

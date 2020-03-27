@@ -50,7 +50,7 @@
                 <p>BeanDefinition是一个接口，有很多属性：类名、scope、属性、构造函数参数列表、是否是单例类、是否是懒加载等，spring将bean信息赋予BeanDefifition，实际场景使用的是RootBeanDefinition，GenericBeanDefinition，AnnotatedGenericBeanDefinition等实现类。</p>
 
                 <h3>2. BeanDefinition从哪里来？</h3>
-                <p>BeanDefinition通过解析注入bean的类信息得来。例如，ApplicationContex的实现类AnnotationConfigServletWebServerApplicationContext类就定义了reader和scanner来解析注入的bean，它们会解析例如@Component注解的bean。</p>
+                <p>BeanDefinition通过解析注入bean的类信息得来。例如，ApplicationContex的实现类AnnotationConfigServletWebServerApplicationContext类就定义了reader和scanner来解析注入的bean，它们会解析例如@Component注解的bean：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/001.png" alt="" />
                 </div>
@@ -69,7 +69,7 @@
                 </div>
 
                 <h3>3. BeanDefinition封装好了要到哪里去？</h3>
-                <p>BeanDefinition封装好了之后，紧接着被封装成了BeanDefinitionHolder，接着调用了BeanDefinitionReaderUtils.registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)方法。</p>
+                <p>BeanDefinition封装好了之后，紧接着被封装成了BeanDefinitionHolder，接着调用了BeanDefinitionReaderUtils.registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)方法：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/005.png" alt="" />
                 </div>
@@ -84,11 +84,11 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/007.png" alt="" />
                 </div>
-                <p>BeanDefinitionReaderUtils#registerBeanDefinition方法中的入参BeanDefinitionRegistry registry就是spring上下文类实例，也就是说BeanDefinition封装后放到了spring上下文类中。</p>
+                <p>BeanDefinitionReaderUtils#registerBeanDefinition方法中的入参BeanDefinitionRegistry registry就是spring上下文类实例，也就是说BeanDefinition封装后放到了spring上下文类中：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/008.png" alt="" />
                 </div>
-                <p>俗话说：边看代码边debug，神仙代码也不怕！让我们断点看看。在registerBeanDefinition方法断点，可以实例apiAspect的BeanDefinition被put到beanDefinitionMap中（被注册到IOC容器中）。</p>
+                <p>俗话说：边看代码边debug，神仙代码也不怕！让我们断点看看。在registerBeanDefinition方法断点，可以看到apiAspect实例的BeanDefinition被put到beanDefinitionMap中（被注册到IOC容器中）：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/50/009.png" alt="" />
                 </div>
