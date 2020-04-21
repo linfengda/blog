@@ -48,12 +48,10 @@
 								</header>
 
 				<h3>1. 如果一个实例同时匹配到2个以上的增强器，哪个增强器生效？</h3>
-                <p>哪个增强器的order属性最小，哪个优先级就高。</p>
+                <p>增强器的order属性越小，优先级就越高。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/001.png" alt="" />
                 </div>
-
-                <h3>2. 设置了order属性如何生效？</h3>
                 <p>为了验证AOP切面顺序，我们写2个增强器：</p>
                 <h4>1. QueryCacheMethodPointcutAdvisor：</h4>
                 <div class="full-div">
@@ -83,45 +81,46 @@
                 </div>
 				<p>可以看到ObjCache注解的拦截器queryCacheInterceptor，先于@ObjCacheUpdate注解的拦截器updateCacheInterceptor执行。</p>
 
-                <h3>3. 切面们在哪里进行排序？</h3>
+                <h3>2. 切面们在哪里进行排序？</h3>
                 <p>上篇文章我们说过，在doCreateBean方法中，每个bean的初始化完成后会找到所有匹配的增强器，然后进行排序，</p>
-                <p>调用AspectJAwareAdvisorAutoProxyCreator#sortAdvisors方法：</p>
+                <p>排序方法AspectJAwareAdvisorAutoProxyCreator#sortAdvisors：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/009.png" alt="" />
                 </div>
                 <p>可以看到，queryCacheInterceptor确实是排在updateCacheInterceptor前面。</p>
 
-                <h3>4. 增强器们排序后如何执行？</h3>
-                <p>老铁们可能会说，这个还不简单，在拿到排序好的增强器列表后，遍历执行一遍，增强器们都完成了目标对象的代理，皆大欢喜，收工走人。实际上spring框架也是这么做的。</p>
-                <p>首先AbstractAutoProxyCreator#createProxy方法创建代理：</p>
+                <h3>3. 增强器们排序后如何执行？</h3>
+                <p>老铁们可能会说，这个还不简单，在拿到排序好的增强器列表后，遍历执行一遍，增强器们都完成了目标对象的代理，皆大欢喜，收工走人。实际上spring框架也是这么做的：</p>
+                <p>1.首先AbstractAutoProxyCreator#createProxy方法创建代理，advisors就是排序好的增强器列表：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/010.png" alt="" />
                 </div>
-                <p>advisors就是排序好的增强器列表，进入CglibAopProxy#getProxy方法，在创建完Enhancer对象后，获取并设置它的callbackTypes：</p>
+                <p>2.然后进入CglibAopProxy#getProxy方法，在使用Enhancer创建完代理对象后，需要获取并设置它的callbackTypes：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/011.png" alt="" />
                 </div>
-                <p>new一个CglibAopProxy.DynamicAdvisedInterceptor对象，并将advised参数传入，advised参数中的advisors就是排序好的增强器列表：</p>
+                <p>3.callbackTypes通过getCallbacks方法创建，需要创建CglibAopProxy.DynamicAdvisedInterceptor对象，并将advised参数传入，advised参数中的advisors就是排序好的增强器列表，该方法同时返回Callback数组给Enhancer对象使用：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/012.png" alt="" />
                 </div>
 
-                <p>CglibAopProxy.DynamicAdvisedInterceptor是一个内部类，按照spring AOP的标准实现的增强器拦截类，我们调用下SysUserServiceImpl#getUserInfo方法，能发现它被DynamicAdvisedInterceptor#intercept方法拦截：</p>
+                <p>CglibAopProxy.DynamicAdvisedInterceptor是一个按照spring AOP标准实现的增强器拦截类，，我们调用下SysUserServiceImpl#getUserInfo方法，能发现它被DynamicAdvisedInterceptor#intercept方法拦截：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/013.png" alt="" />
                 </div>
-                <p>它new一个CglibAopProxy.CglibMethodInvocation对象，并执行proceed方法：</p>
+                <p>intercept方法最后创建一个CglibAopProxy.CglibMethodInvocation对象，并执行proceed方法：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/014.png" alt="" />
                 </div>
-                <p>CglibAopProxy.CglibMethodInvocation类的父类是ReflectiveMethodInvocation，ReflectiveMethodInvocation的proceed方法负责遍历interceptorsAndDynamicMethodMatchers，并执行链式调用：</p>
+                <p>CglibAopProxy.CglibMethodInvocation类的父类是ReflectiveMethodInvocation，ReflectiveMethodInvocation实现MethodInvocation接口，并重写了proceed方法，该方法负责遍历增强器列表interceptorsAndDynamicMethodMatchers，并执行链式调用：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/015.png" alt="" />
                 </div>
-                <p>可以看到proceed方法每拿到一个MethodInterceptor对象就执行它的invoke方法，并传入参数this，此时拿到的MethodInterceptor对象是queryCacheInterceptor，它执行完后会重新调用invocation.proceed()，这时候轮到下一个拦截器updateCacheInterceptor进行逻辑处理，从而实现拦截器列表的遍历执行：</p>
+                <p>可以看到在proceed方法中遍历每个MethodInterceptor对象执行invoke方法，并传入this（也就是调用者本身，ReflectiveMethodInvocation对象，我们标注为A），此时遍历到queryCacheInterceptor，它执行完后会重新调用invocation.proceed()（A.proceed()），这时候轮到下一个拦截器updateCacheInterceptor进行逻辑处理，从而实现拦截器列表的遍历执行：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/55/016.png" alt="" />
                 </div>
+                <p>总结：1.AOP的实现原理是代理对象执行，2.多个AOP冲突时根据order链式执行。</p>
 
 
                 
