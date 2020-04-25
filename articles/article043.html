@@ -71,7 +71,7 @@
 		<p>另外，当插入二级索引时，如果索引页在索引缓存中，直接插入，如果不在，那么构架一颗BTree再插入，然后再刷新回磁盘。</p>
 
                 <h4>4.insert buff</h4>
-                <p>现在这个buff改成了change buff，change buffer是MySQL5.5加入的新特性，change buffer是insert buffer的加强，insert buffer只针对insert有效，change buffer对insert、delete、update、purge都有效。当修改一个二级索引的数据时，如果要更新的目标页在内存中，不用考虑直接插，如果不在，则将更新记录在change buffer，语句执行就结束了。 回刷磁盘有2种方式，1.下次读取该数据页的时候，将数据页和change buffer做merge，再回刷磁盘。2.等到change buffchange buff足够大会触发引擎本身主动进行回刷磁盘。通过减少磁盘回刷的次数和将随机写变成顺序写磁盘，以提高效率。</p>
+                <p>现在这个buff改成了change buff，change buffer是MySQL5.5加入的新特性，change buffer是insert buffer的加强，insert buffer只针对insert有效，change buffer对insert、delete、update、purge都有效。当修改一个二级索引的数据时，如果要更新的目标页在内存中，不用考虑直接插，如果不在，则将更新记录在change buffer，语句执行就结束了。 回刷磁盘有2种方式，1.下次读取该数据页的时候，将数据页和change buffer做merge，再回刷磁盘。2.等到change buff足够大会触发引擎本身主动回刷磁盘。这样通过减少磁盘回刷的次数和将随机写变成顺序写磁盘，以提高插入和更新速度。</p>
 
 
 
