@@ -44,37 +44,34 @@
 								</header>
 
 
-                <h3>1. 什么是innodb引擎？</h3>
+                <h3>1. 什么是mysql存储引擎？</h3>
                 <p>mysql区别于其他数据库的一个特点就是其插件式的表存储引擎。mysql插件式的存储引擎架构提供了一系列标准的服务，这些标准服务与存储引擎本身无关，是数据库系统本身需要的，如sql分析器和优化器等，而存储引擎是底层物理结构的实现。</p>
 
                 <h3>2. innodb引擎支持什么？</h3>
                 <p>支持事务 + 行锁 + BTree索引 + redo log + 内存优化等。</p>
 
-                <h3>3. innodb引擎缓冲池是什么？</h3>
+                <h3>3. innodb引擎缓冲池都有哪些缓存？</h3>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article043_001.png" alt="" />
-                </div>
-                <p>如上图所示，主要缓存数据页和索引页</p>
-                <p>1. 数据页：缓存热点数据</p>
-                <p>2. 索引页：缓存索引页，当插入二级索引时，如果索引页在索引缓存中，直接插入，如果不在，构架一颗BTree再插入，然后再刷新回磁盘。</p>
+		</div>
 
-				<h3>3. innodb引擎缓冲池有什么用？</h3>
-
-				<h4>redo log buff</h4>
-				<p>redo log在数据库更新上的优化大家都知道，下图描述了redo log在两阶段提交中的作用：</p>
-				<div class="full-div">
+		<h3>3. 这些缓存都有什么主要作用？</h3>
+		<h4>redo log buff</h4>
+		<p>redo log buff主要用来缓存redo log，下图描述了redo log在两阶段提交中的作用：</p>
+		<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/article043_002.png" alt="" />
                 </div>
                 <p>当发生数据更新时，只需要写完redo log，这条记录就算写完了，直接返回给执行器成功。redo log再异步回刷脏页到磁盘，做到了将随机写变成顺序写磁盘，以提高效率。</p>
 
-                <h4>data page</h4>
-                <p>inndb读取数据都是整页读取的，每一页的数据大小是16k，这也是唯一索引和普通索引的查询效率几乎毫无差别的原因：当普通索引找到符合条件的第一条记录时，需要多做一次查找和判断下一条记录，这条记录已经在当前页中了。data page缓存的数据页会定期异步刷新，因此如果要查询的数据页在data page中，查询速度会很快。</p>
+                <h4>data page buff</h4>
+                <p>数据页缓存，inndb读取数据都是整页读取的，每一页的数据大小是16k，这也是唯一索引和普通索引的查询效率几乎毫无差别的原因：当普通索引找到符合条件的第一条记录时，需要多做一次查找和判断下一条记录，这条记录已经在当前页中了。data page缓存的数据页会定期异步刷新，因此如果要查询的数据页在data page中，查询速度会很快。</p>
 
-                <h4>index page</h4>
+                <h4>index page buff</h4>
                 <p>索引页缓存，当使用索引进行查询时，如果索引页在内存中，可以直接走索引查找，具体速度可以参考B+树查找时间复杂度，对于一个整形的主键索引来说，B+树的每一层有上千个key，当表数据量不大时，这个搜索很快就可以结束。</p>
+		<p>另外，当插入二级索引时，如果索引页在索引缓存中，直接插入，如果不在，那么构架一颗BTree再插入，然后再刷新回磁盘。</p>
 
                 <h4>insert buff</h4>
-                <p>现在这个buff改成了change buff，change buffer是MySQL5.5加入的新特性，change buffer是insert buffer的加强，insert buffer只针对insert有效，change buffer对insert、delete、update、purge都有效。当修改一个二级索引的数据时，如果要更新的目标页在内存中，不用考虑直接插，如果不在，则将更新记录在change buffer，语句执行就结束了。 下次读取该数据页的时候，会和change buffer中修改信息merge，再回刷磁盘。change buff通过减少磁盘回刷的次数和将随机写变成顺序写磁盘，以提高效率。</p>
+                <p>现在这个buff改成了change buff，change buffer是MySQL5.5加入的新特性，change buffer是insert buffer的加强，insert buffer只针对insert有效，change buffer对insert、delete、update、purge都有效。当修改一个二级索引的数据时，如果要更新的目标页在内存中，不用考虑直接插，如果不在，则将更新记录在change buffer，语句执行就结束了。 回刷磁盘有2种方式，1.下次读取该数据页的时候，将查询结果和change buffer中修改结果做merge，再回刷磁盘。2.等到change buffchange buff足够大会触发引擎本身主动进行回刷磁盘。通过减少磁盘回刷的次数和将随机写变成顺序写磁盘，以提高效率。</p>
 
 
 
