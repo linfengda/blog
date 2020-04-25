@@ -240,7 +240,7 @@ git merge --no-ff fixbug-x
                 </div>
 
 				<h3>7. 一些你可能需要用到的操作</h3>
-				<p>从任意commit hash中新建分支</p>
+				<p>1.从任意commit hash中新建分支</p>
                 <pre>
                   <code>
 # 从commit hash新建分支：
@@ -249,7 +249,7 @@ $ git checkout -b branch_name a7666fa
 $ git push -u branch_name
                   </code>
                 </pre>
-                <p>从标签tag中新建分支</p>
+                <p>2.从标签tag中新建分支</p>
                 <pre>
                   <code>
 # 从tag_name新建分支：
@@ -258,28 +258,15 @@ $ git checkout -b branch_name tag_name
 $ git push -u branch_name
                   </code>
                 </pre>
-                <p>使用版本库还原暂存区中的文件</p>
+                <p>3.还原文件修改</p>
                 <pre>
                   <code>
+# 使用版本库还原暂存区中的文件
 $ git reset HEAD
-                  </code>
-                </pre>
-                <p>使用暂存区还原工作区中的文件</p>
-                <pre>
-                  <code>
+# 使用暂存区还原工作区中的文件
 $ git checkout file
-                  </code>
-                </pre>
-                <p>使用版本库还原工作区和暂存区中的文件</p>
-                <pre>
-                  <code>
+# 使用版本库还原暂存区和工作区中的文件
 $ git checkout HEAD file
-                  </code>
-                </pre>
-                <p>删除一个分支</p>
-                <pre>
-                  <code>
-$ git branch -d branch_name
                   </code>
                 </pre>
                 <p>当本地分支和远程分支有冲突，先合并最新代码到本地分支，再手动一行行解决冲突，解决后提交到远程分支</p>
@@ -297,7 +284,7 @@ $ git commit -m 'commit after merge'
 $ git push origin branch_name
                   </code>
                 </pre>
-                <p>如果需要切换到另一个分支进行开发，但是当前分支的代码才写到一半，不能提交时，将当前分支的代码放到暂存区</p>
+                <p>如果当前分支的代码写到一半，需要切换到另一个分支进行开发时，可以将当前分支的代码放到暂存区</p>
                 <pre>
                   <code>
 # 保存当前工作进度到暂存区：         
