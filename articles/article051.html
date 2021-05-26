@@ -50,11 +50,58 @@
                 <p>不用懵逼，获取到完整的RootBeanDefintion后，就可以拿这份定义信息来实例化Bean。</p>
 
                 <h3>2. 如何实例化Bean？</h3>
-				<p>我们编写一个Service来简单构造IOC场景：</p>
+				<p>首先我们编写一个Service类：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/001.png" alt="" />
                 </div>
-                <p>创建实例的入口在AbstractAutowireCapableBeanFactory#createBeanInstance方法：</p>
+                <p>从main方法出发：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0011.png" alt="" />
+                </div>
+                <p>进入SpringApplication#run方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0012.png" alt="" />
+                </div>
+                <p>进入org.springframework.context.support.AbstractApplicationContext#refresh方法，refresh方法负责实例化所有的bean：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0013.png" alt="" />
+                </div>
+                <p>进入org.springframework.beans.factory.support.DefaultListableBeanFactory#preInstantiateSingletons方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0014.png" alt="" />
+                </div>
+                <p>这里通过遍历beanNames列表逐个实例化bean，通过断点可以看到等待实例化的bean：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0015.png" alt="" />
+                </div>
+                <p>接着通过getBean方法创建实例：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0016.png" alt="" />
+                </div>
+                <p>进入org.springframework.beans.factory.support.AbstractBeanFactory#doGetBean方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0017.png" alt="" />
+                </div>
+                <p>在doGetBean方法中，首先会尝试从三级缓存获取bean实例（这是为了解决循环依赖，关于循环依赖将在下一章节展开）：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0018.png" alt="" />
+                </div>
+                <p>因为Demo1Service是初次实例化，因此该方法返回null。</p>
+                <p>进入org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#createBean方法来进行创建：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0019.png" alt="" />
+                </div>
+                <p>进入org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0020.png" alt="" />
+                </div>
+                <p>调用createBeanInstance方法后，bean已经实例化，但并未完成依赖注入，接下来会通过populateBean方法完成相关依赖bean注入：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/51/0021.png" alt="" />
+                </div>
+
+                <h3>3. createBeanInstance方法具体如何new bean？</h3>
+                <p>深入org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#createBeanInstance方法：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/002.png" alt="" />
                 </div>
@@ -62,11 +109,10 @@
                 <p>1. 使用工厂方法创建实例</p>
                 <p>2. 使用有参构造函数创建实例</p>
                 <p>3. 使用无参构造函数创建实例</p>
-                <p>废话少说眼见为实，我们在AbstractAutowireCapableBeanFactory#createBeanInstance方法打一个断点：</p>
+                <p>断点进入AbstractAutowireCapableBeanFactory#createBeanInstance方法，可以看到demoService2的实例是通过无参构造函数创建的。：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/003.png" alt="" />
                 </div>
-                <p>可以清晰的看到spring使用无参构造函数创建实例demoService2。</p>
                 <p>具体来说，spring使用实例化策略类SimpleInstantiationStrategy#instantiate方法来创建实例：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/004.png" alt="" />
@@ -75,9 +121,9 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/005.png" alt="" />
                 </div>
-                <p>最后使用ctor.newInstance(args)方法，通过反射构造函数创建了demoService2实例。</p>
+                <p>最后使用反射，调用构造函数ctor.newInstance(args)，创建demoService2实例。</p>
 
-                <h3>3. 现在我们已经创建了demoService2实例，但是它依赖的demoService实例是怎么注入的呢？</h3>
+                <h3>4. 现在我们已经创建了demoService2实例，但是它依赖的demoService实例是怎么注入的呢？</h3>
                 <p>答案是通过AbstractAutowireCapableBeanFactory#populateBean方法:</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/006.png" alt="" />
@@ -86,7 +132,9 @@
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/007.png" alt="" />
                 </div>
-                <p>可以看到总共有19个InstantiationAwareBeanPostProcessor，其中CommonAnnotationBeanPostProcessor负责注入@Resource注解的bean，AutowiredAnnotationBeanPostProcessor负责注入@Autowired注解的bean。</p>
+                <p>可以看到总共有19个BeanPostProcessor，其中</p>
+                <p>CommonAnnotationBeanPostProcessor负责注入@Resource注解的bean</p>
+                <p>AutowiredAnnotationBeanPostProcessor负责注入@Autowired注解的bean。</p>
 				<div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/007.png" alt="" />
                 </div>
@@ -113,7 +161,7 @@
                 </div>
                 <p>在该方法处断点，可以看到从resourceFactory中获取到了demoService的实例，resourceFactory是DefaultListableBeanFactory的实例，也就是IOC容器，requestingBeanName是要求注入的实例demoService2。</p>
 
-                <h3>4. 这里漏了一个环节，InjectionMetadata是如何封装的？</h3>
+                <h3>5. InjectionMetadata是如何封装的？</h3>
                 <p>我们回到CommonAnnotationBeanPostProcessor#postProcessPropertyValues方法，可以看到InjectionMetadata是通过CommonAnnotationBeanPostProcessor#buildResourceMetadata方法构建的：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/013.png" alt="" />
@@ -122,16 +170,6 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/51/014.png" alt="" />
                 </div>
-                <p>AutowiredAnnotationBeanPostProcessor注入@Autowired注解的bean原理是一样的，同时spring还有使用构造器注入bean，使用setter方法注入bean等方式，这些方式也是通过一系列InstantiationAwareBeanPostProcessor#postProcessPropertyValues方法进行处理的。</p>
-
-                <h3>5. 致命三连击-DemoService2的构造器方法与InstantiationAwareBeanPostProcessor#postProcessPropertyValues方法哪个先调用？</h3>
-                <p>肯定是构造器方法先调用</p>
-
-                <h3>6. 致命三连击-DemoService2的@PostConstruct方法与InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation方法哪个先调用？</h3>
-                <p>@PostConstruct方法先调用</p>
-
-                <h3>7. 致命三连击-InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation方法可以用来做什么？</h3>
-                <p>可以让postProcessBeforeInstantiation返回一个代理类，例如我们在项目中需要做AOP的东西，可以自己实现一个InstantiationAwareBeanPostProcessor，然后在postProcessBeforeInstantiation方法中，对指定类型进行代理，然后返回该代理，就能实现AOP的功能。</p>
 
 
 

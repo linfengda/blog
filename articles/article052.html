@@ -47,22 +47,72 @@
 								</header>
 
 				<h3>1. 什么是循环依赖？</h3>
-                <p>举个例子，这里有三个类 A、B、C，然后A关联B，B关联C，C又关联A，这就形成了一个循环依赖。如果是方法调用是不算循环依赖的，循环依赖必须要持有引用。</p>
+                <p>举个例子，这里有三个类 A、B、C，它们的依赖关系是：A<---B<---C，这就形成了一个循环依赖。</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/52/001.png" alt="" />
                 </div>
 
-                <h3>2. 循环依赖有几种类型？</h3>
-                <p>根据注入的时机，循环依赖分成两种类型：</p>
-				<h4>1.构造器循环依赖。依赖的对象是通过构造器传入的，发生在实例化Bean的时候。</h4>
-                <h4>2.设值循环依赖。依赖的对象是通过setter方法传入的，对象已经实例化，发生属性填充和依赖注入的时候。</h4>
-
-                <h3>3. 单例循环依赖怎么检测？</h3>
-                <p>答案是使用一个数据结构来记录正在创建中的beanName，见DefaultSingletonBeanRegistry：</p>
+                <h3>2. spring具体如何解决循环依赖？</h3>
+                <p>首先我们构造一个最简单的循环依赖场景，Demo1Service、Demo2Service互相依赖对方：</p>
                 <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/002.png" alt="" />
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/006.png" alt="" />
                 </div>
-                <p>会在bean创建前进行记录，bean创建化后删除记录：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/007.png" alt="" />
+                </div>
+                <p>DefaultListableBeanFactory#preInstantiateSingletons方法中，断点到demo1Service实例初始化的开始之处：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/008.png" alt="" />
+                </div>
+                <p>接着调用路径是：</p>
+                <p>--->AbstractBeanFactory#getBean</p>
+                <p>--->AbstractBeanFactory#doGetBean</p>
+                <p>--->DefaultSingletonBeanRegistry#getSingleton</p>
+                <p>--->AbstractAutowireCapableBeanFactory#createBean</p>
+                <p>--->AbstractAutowireCapableBeanFactory#doCreateBean：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/009.png" alt="" />
+                </div>
+                <p>createBeanInstance方法负责使用构造器创建了demo1Service实例，接着调用populateBean方法注入demo2Service属性。</p>
+                <p>populateBean方法遍历所有InstantiationAwareBeanPostProcessor类型的后置处理器，来完成依赖注入：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/010.png" alt="" />
+                </div>
+                <p>因为demo2Service属性使用@Resource注解，所以由CommonAnnotationBeanPostProcessor完成依赖注入：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/011.png" alt="" />
+                </div>
+                <p>调用路径是：</p>
+                <p>--->CommonAnnotationBeanPostProcessor#postProcessProperties</p>
+                <p>--->InjectionMetadata#inject</p>
+                <p>--->CommonAnnotationBeanPostProcessor#getResourceToInject</p>
+                <p>--->CommonAnnotationBeanPostProcessor#getResource</p>
+                <p>--->CommonAnnotationBeanPostProcessor#autowireResource</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/012.png" alt="" />
+                </div>
+                <p>最终又回到AbstractBeanFactory#getBean方法：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/013.png" alt="" />
+                </div>
+                <p>demo2Service实例同样通过以下过程创建：getBean--->doGetBean--->createBean--->doCreateBean--->createBeanInstance--->populateBean</p>
+                <p>在populateBean方法中，demo2Service的demo1Service属性同样依靠CommonAnnotationBeanPostProcessor完成注入：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/014.png" alt="" />
+                </div>
+                <p>不同之处在于，通过getBean方法获取demo1Service实例时，已经能从spring三级缓存中获取demo1Servicebean。这是因为demo1Servicebean已经初始化过，只是其依赖的demo2Service属性暂未注入。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/015.png" alt="" />
+                </div>
+                <h4>2.1. 如何判断demo1Servicebean已经初始化过？</h4>
+                <p>答案是通过这里的isSingletonCurrentlyInCreation方法，该方法中singletonsCurrentlyInCreation保存了已经创建过的bean信息：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/016.png" alt="" />
+                </div>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/017.png" alt="" />
+                </div>
+                <p>在doGetBean--->createBean方法之间，会使用singletonsCurrentlyInCreation来记录正在创建中的beanName：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/52/003.png" alt="" />
                 </div>
@@ -70,28 +120,44 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/52/004.png" alt="" />
                 </div>
-                <p>循环依赖检测示例图：</p>
+                <p>而循环依赖也是这个时候被检测出来的，下面是循环依赖检测示例图：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/52/005.png" alt="" />
                 </div>
                 <p>加载 A，记录singletonsCurrentlyInCreation=[a]，构造依赖B，开始加载B。</p>
                 <p>加载 B，记录singletonsCurrentlyInCreation=[a, b]，构造依赖C，开始加载C。</p>
                 <p>加载 C，记录singletonsCurrentlyInCreation=[a, b, c]，构造依赖A，又开始加载A。</p>
-                <p>加载 A，记录efaultSingletonBeanRegistry#beforeSingletonCreation方法，singletonsCurrentlyInCreation中a已经存在了，检测到构造循环依赖，直接抛出异常结束操作。</p>
+                <p>加载 A，记录DefaultSingletonBeanRegistry#beforeSingletonCreation方法，singletonsCurrentlyInCreation中a已经存在了，检测到构造循环依赖，直接抛出异常结束操作。</p>
+                <p>在本例中并没有那么复杂的循环依赖，而是简单A、B两个bean互相依赖，因此spring可以通过三级缓存解决。</p>
+                <h4>2.2. singletonFactory.getObject()如何获取demo1Service实例？</h4>
+                <p>可以看到getObject方法是函数式接口，它实际返回的就是之前创建的demo1Service实例：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/018.png" alt="" />
+                </div>
+                <p>这里其实是可以直接返回demo1Service实例引用的，但是却调用了getEarlyBeanReference方法，这是为了后置处理器能通过getEarlyBeanReference方法改变返回的实例：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/019.png" alt="" />
+                </div>
+                <p>于是从singletonFactories缓存的ObjectFactory中得到了之前创建的demo1Service实例：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/020.png" alt="" />
+                </div>
+                <p>完整的调用链是这样的：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/021.png" alt="" />
+                </div>
+                <p>于是在populateBean方法中，demo2Service愉快的完成了demo1Service的注入：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/022.png" alt="" />
+                </div>
+                <p>调用链回到demo1Service实例创建时调用populateBean方法时，可以看到demo2Service属性也注入成功：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/023.png" alt="" />
+                </div>
+                <p>至此，spring成功利用三级缓存解决本例循环依赖。</p>
 
-                <h3>4. 循环依赖如何解决？</h3>
-                <p>答案是使用3级缓存：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/006.png" alt="" />
-                </div>
-                <p>这三个缓存的区别如下：</p>
-                <p>1.singletonObjects，单例缓存，缓存已经实例化完成的单例。</p>
-                <p>2.singletonFactories，生产单例的工厂的缓存，缓存工厂。</p>
-                <p>3.earlySingletonObjects，缓存提前暴露的创建完但还未完全注入依赖的单例。</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/007.png" alt="" />
-                </div>
-                <p>那么加载C实例的时候，1方法获取不到A实例，从2方法获取前暴露的A实例返回，然后大家就可以愉快的完成依赖注入了：</p>
+
+              
                 
 
 

@@ -293,6 +293,17 @@ $ git stash
 $ git stash pop
                   </code>
                 </pre>
+                <p>6.删除git仓库中的文件（不改变工作区）</p>
+                <pre>
+                  <code>
+# 删除target文件夹
+$ git rm -r --cached target
+# 提交
+$ git commit -m '删除了target文件夹'
+# 提交到仓库
+$ git push -u origin master
+                  </code>
+                </pre>
                 
 				<p>参考文章：https://www.ibm.com/developerworks/cn/java/j-lo-git-mange/index.html</p>
 
