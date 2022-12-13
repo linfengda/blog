@@ -120,21 +120,13 @@
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/52/004.png" alt="" />
                 </div>
-                <p>而循环依赖也是这个时候被检测出来的，下面是循环依赖检测示例图：</p>
-                <div class="full-div">
-                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/005.png" alt="" />
-                </div>
-                <p>加载 A，记录singletonsCurrentlyInCreation=[a]，构造依赖B，开始加载B。</p>
-                <p>加载 B，记录singletonsCurrentlyInCreation=[a, b]，构造依赖C，开始加载C。</p>
-                <p>加载 C，记录singletonsCurrentlyInCreation=[a, b, c]，构造依赖A，又开始加载A。</p>
-                <p>加载 A，记录DefaultSingletonBeanRegistry#beforeSingletonCreation方法，singletonsCurrentlyInCreation中a已经存在了，检测到构造循环依赖，直接抛出异常结束操作。</p>
-                <p>在本例中并没有那么复杂的循环依赖，而是简单A、B两个bean互相依赖，因此spring可以通过三级缓存解决。</p>
+                
                 <h4>2.2. singletonFactory.getObject()如何获取demo1Service实例？</h4>
-                <p>可以看到getObject方法是函数式接口，它实际返回的就是之前创建的demo1Service实例：</p>
+                <p>可以看到getObject方法是函数式接口，这里其实是可以直接返回demo1Service实例引用的，但它却调用了getEarlyBeanReference方法：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/52/018.png" alt="" />
                 </div>
-                <p>这里其实是可以直接返回demo1Service实例引用的，但是却调用了getEarlyBeanReference方法，这是为了后置处理器能通过getEarlyBeanReference方法改变返回的实例：</p>
+                <p>这是为了后置处理器能通过getEarlyBeanReference方法改变返回的实例，例如创建代理：</p>
                 <div class="full-div">
                     <img style="max-width: 100%;max-height: 100%;" src="../images/52/019.png" alt="" />
                 </div>
@@ -156,7 +148,88 @@
                 </div>
                 <p>至此，spring成功利用三级缓存解决本例循环依赖。</p>
 
+                <h3>3. spring为什么使用三级缓存而不是两级？</h3>
+                <h4>3.1. 二级缓存无法保证多次循环依赖每次获取的对象是同一个对象</h4>
+                <p>其实简单的依赖场景使用二级缓存就可以解决，假如有以下代码：</p>
+                <pre>
+                  <code>
+@Service
+public class TestService1 {
 
+    @Autowired
+    private TestService2 testService2;
+
+    public void test1() {
+    }
+}
+
+@Service
+public class TestService2 {
+
+    @Autowired
+    private TestService1 testService1;
+
+    public void test2() {
+    }
+}
+                  </code>
+                </pre>
+                <p>这是一个经典的循环依赖，下面用一张图告诉你，spring是如何解决这种循环依赖的：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/024.png" alt="" />
+                </div>
+                <p>这种场景完全没有用到第二级缓存。那么问题来了，为什么要用第二级缓存呢？试想一下，如果出现以下这种情况，我们要如何处理？</p>
+                <pre>
+                  <code>
+@Service
+public class TestService1 {
+
+    @Autowired
+    private TestService2 testService2;
+    @Autowired
+    private TestService3 testService3;
+
+    public void test1() {
+    }
+}
+
+@Service
+public class TestService2 {
+
+    @Autowired
+    private TestService1 testService1;
+
+    public void test2() {
+    }
+}
+
+@Service
+public class TestService3 {
+
+    @Autowired
+    private TestService1 testService1;
+
+    public void test3() {
+    }
+}
+                  </code>
+                </pre>
+                <p>TestService1依赖于TestService2和TestService3</p>
+                <p>TestService2依赖于TestService1</p>
+                <p>TestService3依赖于TestService1</p>
+                <p>按照上图的流程可以把TestService1注入到TestService2，并且TestService1的实例是从第三级缓存中获取的。</p>
+                <p>假设不用第二级缓存，TestService1注入到TestService3的流程如图：</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/025.png" alt="" />
+                </div>
+                <p>TestService1注入到TestService3又需要从第三级缓存中获取实例，而第三级缓存里保存的并非真正的实例对象，而是ObjectFactory对象。说白了，两次从三级缓存中获取都是ObjectFactory对象，而通过它创建的实例对象每次可能都不一样的。这样是不是会有问题？</p>
+                <p>为了解决这个问题，spring引入的第二级缓存。TestService1实例第一次从三级缓存中被拿出来，接着已经被添加到第二级缓存中了，所以TestService3只需要从第二级缓存中获取该对象即可。</p>
+                <div class="full-div">
+                    <img style="max-width: 100%;max-height: 100%;" src="../images/52/026.png" alt="" />
+                </div>
+                <p>还有个问题，第三级缓存中为什么要添加ObjectFactory对象，直接保存实例对象不行吗？</p>
+                <p>答案是不行的，因为假如你想对添加到三级缓存中的实例对象进行增强，直接用实例对象是行不通的。</p>
+                <p>这种情况下，就需要通过getEarlyBeanReference方法改变返回的实例，创建代理。</p>
               
                 
 
